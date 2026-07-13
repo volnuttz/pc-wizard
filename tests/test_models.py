@@ -282,6 +282,19 @@ def test_level_one_spellcasting_values_and_slots(
     assert caster.spell_slots[0].recovery == recovery
 
 
+def test_level_one_class_resources_are_structured(character: Character) -> None:
+    resource = character.class_resources[0]
+
+    assert resource.name == "Arcane Recovery"
+    assert resource.maximum == 1
+    assert resource.unit == "use"
+    assert resource.recovery == "regain on Long Rest"
+    assert resource.detail == "recover 1 level(s) of spell slots"
+    assert resource.summary == (
+        "Arcane Recovery: 1 use; recover 1 level(s) of spell slots; regain on Long Rest"
+    )
+
+
 @pytest.mark.parametrize(
     ("class_name", "choices"),
     [
@@ -389,6 +402,21 @@ def test_validates_level_one_choices_for_every_class(
     result = Character.model_validate(values)
 
     assert result.class_choices == choices
+    expected_resource = {
+        "Barbarian": ("Rage", 2),
+        "Bard": ("Bardic Inspiration", 1),
+        "Fighter": ("Second Wind", 2),
+        "Paladin": ("Lay on Hands", 5),
+        "Ranger": ("Favored Enemy", 2),
+        "Sorcerer": ("Innate Sorcery", 2),
+        "Warlock": ("Pact Magic", 1),
+        "Wizard": ("Arcane Recovery", 1),
+    }.get(class_name)
+    assert (
+        (result.class_resources[0].name, result.class_resources[0].maximum)
+        if result.class_resources
+        else None
+    ) == expected_resource
 
 
 def test_class_choices_enforce_eligibility_and_derived_benefits(character: Character) -> None:

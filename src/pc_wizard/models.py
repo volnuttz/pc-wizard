@@ -217,6 +217,23 @@ class SpellSlotPool(BaseModel):
     recovery: Literal["Long Rest", "Short or Long Rest"]
 
 
+class ClassResource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str
+    maximum: int = Field(ge=1)
+    unit: str
+    recovery: str
+    detail: str | None = None
+
+    @property
+    def summary(self) -> str:
+        parts = [f"{self.name}: {self.maximum} {self.unit}"]
+        if self.detail is not None:
+            parts.append(self.detail)
+        parts.append(self.recovery)
+        return "; ".join(parts)
+
+
 class Character(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1)
@@ -1027,6 +1044,86 @@ class Character(BaseModel):
             "Short or Long Rest" if self.character_class == "Warlock" else "Long Rest"
         )
         return (SpellSlotPool(level=level, total=total, recovery=recovery),)
+
+    @property
+    def class_resources(self) -> tuple[ClassResource, ...]:
+        if self.character_class == "Barbarian":
+            return (
+                ClassResource(
+                    name="Rage",
+                    maximum=2,
+                    unit="uses",
+                    detail="+2 Rage damage",
+                    recovery="regain 1 on Short Rest; all on Long Rest",
+                ),
+            )
+        if self.character_class == "Bard":
+            return (
+                ClassResource(
+                    name="Bardic Inspiration",
+                    maximum=max(1, self.abilities.modifier("charisma")),
+                    unit="d6 uses",
+                    recovery="regain all on Long Rest",
+                ),
+            )
+        if self.character_class == "Fighter":
+            return (
+                ClassResource(
+                    name="Second Wind",
+                    maximum=2,
+                    unit="uses",
+                    detail=f"heal 1d10+{self.level} HP",
+                    recovery="regain 1 on Short Rest; all on Long Rest",
+                ),
+            )
+        if self.character_class == "Paladin":
+            return (
+                ClassResource(
+                    name="Lay on Hands",
+                    maximum=5 * self.level,
+                    unit="HP",
+                    recovery="replenishes on Long Rest",
+                ),
+            )
+        if self.character_class == "Ranger":
+            return (
+                ClassResource(
+                    name="Favored Enemy",
+                    maximum=2,
+                    unit="free Hunter's Mark casts",
+                    recovery="regain all on Long Rest",
+                ),
+            )
+        if self.character_class == "Sorcerer":
+            return (
+                ClassResource(
+                    name="Innate Sorcery",
+                    maximum=2,
+                    unit="uses",
+                    recovery="regain all on Long Rest",
+                ),
+            )
+        if self.character_class == "Warlock":
+            slot = self.spell_slots[0]
+            return (
+                ClassResource(
+                    name="Pact Magic",
+                    maximum=slot.total,
+                    unit=f"level-{slot.level} slot",
+                    recovery="regain on Short or Long Rest",
+                ),
+            )
+        if self.character_class == "Wizard":
+            return (
+                ClassResource(
+                    name="Arcane Recovery",
+                    maximum=1,
+                    unit="use",
+                    detail=f"recover {(self.level + 1) // 2} level(s) of spell slots",
+                    recovery="regain on Long Rest",
+                ),
+            )
+        return ()
 
     @property
     def passive_perception(self) -> int:

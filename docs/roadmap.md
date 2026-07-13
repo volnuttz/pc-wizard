@@ -83,13 +83,10 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 ### PDF output
 
-- Many checkbox fields are not populated, including skill, saving-throw, and armor
-  proficiencies.
-- Weapons, damage, coins, spellcasting values, spell lists, and spell slots are not
-  fully rendered.
-- Optional backstory, appearance, and personality values are stored in JSON but
-  are not yet rendered.
-- Tests verify stored AcroForm values but do not perform visual regression checks.
+- Death-save and magic-item-attunement trackers remain blank because character
+  creation does not record active adventuring-state values for them.
+- Spell casting-time, range, component, and concentration metadata is not yet
+  modeled or rendered in the spell list.
 - The official character-sheet template must be downloaded separately and supplied
   with `--template`; direct download URLs may change.
 
@@ -225,18 +222,20 @@ Exit criteria:
 
 Goal: render all implemented character data accurately and visibly.
 
-- [ ] Map and fill saving-throw proficiency checkboxes.
-- [ ] Map and fill skill proficiency and Expertise indicators.
-- [ ] Map and fill armor-training checkboxes.
-- [ ] Fill weapon names, attack bonuses, damage, type, and notes.
-- [ ] Fill equipment and coin fields structurally.
-- [ ] Fill spellcasting ability, modifier, save DC, and attack bonus.
-- [ ] Fill cantrips, prepared spells, and spell-slot fields.
-- [ ] Fill optional backstory, appearance, and personality fields.
-- [ ] Fill class-specific resources where the template supports them.
-- [ ] Confirm long text fits or uses appropriate font sizing.
-- [ ] Add representative PDF read-back tests for martial and spellcasting characters.
-- [ ] Add visual or rendered-page regression testing.
+Status: complete and verified on 2026-07-13.
+
+- [x] Map and fill saving-throw proficiency checkboxes.
+- [x] Map and fill skill proficiency and Expertise indicators.
+- [x] Map and fill armor-training checkboxes.
+- [x] Fill weapon names, attack bonuses, damage, type, and notes.
+- [x] Fill equipment and coin fields structurally.
+- [x] Fill spellcasting ability, modifier, save DC, and attack bonus.
+- [x] Fill cantrips, prepared spells, and spell-slot fields.
+- [x] Fill optional backstory, appearance, and personality fields.
+- [x] Fill class-specific resources where the template supports them.
+- [x] Confirm long text fits or uses appropriate font sizing.
+- [x] Add representative PDF read-back tests for martial and spellcasting characters.
+- [x] Add visual or rendered-page regression testing.
 
 Exit criteria:
 

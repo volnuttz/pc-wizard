@@ -53,6 +53,33 @@ All notable changes to pc-wizard are documented here. The project follows
   count, and recovery cadence are calculated from SRD class rules.
 - Rendered equipment summaries and Armor Class now reflect the selected starting
   equipment rather than static package descriptions.
+- Saving-throw, skill-proficiency, and armor-training checkboxes now use the
+  official template's verified `/Yes` and `/Off` appearance states.
+- Corrected the existing ability, saving-throw, and skill modifier field mapping
+  after correlating AcroForm widget coordinates with the visible sheet labels.
+- Rogue Expertise is shown through checked skill proficiencies, doubled modifiers,
+  and the visible Expertise entry in class features because the official sheet has
+  no separate Expertise checkbox.
+- Character-sheet attack rows now show each starting weapon's attack bonus, damage
+  and type, range, properties, quantity, and applicable mastery details.
+- Starting gear and all five coin denominations now populate the dedicated
+  equipment and coin fields on the second page.
+- Class spellcasting ability, modifier, save DC, attack bonus, level-1 slots,
+  cantrips, and prepared spells now populate the second-page spellcasting fields.
+- Corrected species traits, alignment, and languages to use the widgets matching
+  their printed sheet labels.
+- Optional appearance, backstory, and personality details now populate their
+  dedicated second-page fields.
+- Level-1 Rage, Bardic Inspiration, Second Wind, Lay on Hands, Favored Enemy,
+  Innate Sorcery, Pact Magic, and Arcane Recovery resources now appear in the
+  second Class Features column with their totals and recovery cadence.
+- Text fields now use generated auto-sized appearances so long attack notes,
+  equipment lists, traits, feats, narrative details, and class features remain
+  inside their widgets.
+- Corrected the remaining page-one header, combat summary, Hit Dice, proficiency,
+  size, Passive Perception, and weapon/tool mappings through rendered-page review.
+- Added PDFium-based rendered-page regression coverage for every populated region
+  on representative martial and spellcasting sheets.
 
 ## [0.1.0] - 2026-07-13
 

@@ -37,6 +37,7 @@ Repository = "https://github.com/volnuttz/pc-wizard"
 [dependency-groups]
 dev = [
   "pyinstaller>=6.21,<7",
+  "pypdfium2>=4.30,<5",
   "pyright>=1.1.402",
   "pytest>=8.4",
   "pytest-cov>=6.2",
