@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintain PDF Mapping"
+  short_description: "Inspect and update character sheet fields"
+  default_prompt: "Use $maintain-pdf-mapping to update pc-wizard character-sheet output."

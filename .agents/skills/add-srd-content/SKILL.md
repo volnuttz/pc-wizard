@@ -1,0 +1,33 @@
+---
+name: add-srd-content
+description: Extend or correct pc-wizard game data and character-creation behavior from SRD_CC_v5.2.1.pdf. Use for classes, backgrounds, species, feats, spells, equipment, proficiencies, ability scores, derived rules, or wizard choices sourced from the supplied SRD; do not use for PDF field mapping alone.
+---
+
+# Add SRD content
+
+Keep implementation traceable to the supplied SRD and consistent across rules,
+models, prompts, serialization, rendering, and tests.
+
+## Workflow
+
+1. Read `references/content-map.md` to identify affected modules and invariants.
+2. Locate the rule in `SRD_CC_v5.2.1.pdf` with `pypdf`; record the PDF page in
+   working notes. Do not rely on memory or another D&D edition.
+3. Inspect existing structures in `rules.py`, model derivations, wizard prompts,
+   PDF output, and tests before editing.
+4. Model structured choices explicitly. Keep display text separate from numeric
+   mechanics when calculations depend on a choice.
+5. Preserve JSON compatibility where practical. If a schema change is necessary,
+   call it out and add validation tests.
+6. Add focused rule/model tests and prompt tests where interaction changes. Add a
+   PDF assertion if the new value is rendered.
+7. Invoke `$verify-pc-wizard` after implementation.
+
+## Boundaries
+
+- Treat `SRD_CC_v5.2.1.pdf` as authoritative.
+- Do not edit either source PDF.
+- Do not add non-SRD content without an explicit product decision and clear
+  labeling.
+- Avoid embedding calculations in Questionary callbacks or Typer commands.
+- For opaque PDF fields, invoke `$maintain-pdf-mapping`.
