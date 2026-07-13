@@ -15,6 +15,24 @@ All notable changes to pc-wizard are documented here. The project follows
 - Optional backstory, appearance, and personality prompts with JSON persistence.
 - Explicit Small/Medium selection for Human and Tiefling characters, including
   character-sheet rendering.
+- Dragonborn characters choose a draconic ancestry, which determines their
+  Breath Weapon and Damage Resistance damage type.
+- Elf characters choose an Elven Lineage, lineage spellcasting ability, and Keen
+  Senses skill proficiency.
+- Gnome characters choose a Forest or Rock Gnomish Lineage and a lineage
+  spellcasting ability.
+- Goliath characters choose one of the six SRD Giant Ancestries and retain its
+  supernatural boon details.
+- Human characters choose an additional skill proficiency and one of the four SRD
+  Origin feats.
+- Tiefling characters choose an Abyssal, Chthonic, or Infernal legacy and its
+  spellcasting ability.
+- Species choices now determine speed, Darkvision, damage resistances, cantrips,
+  level-gated prepared spells, displayed traits, and character-sheet values.
+- Origin feats now apply their level-1 benefits and required choices: Alert adds
+  proficiency to Initiative, Magic Initiate selects validated spells, Skilled
+  grants three skill/tool proficiencies, and Savage Attacker is retained in the
+  character's rendered feat traits.
 
 ## [0.1.0] - 2026-07-13
 

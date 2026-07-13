@@ -6,14 +6,37 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from pc_wizard.rules import (
     ABILITIES,
+    BACKGROUND_MAGIC_INITIATE_LISTS,
+    BACKGROUND_ORIGIN_FEATS,
     BACKGROUNDS,
     CLASSES,
+    DRACONIC_ANCESTORS,
+    ELVEN_LINEAGES,
+    FIENDISH_LEGACIES,
+    GNOMISH_LINEAGES,
+    GOLIATH_ANCESTRIES,
+    MAGIC_INITIATE_SPELL_LISTS,
     MAX_ABILITY_SCORE,
     POINT_BUY_BUDGET,
     SKILL_ABILITIES,
     SPECIES,
     STANDARD_ARRAY,
+    TOOLS,
     CreatureSize,
+    DamageType,
+    DraconicAncestry,
+    ElvenLineage,
+    ElvenLineageRule,
+    FiendishLegacy,
+    FiendishLegacyRule,
+    GnomishLineage,
+    GnomishLineageRule,
+    GoliathAncestry,
+    GoliathAncestryRule,
+    KeenSensesSkill,
+    MagicInitiateList,
+    OriginFeat,
+    SpellcastingAbility,
     point_buy_cost,
 )
 
@@ -104,6 +127,27 @@ class BackgroundAbilityAdjustment(BaseModel):
         return AbilityScores.model_validate(values)
 
 
+class MagicInitiateChoice(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    spell_list: MagicInitiateList
+    spellcasting_ability: SpellcastingAbility
+    cantrips: tuple[str, str]
+    level_one_spell: str
+
+    @model_validator(mode="after")
+    def valid_spells(self) -> Self:
+        spell_list = MAGIC_INITIATE_SPELL_LISTS[self.spell_list]
+        if self.cantrips[0] == self.cantrips[1]:
+            raise ValueError("Magic Initiate requires two different cantrips")
+        if any(cantrip not in spell_list.cantrips for cantrip in self.cantrips):
+            raise ValueError(f"Magic Initiate cantrips must come from the {self.spell_list} list")
+        if self.level_one_spell not in spell_list.level_one_spells:
+            raise ValueError(
+                f"Magic Initiate level 1 spell must come from the {self.spell_list} list"
+            )
+        return self
+
+
 class Character(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1)
@@ -111,9 +155,25 @@ class Character(BaseModel):
     background: str
     species: str
     size: CreatureSize | None = None
+    dragonborn_ancestry: DraconicAncestry | None = None
+    elf_lineage: ElvenLineage | None = None
+    elf_spellcasting_ability: SpellcastingAbility | None = None
+    elf_keen_senses_skill: KeenSensesSkill | None = None
+    gnome_lineage: GnomishLineage | None = None
+    gnome_spellcasting_ability: SpellcastingAbility | None = None
+    goliath_ancestry: GoliathAncestry | None = None
+    human_skill: str | None = None
+    human_origin_feat: OriginFeat | None = None
+    tiefling_legacy: FiendishLegacy | None = None
+    tiefling_spellcasting_ability: SpellcastingAbility | None = None
     alignment: str
     abilities: AbilityScores
     skills: set[str] = Field(default_factory=set)
+    tool_proficiencies: set[str] = Field(default_factory=set)
+    magic_initiate_choices: list[MagicInitiateChoice] = Field(
+        default_factory=lambda: list[MagicInitiateChoice]()
+    )
+    skilled_proficiencies: set[str] = Field(default_factory=set)
     languages: list[str] = Field(default_factory=lambda: ["Common"])
     backstory: str | None = None
     appearance: str | None = None
@@ -129,7 +189,7 @@ class Character(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def valid_species_size(self) -> Self:
+    def valid_species_choices(self) -> Self:
         allowed = SPECIES[self.species].sizes
         if self.size is None:
             self.size = allowed[0]
@@ -137,6 +197,110 @@ class Character(BaseModel):
             raise ValueError(
                 f"invalid size for {self.species}: {self.size}; expected {' or '.join(allowed)}"
             )
+        if self.species == "Dragonborn" and self.dragonborn_ancestry is None:
+            raise ValueError("Dragonborn characters must choose a draconic ancestry")
+        if self.species != "Dragonborn" and self.dragonborn_ancestry is not None:
+            raise ValueError("draconic ancestry is only valid for Dragonborn characters")
+        elf_choices = (
+            self.elf_lineage,
+            self.elf_spellcasting_ability,
+            self.elf_keen_senses_skill,
+        )
+        if self.species == "Elf":
+            if any(choice is None for choice in elf_choices):
+                raise ValueError(
+                    "Elf characters must choose a lineage, spellcasting ability, "
+                    "and Keen Senses skill"
+                )
+            if self.elf_keen_senses_skill not in self.skills:
+                raise ValueError(
+                    "the Elf Keen Senses skill must be included in skill proficiencies"
+                )
+        elif any(choice is not None for choice in elf_choices):
+            raise ValueError("Elf lineage choices are only valid for Elf characters")
+        gnome_choices = (self.gnome_lineage, self.gnome_spellcasting_ability)
+        if self.species == "Gnome":
+            if any(choice is None for choice in gnome_choices):
+                raise ValueError(
+                    "Gnome characters must choose a Gnomish Lineage and spellcasting ability"
+                )
+        elif any(choice is not None for choice in gnome_choices):
+            raise ValueError("Gnomish Lineage choices are only valid for Gnome characters")
+        if self.species == "Goliath" and self.goliath_ancestry is None:
+            raise ValueError("Goliath characters must choose a Giant Ancestry")
+        if self.species != "Goliath" and self.goliath_ancestry is not None:
+            raise ValueError("Giant Ancestry is only valid for Goliath characters")
+        human_choices = (self.human_skill, self.human_origin_feat)
+        if self.species == "Human":
+            if any(choice is None for choice in human_choices):
+                raise ValueError("Human characters must choose an additional skill and Origin feat")
+            if self.human_skill not in SKILL_ABILITIES:
+                raise ValueError(f"unknown Human Skillful proficiency: {self.human_skill}")
+            if self.human_skill in BACKGROUNDS[self.background].skills:
+                raise ValueError(
+                    "the Human Skillful proficiency must be additional to background skills"
+                )
+            if self.human_skill not in self.skills:
+                raise ValueError(
+                    "the Human Skillful proficiency must be included in skill proficiencies"
+                )
+        elif any(choice is not None for choice in human_choices):
+            raise ValueError("Human species choices are only valid for Human characters")
+        tiefling_choices = (self.tiefling_legacy, self.tiefling_spellcasting_ability)
+        if self.species == "Tiefling":
+            if any(choice is None for choice in tiefling_choices):
+                raise ValueError(
+                    "Tiefling characters must choose a Fiendish Legacy and spellcasting ability"
+                )
+        elif any(choice is not None for choice in tiefling_choices):
+            raise ValueError("Fiendish Legacy choices are only valid for Tiefling characters")
+        return self
+
+    @model_validator(mode="after")
+    def valid_origin_feat_choices(self) -> Self:
+        background_feat = BACKGROUND_ORIGIN_FEATS[self.background]
+        if self.human_origin_feat == background_feat and self.human_origin_feat not in (
+            "Magic Initiate",
+            "Skilled",
+        ):
+            raise ValueError(f"the {self.human_origin_feat} Origin feat can be taken only once")
+
+        background_magic_list = BACKGROUND_MAGIC_INITIATE_LISTS.get(self.background)
+        expected_magic_choices = int(background_magic_list is not None) + int(
+            self.human_origin_feat == "Magic Initiate"
+        )
+        if len(self.magic_initiate_choices) != expected_magic_choices:
+            raise ValueError(
+                f"character requires exactly {expected_magic_choices} Magic Initiate choice(s)"
+            )
+        chosen_lists = [choice.spell_list for choice in self.magic_initiate_choices]
+        if len(set(chosen_lists)) != len(chosen_lists):
+            raise ValueError("repeatable Magic Initiate choices must use different spell lists")
+        if background_magic_list is not None and background_magic_list not in chosen_lists:
+            raise ValueError(
+                f"the {self.background} background requires "
+                f"Magic Initiate ({background_magic_list})"
+            )
+
+        has_skilled = self.human_origin_feat == "Skilled"
+        if has_skilled and len(self.skilled_proficiencies) != 3:
+            raise ValueError("Skilled requires exactly three skill or tool proficiencies")
+        if not has_skilled and self.skilled_proficiencies:
+            raise ValueError("Skilled proficiencies require the Skilled Origin feat")
+        unknown = self.skilled_proficiencies - (set(SKILL_ABILITIES) | set(TOOLS))
+        if unknown:
+            raise ValueError(f"unknown Skilled proficiencies: {', '.join(sorted(unknown))}")
+        existing = set(BACKGROUNDS[self.background].skills)
+        if self.human_skill is not None:
+            existing.add(self.human_skill)
+        if self.skilled_proficiencies & existing:
+            raise ValueError("Skilled must grant proficiencies the character does not already have")
+        skilled_skills = self.skilled_proficiencies & set(SKILL_ABILITIES)
+        skilled_tools = self.skilled_proficiencies & set(TOOLS)
+        if not skilled_skills.issubset(self.skills):
+            raise ValueError("Skilled skill choices must be included in skill proficiencies")
+        if not skilled_tools.issubset(self.tool_proficiencies):
+            raise ValueError("Skilled tool choices must be included in tool proficiencies")
         return self
 
     @property
@@ -144,6 +308,189 @@ class Character(BaseModel):
         if self.size is None:
             raise RuntimeError("character size was not resolved during validation")
         return self.size
+
+    @property
+    def dragonborn_damage_type(self) -> DamageType | None:
+        if self.dragonborn_ancestry is None:
+            return None
+        return DRACONIC_ANCESTORS[self.dragonborn_ancestry]
+
+    @property
+    def elven_lineage_rule(self) -> ElvenLineageRule | None:
+        if self.elf_lineage is None:
+            return None
+        return ELVEN_LINEAGES[self.elf_lineage]
+
+    @property
+    def gnomish_lineage_rule(self) -> GnomishLineageRule | None:
+        if self.gnome_lineage is None:
+            return None
+        return GNOMISH_LINEAGES[self.gnome_lineage]
+
+    @property
+    def goliath_ancestry_rule(self) -> GoliathAncestryRule | None:
+        if self.goliath_ancestry is None:
+            return None
+        return GOLIATH_ANCESTRIES[self.goliath_ancestry]
+
+    @property
+    def fiendish_legacy_rule(self) -> FiendishLegacyRule | None:
+        if self.tiefling_legacy is None:
+            return None
+        return FIENDISH_LEGACIES[self.tiefling_legacy]
+
+    @property
+    def speed(self) -> int:
+        lineage = self.elven_lineage_rule
+        if lineage is not None:
+            return lineage.speed
+        return SPECIES[self.species].speed
+
+    @property
+    def darkvision_range(self) -> int | None:
+        lineage = self.elven_lineage_rule
+        if lineage is not None:
+            return lineage.darkvision_range
+        return SPECIES[self.species].darkvision_range
+
+    @property
+    def damage_resistances(self) -> tuple[DamageType, ...]:
+        resistances = list(SPECIES[self.species].resistances)
+        if self.dragonborn_damage_type is not None:
+            resistances.append(self.dragonborn_damage_type)
+        legacy = self.fiendish_legacy_rule
+        if legacy is not None:
+            resistances.append(legacy.resistance)
+        return tuple(dict.fromkeys(resistances))
+
+    @property
+    def species_spellcasting_ability(self) -> SpellcastingAbility | None:
+        return (
+            self.elf_spellcasting_ability
+            or self.gnome_spellcasting_ability
+            or self.tiefling_spellcasting_ability
+        )
+
+    @property
+    def species_cantrips(self) -> tuple[str, ...]:
+        lineage = self.elven_lineage_rule
+        if lineage is not None:
+            return (lineage.cantrip,)
+        gnomish_lineage = self.gnomish_lineage_rule
+        if gnomish_lineage is not None:
+            return gnomish_lineage.cantrips
+        legacy = self.fiendish_legacy_rule
+        if legacy is not None:
+            return (legacy.cantrip, "Thaumaturgy")
+        return ()
+
+    @property
+    def species_prepared_spells(self) -> tuple[str, ...]:
+        spells: list[str] = []
+        lineage = self.elven_lineage_rule
+        if lineage is not None:
+            if self.level >= 3:
+                spells.append(lineage.level_three_spell)
+            if self.level >= 5:
+                spells.append(lineage.level_five_spell)
+        gnomish_lineage = self.gnomish_lineage_rule
+        if gnomish_lineage is not None:
+            spells.extend(gnomish_lineage.always_prepared_spells)
+        legacy = self.fiendish_legacy_rule
+        if legacy is not None:
+            if self.level >= 3:
+                spells.append(legacy.level_three_spell)
+            if self.level >= 5:
+                spells.append(legacy.level_five_spell)
+        return tuple(spells)
+
+    @property
+    def species_traits(self) -> tuple[str, ...]:
+        traits = list(SPECIES[self.species].traits)
+        if self.dragonborn_ancestry is not None:
+            traits.append(
+                f"Draconic Ancestry: {self.dragonborn_ancestry} ({self.dragonborn_damage_type})"
+            )
+        if self.elf_lineage is not None:
+            traits.extend(
+                (
+                    f"Elven Lineage: {self.elf_lineage}",
+                    f"Keen Senses: {self.elf_keen_senses_skill}",
+                )
+            )
+        if self.gnome_lineage is not None:
+            traits.append(f"Gnomish Lineage: {self.gnome_lineage}")
+        ancestry = self.goliath_ancestry_rule
+        if self.goliath_ancestry is not None and ancestry is not None:
+            traits.append(
+                f"Giant Ancestry: {self.goliath_ancestry} — "
+                f"{ancestry.benefit_name}: {ancestry.effect}"
+            )
+        if self.human_skill is not None:
+            traits.append(f"Skillful: {self.human_skill}")
+        if self.human_origin_feat is not None:
+            traits.append(f"Versatile: {self.human_origin_feat}")
+        if self.tiefling_legacy is not None:
+            traits.append(f"Fiendish Legacy: {self.tiefling_legacy}")
+        if self.darkvision_range is not None:
+            traits.append(f"Darkvision: {self.darkvision_range} ft.")
+        if self.damage_resistances:
+            traits.append(f"Damage Resistance: {', '.join(self.damage_resistances)}")
+        if self.species_spellcasting_ability is not None:
+            traits.append(
+                f"Species Spellcasting Ability: {self.species_spellcasting_ability.title()}"
+            )
+        if self.species_cantrips:
+            traits.append(f"Cantrips: {', '.join(self.species_cantrips)}")
+        if self.species_prepared_spells:
+            traits.append(f"Always Prepared: {', '.join(self.species_prepared_spells)}")
+        return tuple(traits)
+
+    @property
+    def origin_feats(self) -> tuple[OriginFeat, ...]:
+        feats: list[OriginFeat] = [BACKGROUND_ORIGIN_FEATS[self.background]]
+        if self.human_origin_feat is not None:
+            feats.append(self.human_origin_feat)
+        return tuple(feats)
+
+    @property
+    def initiative_modifier(self) -> int:
+        value = self.abilities.modifier("dexterity")
+        if "Alert" in self.origin_feats:
+            value += self.proficiency_bonus
+        return value
+
+    @property
+    def all_tool_proficiencies(self) -> tuple[str, ...]:
+        return tuple(dict.fromkeys((BACKGROUNDS[self.background].tool, *self.tool_proficiencies)))
+
+    @property
+    def feat_cantrips(self) -> tuple[str, ...]:
+        return tuple(
+            dict.fromkeys(
+                cantrip for choice in self.magic_initiate_choices for cantrip in choice.cantrips
+            )
+        )
+
+    @property
+    def feat_prepared_spells(self) -> tuple[str, ...]:
+        return tuple(choice.level_one_spell for choice in self.magic_initiate_choices)
+
+    @property
+    def origin_feat_traits(self) -> tuple[str, ...]:
+        traits: list[str] = []
+        if "Alert" in self.origin_feats:
+            traits.append("Alert: Initiative Proficiency; Initiative Swap")
+        if "Savage Attacker" in self.origin_feats:
+            traits.append("Savage Attacker: roll weapon damage dice twice once per turn")
+        if self.skilled_proficiencies:
+            traits.append(f"Skilled: {', '.join(sorted(self.skilled_proficiencies))}")
+        traits.extend(
+            f"Magic Initiate ({choice.spell_list}; {choice.spellcasting_ability.title()}): "
+            f"{', '.join(choice.cantrips)}; {choice.level_one_spell}"
+            for choice in self.magic_initiate_choices
+        )
+        return tuple(traits)
 
     @field_validator("character_class")
     @classmethod

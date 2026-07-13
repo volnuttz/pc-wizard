@@ -3,6 +3,8 @@
   "character_class": "Rogue",
   "background": "Criminal",
   "species": "Tiefling",
+  "tiefling_legacy": "Infernal",
+  "tiefling_spellcasting_ability": "charisma",
   "alignment": "Neutral",
   "abilities": {
     "strength": 12,

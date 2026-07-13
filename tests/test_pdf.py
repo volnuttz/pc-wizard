@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
-from pc_wizard.models import AbilityScores, Character
+from pc_wizard.models import AbilityScores, Character, MagicInitiateChoice
 from pc_wizard.pdf import field_values, render_character_sheet, validate_template
 
 
@@ -22,8 +22,73 @@ def sample() -> Character:
 
 
 def small_human() -> Character:
-    values = sample().model_dump()
-    values.update(species="Human", size="Small")
+    character = sample()
+    values = character.model_dump()
+    values.update(
+        species="Human",
+        size="Small",
+        human_skill="Insight",
+        human_origin_feat="Alert",
+        skills=set(character.skills) | {"Insight"},
+    )
+    return Character.model_validate(values)
+
+
+def elf_with_keen_senses() -> Character:
+    character = sample()
+    values = character.model_dump()
+    values.update(
+        species="Elf",
+        elf_lineage="Drow",
+        elf_spellcasting_ability="wisdom",
+        elf_keen_senses_skill="Insight",
+        skills=set(character.skills) | {"Insight"},
+    )
+    return Character.model_validate(values)
+
+
+def wood_elf() -> Character:
+    character = sample()
+    values = character.model_dump()
+    values.update(
+        species="Elf",
+        elf_lineage="Wood Elf",
+        elf_spellcasting_ability="wisdom",
+        elf_keen_senses_skill="Insight",
+        skills=set(character.skills) | {"Insight"},
+    )
+    return Character.model_validate(values)
+
+
+def skilled_sage_human() -> Character:
+    character = sample()
+    values = character.model_dump()
+    values.update(
+        background="Sage",
+        species="Human",
+        size="Medium",
+        human_skill="Perception",
+        human_origin_feat="Skilled",
+        skills={
+            "Acrobatics",
+            "Arcana",
+            "Athletics",
+            "History",
+            "Investigation",
+            "Nature",
+            "Perception",
+        },
+        tool_proficiencies={"Alchemist's Supplies"},
+        skilled_proficiencies={"Acrobatics", "Athletics", "Alchemist's Supplies"},
+        magic_initiate_choices=[
+            MagicInitiateChoice(
+                spell_list="Wizard",
+                spellcasting_ability="intelligence",
+                cantrips=("Mage Hand", "Prestidigitation"),
+                level_one_spell="Mage Armor",
+            )
+        ],
+    )
     return Character.model_validate(values)
 
 
@@ -33,6 +98,17 @@ def test_field_values_include_derived_values() -> None:
     assert values["Text19"] == "17"
     assert values["Text63"] == "+5"
     assert values["Text27"] == "13"
+
+
+def test_field_values_include_elf_keen_senses_proficiency() -> None:
+    assert field_values(elf_with_keen_senses())["Text70"] == "+2"
+
+
+def test_field_values_include_choice_dependent_species_speed_and_traits() -> None:
+    values = field_values(wood_elf())
+    assert values["Text16"] == "35"
+    assert "Elven Lineage: Wood Elf" in values["Text55"]
+    assert "Cantrips: Druidcraft" in values["Text55"]
 
 
 def test_render_fills_template(tmp_path: Path) -> None:
@@ -45,6 +121,28 @@ def test_render_fills_template(tmp_path: Path) -> None:
     assert fields is not None
     assert fields["Text1"]["/V"] == "Brunna"
     assert fields["Text15"]["/V"] == "S"
+    assert fields["Text16"]["/V"] == "30"
+    assert fields["Text14"]["/V"] == "+4"
+    assert "Skillful: Insight" in fields["Text55"]["/V"]
+    assert "Versatile: Alert" in fields["Text55"]["/V"]
+    assert fields["Text58"]["/V"] == (
+        "Alert: Initiative Proficiency; Initiative Swap\n"
+        "Savage Attacker: roll weapon damage dice twice once per turn"
+    )
+    assert fields["Text59"]["/V"] == "Gaming Set"
+
+
+def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:
+    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    output = tmp_path / "origin-feats.pdf"
+
+    render_character_sheet(skilled_sage_human(), template, output)
+
+    fields = PdfReader(output).get_fields()
+    assert fields is not None
+    assert "Skilled: Acrobatics, Alchemist's Supplies, Athletics" in fields["Text58"]["/V"]
+    assert "Magic Initiate (Wizard; Intelligence)" in fields["Text58"]["/V"]
+    assert fields["Text59"]["/V"] == "Calligrapher's Supplies\nAlchemist's Supplies"
 
 
 def test_validate_template_rejects_non_pdf(tmp_path: Path) -> None:

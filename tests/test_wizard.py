@@ -5,11 +5,24 @@ from typing import cast
 import pytest
 
 from pc_wizard import wizard
-from pc_wizard.models import AbilityGenerationMethod
-from pc_wizard.rules import POINT_BUY_BUDGET, eligible_abilities_for_increase, point_buy_cost
+from pc_wizard.models import AbilityGenerationMethod, MagicInitiateChoice
+from pc_wizard.rules import (
+    POINT_BUY_BUDGET,
+    MagicInitiateList,
+    eligible_abilities_for_increase,
+    point_buy_cost,
+)
 from pc_wizard.wizard import (
     apply_background_increases,
+    choose_draconic_ancestry,
+    choose_elf_traits,
+    choose_gnome_traits,
+    choose_goliath_ancestry,
+    choose_human_traits,
+    choose_magic_initiate,
+    choose_origin_feat_details,
     choose_species_size,
+    choose_tiefling_traits,
     generated_scores,
     optional_text,
     point_buy_scores,
@@ -159,3 +172,270 @@ def test_species_size_prompt_only_appears_for_srd_choices(
         ("Choose a size", ("Medium", "Small")),
         ("Choose a size", ("Medium", "Small")),
     ]
+
+
+def test_draconic_ancestry_prompt_only_appears_for_dragonborn(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        prompts.append((message, tuple(choices)))
+        return "Gold"
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_draconic_ancestry("Dragonborn") == "Gold"
+    assert choose_draconic_ancestry("Dwarf") is None
+    assert prompts == [
+        (
+            "Choose a draconic ancestry",
+            (
+                "Black",
+                "Blue",
+                "Brass",
+                "Bronze",
+                "Copper",
+                "Gold",
+                "Green",
+                "Red",
+                "Silver",
+                "White",
+            ),
+        )
+    ]
+
+
+def test_elf_trait_prompts_collect_choices_without_duplicate_background_skill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(("Drow", "intelligence", "Perception"))
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        choices = tuple(choices)
+        prompts.append((message, choices))
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_elf_traits("Elf", {"Insight"}) == ("Drow", "intelligence", "Perception")
+    assert prompts == [
+        ("Choose an elven lineage", ("Drow", "High Elf", "Wood Elf")),
+        (
+            "Choose an Elven Lineage spellcasting ability",
+            ("intelligence", "wisdom", "charisma"),
+        ),
+        ("Choose a Keen Senses skill", ("Perception", "Survival")),
+    ]
+
+
+def test_elf_trait_prompts_are_skipped_for_other_species(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unexpected_select(message: str, choices: Sequence[str]) -> str:
+        raise AssertionError(f"unexpected prompt: {message}, {tuple(choices)}")
+
+    monkeypatch.setattr(wizard, "select", unexpected_select)
+
+    assert choose_elf_traits("Dwarf", set()) == (None, None, None)
+
+
+def test_gnome_trait_prompts_collect_lineage_and_spellcasting_ability(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(("Forest Gnome", "wisdom"))
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        choices = tuple(choices)
+        prompts.append((message, choices))
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_gnome_traits("Gnome") == ("Forest Gnome", "wisdom")
+    assert prompts == [
+        ("Choose a Gnomish Lineage", ("Forest Gnome", "Rock Gnome")),
+        (
+            "Choose a Gnomish Lineage spellcasting ability",
+            ("intelligence", "wisdom", "charisma"),
+        ),
+    ]
+
+
+def test_gnome_trait_prompts_are_skipped_for_other_species(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unexpected_select(message: str, choices: Sequence[str]) -> str:
+        raise AssertionError(f"unexpected prompt: {message}, {tuple(choices)}")
+
+    monkeypatch.setattr(wizard, "select", unexpected_select)
+
+    assert choose_gnome_traits("Dwarf") == (None, None)
+
+
+def test_goliath_ancestry_prompt_only_appears_for_goliath(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        prompts.append((message, tuple(choices)))
+        return "Stone Giant"
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_goliath_ancestry("Goliath") == "Stone Giant"
+    assert choose_goliath_ancestry("Dwarf") is None
+    assert prompts == [
+        (
+            "Choose a Giant Ancestry",
+            (
+                "Cloud Giant",
+                "Fire Giant",
+                "Frost Giant",
+                "Hill Giant",
+                "Stone Giant",
+                "Storm Giant",
+            ),
+        )
+    ]
+
+
+def test_human_trait_prompts_collect_additional_skill_and_origin_feat(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(("Perception", "Alert"))
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        choices = tuple(choices)
+        prompts.append((message, choices))
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_human_traits("Human", {"Athletics"}) == ("Perception", "Alert")
+    assert choose_human_traits("Dwarf", set()) == (None, None)
+    assert prompts[0][0] == "Choose an additional Human skill"
+    assert "Athletics" not in prompts[0][1]
+    assert "Perception" in prompts[0][1]
+    assert prompts[1] == (
+        "Choose a Human Origin feat",
+        ("Alert", "Magic Initiate", "Savage Attacker", "Skilled"),
+    )
+
+
+def test_tiefling_trait_prompts_collect_legacy_and_spellcasting_ability(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(("Chthonic", "charisma"))
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        choices = tuple(choices)
+        prompts.append((message, choices))
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    assert choose_tiefling_traits("Tiefling") == ("Chthonic", "charisma")
+    assert choose_tiefling_traits("Dwarf") == (None, None)
+    assert prompts == [
+        ("Choose a Fiendish Legacy", ("Abyssal", "Chthonic", "Infernal")),
+        (
+            "Choose a Fiendish Legacy spellcasting ability",
+            ("intelligence", "wisdom", "charisma"),
+        ),
+    ]
+
+
+def test_magic_initiate_prompts_collect_valid_spells(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    selected = iter(("wisdom", "Bless"))
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        answer = next(selected)
+        assert answer in choices
+        return answer
+
+    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+        assert message == "Choose two Magic Initiate (Cleric) cantrips"
+        assert count == 2
+        assert "Guidance" in choices
+        return ["Guidance", "Light"]
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+    monkeypatch.setattr(wizard, "checkbox", fake_checkbox)
+
+    assert choose_magic_initiate("Cleric") == MagicInitiateChoice(
+        spell_list="Cleric",
+        spellcasting_ability="wisdom",
+        cantrips=("Guidance", "Light"),
+        level_one_spell="Bless",
+    )
+
+
+def test_origin_feat_details_configure_background_and_repeat_magic_initiate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    configured: list[MagicInitiateList] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        assert message == "Choose a Human Magic Initiate spell list"
+        assert tuple(choices) == ("Cleric", "Druid")
+        return "Druid"
+
+    def fake_magic(spell_list: MagicInitiateList) -> MagicInitiateChoice:
+        configured.append(spell_list)
+        if spell_list == "Wizard":
+            return MagicInitiateChoice(
+                spell_list="Wizard",
+                spellcasting_ability="intelligence",
+                cantrips=("Mage Hand", "Mending"),
+                level_one_spell="Magic Missile",
+            )
+        return MagicInitiateChoice(
+            spell_list="Druid",
+            spellcasting_ability="wisdom",
+            cantrips=("Druidcraft", "Guidance"),
+            level_one_spell="Goodberry",
+        )
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+    monkeypatch.setattr(wizard, "choose_magic_initiate", fake_magic)
+
+    choices, skilled = choose_origin_feat_details("Sage", "Magic Initiate", {"Arcana"})
+
+    assert [choice.spell_list for choice in choices] == ["Wizard", "Druid"]
+    assert configured == ["Wizard", "Druid"]
+    assert skilled == set()
+
+
+def test_origin_feat_details_collect_three_skilled_proficiencies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+        assert message == "Choose three Skilled skill or tool proficiencies"
+        assert count == 3
+        assert "Athletics" not in choices
+        assert "Perception" in choices
+        assert "Alchemist's Supplies" in choices
+        return ["Perception", "Alchemist's Supplies", "Disguise Kit"]
+
+    monkeypatch.setattr(wizard, "checkbox", fake_checkbox)
+
+    magic, skilled = choose_origin_feat_details("Soldier", "Skilled", {"Athletics"})
+
+    assert magic == []
+    assert skilled == {"Perception", "Alchemist's Supplies", "Disguise Kit"}

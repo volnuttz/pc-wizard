@@ -3,6 +3,297 @@ from dataclasses import dataclass
 from typing import Literal
 
 type CreatureSize = Literal["Small", "Medium"]
+type DamageType = Literal["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison"]
+type DraconicAncestry = Literal[
+    "Black", "Blue", "Brass", "Bronze", "Copper", "Gold", "Green", "Red", "Silver", "White"
+]
+type ElvenLineage = Literal["Drow", "High Elf", "Wood Elf"]
+type GnomishLineage = Literal["Forest Gnome", "Rock Gnome"]
+type GoliathAncestry = Literal[
+    "Cloud Giant", "Fire Giant", "Frost Giant", "Hill Giant", "Stone Giant", "Storm Giant"
+]
+type FiendishLegacy = Literal["Abyssal", "Chthonic", "Infernal"]
+type KeenSensesSkill = Literal["Insight", "Perception", "Survival"]
+type MagicInitiateList = Literal["Cleric", "Druid", "Wizard"]
+type OriginFeat = Literal["Alert", "Magic Initiate", "Savage Attacker", "Skilled"]
+type SpellcastingAbility = Literal["intelligence", "wisdom", "charisma"]
+
+DRACONIC_ANCESTORS: dict[DraconicAncestry, DamageType] = {
+    "Black": "Acid",
+    "Blue": "Lightning",
+    "Brass": "Fire",
+    "Bronze": "Lightning",
+    "Copper": "Acid",
+    "Gold": "Fire",
+    "Green": "Poison",
+    "Red": "Fire",
+    "Silver": "Cold",
+    "White": "Cold",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class ElvenLineageRule:
+    speed: int
+    darkvision_range: int
+    cantrip: str
+    level_three_spell: str
+    level_five_spell: str
+    cantrip_replaceable: bool = False
+
+
+ELVEN_LINEAGES: dict[ElvenLineage, ElvenLineageRule] = {
+    "Drow": ElvenLineageRule(30, 120, "Dancing Lights", "Faerie Fire", "Darkness"),
+    "High Elf": ElvenLineageRule(
+        30, 60, "Prestidigitation", "Detect Magic", "Misty Step", cantrip_replaceable=True
+    ),
+    "Wood Elf": ElvenLineageRule(35, 60, "Druidcraft", "Longstrider", "Pass without Trace"),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class GnomishLineageRule:
+    cantrips: tuple[str, ...]
+    always_prepared_spells: tuple[str, ...] = ()
+    creates_clockwork_devices: bool = False
+
+
+GNOMISH_LINEAGES: dict[GnomishLineage, GnomishLineageRule] = {
+    "Forest Gnome": GnomishLineageRule(
+        ("Minor Illusion",), always_prepared_spells=("Speak with Animals",)
+    ),
+    "Rock Gnome": GnomishLineageRule(
+        ("Mending", "Prestidigitation"), creates_clockwork_devices=True
+    ),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class GoliathAncestryRule:
+    benefit_name: str
+    trigger: str
+    effect: str
+
+
+GOLIATH_ANCESTRIES: dict[GoliathAncestry, GoliathAncestryRule] = {
+    "Cloud Giant": GoliathAncestryRule(
+        "Cloud's Jaunt",
+        "Bonus Action",
+        "Teleport up to 30 feet to an unoccupied space you can see.",
+    ),
+    "Fire Giant": GoliathAncestryRule(
+        "Fire's Burn",
+        "Hit",
+        "Deal an extra 1d10 Fire damage to the target.",
+    ),
+    "Frost Giant": GoliathAncestryRule(
+        "Frost's Chill",
+        "Hit",
+        "Deal an extra 1d6 Cold damage and reduce the target's Speed by 10 feet until "
+        "the start of your next turn.",
+    ),
+    "Hill Giant": GoliathAncestryRule(
+        "Hill's Tumble",
+        "Hit",
+        "Give a Large or smaller target the Prone condition.",
+    ),
+    "Stone Giant": GoliathAncestryRule(
+        "Stone's Endurance",
+        "Reaction",
+        "Reduce incoming damage by 1d12 plus your Constitution modifier.",
+    ),
+    "Storm Giant": GoliathAncestryRule(
+        "Storm's Thunder",
+        "Reaction",
+        "Deal 1d8 Thunder damage to the damaging creature if it is within 60 feet.",
+    ),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class FiendishLegacyRule:
+    resistance: DamageType
+    cantrip: str
+    level_three_spell: str
+    level_five_spell: str
+
+
+FIENDISH_LEGACIES: dict[FiendishLegacy, FiendishLegacyRule] = {
+    "Abyssal": FiendishLegacyRule("Poison", "Poison Spray", "Ray of Sickness", "Hold Person"),
+    "Chthonic": FiendishLegacyRule("Necrotic", "Chill Touch", "False Life", "Ray of Enfeeblement"),
+    "Infernal": FiendishLegacyRule("Fire", "Fire Bolt", "Hellish Rebuke", "Darkness"),
+}
+KEEN_SENSES_SKILLS: tuple[KeenSensesSkill, ...] = ("Insight", "Perception", "Survival")
+ORIGIN_FEATS: tuple[OriginFeat, ...] = ("Alert", "Magic Initiate", "Savage Attacker", "Skilled")
+SPELLCASTING_ABILITIES: tuple[SpellcastingAbility, ...] = (
+    "intelligence",
+    "wisdom",
+    "charisma",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class MagicInitiateSpellList:
+    cantrips: tuple[str, ...]
+    level_one_spells: tuple[str, ...]
+
+
+MAGIC_INITIATE_SPELL_LISTS: dict[MagicInitiateList, MagicInitiateSpellList] = {
+    "Cleric": MagicInitiateSpellList(
+        (
+            "Guidance",
+            "Light",
+            "Mending",
+            "Resistance",
+            "Sacred Flame",
+            "Spare the Dying",
+            "Thaumaturgy",
+        ),
+        (
+            "Bane",
+            "Bless",
+            "Command",
+            "Create or Destroy Water",
+            "Cure Wounds",
+            "Detect Evil and Good",
+            "Detect Magic",
+            "Detect Poison and Disease",
+            "Guiding Bolt",
+            "Healing Word",
+            "Inflict Wounds",
+            "Protection from Evil and Good",
+            "Purify Food and Drink",
+            "Sanctuary",
+            "Shield of Faith",
+        ),
+    ),
+    "Druid": MagicInitiateSpellList(
+        (
+            "Druidcraft",
+            "Elementalism",
+            "Guidance",
+            "Mending",
+            "Message",
+            "Poison Spray",
+            "Produce Flame",
+            "Resistance",
+            "Shillelagh",
+            "Spare the Dying",
+            "Starry Wisp",
+        ),
+        (
+            "Animal Friendship",
+            "Charm Person",
+            "Create or Destroy Water",
+            "Cure Wounds",
+            "Detect Magic",
+            "Detect Poison and Disease",
+            "Entangle",
+            "Faerie Fire",
+            "Fog Cloud",
+            "Goodberry",
+            "Healing Word",
+            "Ice Knife",
+            "Jump",
+            "Longstrider",
+            "Protection from Evil and Good",
+            "Purify Food and Drink",
+            "Speak with Animals",
+            "Thunderwave",
+        ),
+    ),
+    "Wizard": MagicInitiateSpellList(
+        (
+            "Acid Splash",
+            "Chill Touch",
+            "Dancing Lights",
+            "Elementalism",
+            "Fire Bolt",
+            "Light",
+            "Mage Hand",
+            "Mending",
+            "Message",
+            "Minor Illusion",
+            "Poison Spray",
+            "Prestidigitation",
+            "Ray of Frost",
+            "Shocking Grasp",
+            "True Strike",
+        ),
+        (
+            "Alarm",
+            "Burning Hands",
+            "Charm Person",
+            "Chromatic Orb",
+            "Color Spray",
+            "Comprehend Languages",
+            "Detect Magic",
+            "Disguise Self",
+            "Expeditious Retreat",
+            "False Life",
+            "Feather Fall",
+            "Find Familiar",
+            "Floating Disk",
+            "Fog Cloud",
+            "Grease",
+            "Hideous Laughter",
+            "Ice Knife",
+            "Identify",
+            "Illusory Script",
+            "Jump",
+            "Longstrider",
+            "Mage Armor",
+            "Magic Missile",
+            "Protection from Evil and Good",
+            "Ray of Sickness",
+            "Shield",
+            "Silent Image",
+            "Sleep",
+            "Thunderwave",
+            "Unseen Servant",
+        ),
+    ),
+}
+
+TOOLS = (
+    "Alchemist's Supplies",
+    "Brewer's Supplies",
+    "Calligrapher's Supplies",
+    "Carpenter's Tools",
+    "Cartographer's Tools",
+    "Cobbler's Tools",
+    "Cook's Utensils",
+    "Glassblower's Tools",
+    "Jeweler's Tools",
+    "Leatherworker's Tools",
+    "Mason's Tools",
+    "Painter's Supplies",
+    "Potter's Tools",
+    "Smith's Tools",
+    "Tinker's Tools",
+    "Weaver's Tools",
+    "Woodcarver's Tools",
+    "Disguise Kit",
+    "Forgery Kit",
+    "Gaming Set (Dice)",
+    "Gaming Set (Dragonchess)",
+    "Gaming Set (Playing Cards)",
+    "Gaming Set (Three-Dragon Ante)",
+    "Herbalism Kit",
+    "Musical Instrument (Bagpipes)",
+    "Musical Instrument (Drum)",
+    "Musical Instrument (Dulcimer)",
+    "Musical Instrument (Flute)",
+    "Musical Instrument (Horn)",
+    "Musical Instrument (Lute)",
+    "Musical Instrument (Lyre)",
+    "Musical Instrument (Pan Flute)",
+    "Musical Instrument (Shawm)",
+    "Musical Instrument (Viol)",
+    "Navigator's Tools",
+    "Poisoner's Kit",
+    "Thieves' Tools",
+)
 
 ABILITIES = ("strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma")
 MAX_ABILITY_SCORE = 20
@@ -309,44 +600,63 @@ BACKGROUNDS = {
     ),
 }
 
+BACKGROUND_ORIGIN_FEATS: dict[str, OriginFeat] = {
+    "Acolyte": "Magic Initiate",
+    "Criminal": "Alert",
+    "Sage": "Magic Initiate",
+    "Soldier": "Savage Attacker",
+}
+BACKGROUND_MAGIC_INITIATE_LISTS: dict[str, MagicInitiateList] = {
+    "Acolyte": "Cleric",
+    "Sage": "Wizard",
+}
+
 
 @dataclass(frozen=True, slots=True)
 class SpeciesRule:
     sizes: tuple[CreatureSize, ...]
     speed: int
     traits: tuple[str, ...]
+    darkvision_range: int | None = None
+    resistances: tuple[DamageType, ...] = ()
 
 
 SPECIES = {
     "Dragonborn": SpeciesRule(
         ("Medium",),
         30,
-        ("Draconic Ancestry", "Breath Weapon", "Damage Resistance", "Darkvision 60 ft."),
+        ("Breath Weapon",),
+        darkvision_range=60,
     ),
     "Dwarf": SpeciesRule(
         ("Medium",),
         30,
-        ("Darkvision 120 ft.", "Dwarven Resilience", "Dwarven Toughness", "Stonecunning"),
+        ("Dwarven Resilience", "Dwarven Toughness", "Stonecunning"),
+        darkvision_range=120,
+        resistances=("Poison",),
     ),
     "Elf": SpeciesRule(
         ("Medium",),
         30,
-        ("Darkvision 60 ft.", "Elven Lineage", "Fey Ancestry", "Keen Senses", "Trance"),
+        ("Fey Ancestry", "Trance"),
+        darkvision_range=60,
     ),
-    "Gnome": SpeciesRule(
-        ("Small",), 30, ("Darkvision 60 ft.", "Gnomish Cunning", "Gnomish Lineage")
-    ),
+    "Gnome": SpeciesRule(("Small",), 30, ("Gnomish Cunning",), darkvision_range=60),
     "Goliath": SpeciesRule(("Medium",), 35, ("Giant Ancestry", "Powerful Build")),
     "Halfling": SpeciesRule(
         ("Small",), 30, ("Brave", "Halfling Nimbleness", "Luck", "Naturally Stealthy")
     ),
     "Human": SpeciesRule(("Medium", "Small"), 30, ("Resourceful", "Skillful", "Versatile")),
     "Orc": SpeciesRule(
-        ("Medium",), 30, ("Adrenaline Rush", "Darkvision 120 ft.", "Relentless Endurance")
+        ("Medium",),
+        30,
+        ("Adrenaline Rush", "Relentless Endurance"),
+        darkvision_range=120,
     ),
     "Tiefling": SpeciesRule(
         ("Medium", "Small"),
         30,
-        ("Darkvision 60 ft.", "Fiendish Legacy", "Otherworldly Presence"),
+        ("Otherworldly Presence",),
+        darkvision_range=60,
     ),
 }

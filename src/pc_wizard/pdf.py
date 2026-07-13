@@ -4,7 +4,7 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.errors import PdfReadError
 
 from pc_wizard.models import Character, signed
-from pc_wizard.rules import ABILITIES, BACKGROUNDS, CLASSES, SPECIES
+from pc_wizard.rules import ABILITIES, BACKGROUNDS, CLASSES
 
 ABILITY_FIELDS = {
     "strength": ("Text19", "Text20", "Text63"),
@@ -92,7 +92,6 @@ def validate_template(template: Path) -> None:
 def field_values(character: Character) -> dict[str, str]:
     class_rule = CLASSES[character.character_class]
     background = BACKGROUNDS[character.background]
-    species = SPECIES[character.species]
     values = {
         "Text1": character.name,
         "Text6": character.character_class,
@@ -100,9 +99,9 @@ def field_values(character: Character) -> dict[str, str]:
         "Text8": character.background,
         "Text9": character.species,
         "Text11": str(character.xp),
-        "Text14": signed(character.abilities.modifier("dexterity")),
+        "Text14": signed(character.initiative_modifier),
         "Text15": character.character_size[0],
-        "Text16": str(species.speed),
+        "Text16": str(character.speed),
         "Text17": str(character.passive_perception),
         "Text18": signed(character.proficiency_bonus),
         "Text26": str(character.armor_class),
@@ -110,10 +109,10 @@ def field_values(character: Character) -> dict[str, str]:
         "Text28": str(character.hit_points),
         "Text29": f"1d{class_rule.hit_die}",
         "Text54": "\n".join(class_rule.features),
-        "Text55": "\n".join(species.traits),
+        "Text55": "\n".join(character.species_traits),
         "Text57": f"Class: {class_rule.equipment}\nBackground: {background.equipment}",
-        "Text58": f"Feat: {background.feat}",
-        "Text59": background.tool,
+        "Text58": "\n".join(character.origin_feat_traits),
+        "Text59": "\n".join(character.all_tool_proficiencies),
         "Text60": class_rule.weapons,
         "Text93": character.alignment,
         "Text111": character.name,

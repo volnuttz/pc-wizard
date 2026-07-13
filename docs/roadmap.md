@@ -69,7 +69,6 @@ GitHub Release v0.1.0 with SHA-256 files: published
   alternate class calculations are not applied.
 - The model accepts levels 1–20, but the creation workflow and most calculations
   only implement level 1.
-- Species subchoices and granted choices are not modeled.
 - Class feature choices are not modeled.
 - Starting-equipment alternatives and starting-gold choices are not interactive.
 - Weapons, attacks, damage, coins, spells, and spell slots are incomplete.
@@ -173,13 +172,18 @@ level-1 SRD character.
 
 ### Species choices
 
-- [ ] Dragonborn ancestry and damage type
-- [ ] Elf lineage, spellcasting ability, and Keen Senses skill
-- [ ] Gnome lineage and spellcasting ability
-- [ ] Goliath ancestry
-- [ ] Human additional skill and Origin feat
-- [ ] Tiefling legacy and spellcasting ability
-- [ ] Apply choice-dependent speed, senses, resistances, spells, and traits
+- [x] Dragonborn ancestry and damage type
+- [x] Elf lineage, spellcasting ability, and Keen Senses skill
+- [x] Gnome lineage and spellcasting ability
+- [x] Goliath ancestry
+- [x] Human additional skill and Origin feat
+- [x] Tiefling legacy and spellcasting ability
+- [x] Apply choice-dependent speed, senses, resistances, spells, and traits
+
+### Feat choices
+
+- [x] Model Origin feat benefits and required subchoices, including Human
+  Versatile choices.
 
 ### Class choices
 
