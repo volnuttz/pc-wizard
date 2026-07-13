@@ -19,6 +19,7 @@
 - `src/pc_wizard/cli.py`: Typer commands and Rich output.
 - `tests/`: unit and PDF integration tests.
 - `docs/codex.md`: Codex usage and repository skills.
+- `docs/roadmap.md`: current baseline, known gaps, phases, and pending tasks.
 - `.agents/skills/`: reusable Codex workflows for this repository.
 
 ## Working rules
@@ -31,6 +32,8 @@
 - Keep prompts thin: gather choices in `wizard.py`, validate in Pydantic models,
   and render from a completed `Character`.
 - Preserve user changes and avoid modifying the source PDFs.
+- Keep `docs/roadmap.md` current when completing, adding, blocking, or
+  reprioritizing roadmap work. Mark tasks complete only after verification.
 - Add or update tests for every behavior change. PDF mapping changes require a
   write/read-back test against the supplied template.
 - When adding dependencies, explain why the standard library and current

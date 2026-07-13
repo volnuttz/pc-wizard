@@ -45,3 +45,8 @@ canonical character record; the PDF is a rendered output.
 Repository guidance lives in `AGENTS.md`, with task-specific workflows under
 `.agents/skills/`. See [`docs/codex.md`](docs/codex.md) for usage and example
 prompts.
+
+## Roadmap
+
+The verified project baseline, known limitations, planned phases, and task
+checklists are maintained in [`docs/roadmap.md`](docs/roadmap.md).
