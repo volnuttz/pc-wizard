@@ -1,0 +1,41 @@
+# Releasing pc-wizard
+
+## Release checklist
+
+1. Confirm the quality and native-binary workflows pass on the release commit.
+2. Update `version` in `pyproject.toml` and `__version__` in
+   `src/pc_wizard/__init__.py`, then run `uv lock`.
+3. Update `docs/roadmap.md` and user-facing documentation for the release.
+4. Run the complete local gate:
+
+   ```console
+   uv run ruff format --check .
+   uv run ruff check .
+   uv run pyright
+   uv run pytest
+   uv build --clear
+   ```
+
+5. Commit the release changes and push an annotated tag matching the version:
+
+   ```console
+   git tag -a v0.1.0 -m "pc-wizard 0.1.0"
+   git push origin v0.1.0
+   ```
+
+The `Native binaries` workflow rebuilds and smoke-tests all platforms, creates
+platform archives and SHA-256 files, and publishes them through a GitHub Release.
+The release job verifies that the tag already exists and uses GitHub-generated
+release notes.
+
+## Signing and notarization
+
+Version 0.1.0 binaries are unsigned. Windows SmartScreen and macOS Gatekeeper may
+therefore warn users or block first launch. Do not tell users that an unsigned
+artifact is trusted merely because it was downloaded from GitHub; they should
+verify its SHA-256 file before running it.
+
+Code signing is deferred until the project has access to a Windows code-signing
+certificate and an Apple Developer ID. Before a broader public release, add
+Authenticode signing for Windows and Developer ID signing plus notarization for
+macOS, then verify signatures in the native workflow before publication.

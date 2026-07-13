@@ -123,7 +123,8 @@ Exit criteria:
 
 Goal: distribute `pc-wizard` to users who do not have Python or uv installed.
 
-Status: in progress; the Linux x86-64 one-directory milestone is verified.
+Status: in progress; all four native CI builds are verified and tag-triggered
+release automation is implemented but has not yet published its first release.
 
 - [x] Add PyInstaller as a development/build dependency.
 - [x] Add a deterministic PyInstaller spec file.
@@ -133,15 +134,17 @@ Status: in progress; the Linux x86-64 one-directory milestone is verified.
 - [x] Verify output paths and template validation in frozen and normal modes.
 - [x] Add reusable binary smoke tests for `--help`, `--version`, and `render`.
 - [x] Add GitHub Actions quality checks on Linux, Windows, and macOS.
-- [ ] Add native executable builds for:
+- [x] Add native executable builds for:
   - [x] Linux x86-64
-  - [ ] Windows x86-64
-  - [ ] macOS Apple Silicon
-  - [ ] macOS Intel, if supported by the release environment
+  - [x] Windows x86-64
+  - [x] macOS Apple Silicon
+  - [x] macOS Intel
 - [ ] Publish versioned artifacts through GitHub Releases.
-- [ ] Publish SHA-256 checksums.
-- [ ] Document platform installation, upgrade, and removal steps.
-- [ ] Evaluate signing and notarization for Windows and macOS.
+- [~] Publish SHA-256 checksums: generation and release upload are implemented;
+  publication awaits the first version tag.
+- [x] Document platform installation, upgrade, and removal steps.
+- [x] Evaluate signing and notarization for Windows and macOS; unsigned 0.1.0
+  artifacts are documented, with signing deferred pending certificates.
 
 Exit criteria:
 

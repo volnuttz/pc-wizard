@@ -53,14 +53,17 @@ packages = ["src/pc_wizard"]
 [tool.hatch.build.targets.sdist]
 include = [
   "/.agents/skills",
+  "/.github/workflows",
   "/AGENTS.md",
   "/LICENSE",
   "/README.md",
   "/docs",
   "/pyproject.toml",
+  "/scripts",
   "/src",
   "/tests",
   "/uv.lock",
+  "/*.spec",
 ]
 
 [tool.pytest.ini_options]

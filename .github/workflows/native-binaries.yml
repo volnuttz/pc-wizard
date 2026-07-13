@@ -2,6 +2,10 @@ name: Native binaries
 
 on:
   push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
   pull_request:
   workflow_dispatch:
 
@@ -48,9 +52,33 @@ jobs:
         run: >-
           uv run python scripts/smoke_binary.py
           "${{ matrix.binary }}" tests/fixtures/character.json character-sheet.pdf
-      - name: Upload executable
+      - name: Package executable and checksum
+        run: >-
+          uv run python scripts/package_binary.py
+          "${{ matrix.binary }}" dist/packages "${{ matrix.artifact }}"
+      - name: Upload packaged executable
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.binary }}
+          path: dist/packages/${{ matrix.artifact }}*
           if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packaged executables
+        uses: actions/download-artifact@v5
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}" release-assets/*
+          --verify-tag --generate-notes --title "pc-wizard ${GITHUB_REF_NAME}"

@@ -36,6 +36,39 @@ uv run pc-wizard render my-hero.json --template character-sheet.pdf --output ano
 Run `uv run pc-wizard --help` for all options. Cancel the interactive wizard at
 any prompt with Ctrl-C.
 
+## Install a standalone executable
+
+Download the archive and matching `.sha256` file for your platform from the
+[latest GitHub Release](https://github.com/volnuttz/pc-wizard/releases/latest):
+
+- `pc-wizard-linux-x86_64.tar.gz`
+- `pc-wizard-windows-x86_64.zip`
+- `pc-wizard-macos-arm64.tar.gz` for Apple Silicon
+- `pc-wizard-macos-x86_64.tar.gz` for Intel Macs
+
+Verify the archive before extracting it:
+
+```console
+# Linux
+sha256sum --check pc-wizard-linux-x86_64.tar.gz.sha256
+
+# macOS
+shasum --algorithm 256 --check pc-wizard-macos-arm64.tar.gz.sha256
+```
+
+On Windows PowerShell, compare the output of this command with the hash at the
+start of the downloaded `.sha256` file:
+
+```powershell
+Get-FileHash .\pc-wizard-windows-x86_64.zip -Algorithm SHA256
+```
+
+Extract the archive and place `pc-wizard` (or `pc-wizard.exe`) in a directory on
+your `PATH`. Upgrade by replacing that file with the verified file from a newer
+release. Uninstall by deleting it. The binaries are currently unsigned, so Windows
+SmartScreen or macOS Gatekeeper may warn on first launch; see
+[`docs/releasing.md`](docs/releasing.md#signing-and-notarization).
+
 ## Install as a uv tool
 
 Install the command globally from GitHub without cloning the repository:
