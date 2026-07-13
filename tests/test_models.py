@@ -37,6 +37,14 @@ def test_json_round_trip(character: Character, tmp_path: Path) -> None:
     assert Character.load_json(path) == character
 
 
+def test_binary_smoke_fixture_is_valid() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "character.json"
+
+    character = Character.load_json(fixture)
+
+    assert character.name == "Binary Smoke Test"
+
+
 def test_rejects_unknown_class() -> None:
     with pytest.raises(ValidationError, match="unknown SRD class"):
         Character(

@@ -73,7 +73,7 @@ Build the platform-native one-directory executable with PyInstaller:
 uv run pyinstaller --clean --noconfirm pc-wizard.spec
 dist/pc-wizard/pc-wizard --version
 uv run python scripts/smoke_binary.py \
-  dist/pc-wizard/pc-wizard character.json character-sheet.pdf
+  dist/pc-wizard/pc-wizard tests/fixtures/character.json character-sheet.pdf
 ```
 
 PyInstaller builds for the current operating system only. The generated `build/`
@@ -84,7 +84,7 @@ Build and smoke-test the single-file executable with:
 ```console
 uv run pyinstaller --clean --noconfirm pc-wizard-onefile.spec
 uv run python scripts/smoke_binary.py \
-  dist/pc-wizard-onefile character.json character-sheet.pdf
+  dist/pc-wizard-onefile tests/fixtures/character.json character-sheet.pdf
 ```
 
 The current wizard targets level-1 creation and the player options published in

@@ -47,7 +47,7 @@ jobs:
       - name: Smoke-test executable
         run: >-
           uv run python scripts/smoke_binary.py
-          "${{ matrix.binary }}" character.json character-sheet.pdf
+          "${{ matrix.binary }}" tests/fixtures/character.json character-sheet.pdf
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
