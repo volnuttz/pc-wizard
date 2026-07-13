@@ -73,3 +73,5 @@ For packaging or release changes, build the affected PyInstaller spec and run
   `src/pc_wizard/pdf.py` changes.
 - Use `$verify-pc-wizard` for pre-handoff validation or diagnosing quality-gate
   failures.
+- Use `$release-pc-wizard` to select, prepare, verify, publish, or recover a
+  versioned release.
