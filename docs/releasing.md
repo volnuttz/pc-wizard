@@ -28,6 +28,16 @@ platform archives and SHA-256 files, and publishes them through a GitHub Release
 The release job verifies that the tag already exists and uses GitHub-generated
 release notes.
 
+If a tag build succeeds but its release job fails, fix the workflow on the default
+branch and recover without moving the tag:
+
+```console
+gh workflow run "Native binaries" --ref main -f release_tag=v0.1.0
+```
+
+The manual run rebuilds and smoke-tests every artifact before publishing the
+existing tag. Leave `release_tag` empty for ordinary non-release manual builds.
+
 ## Signing and notarization
 
 Version 0.1.0 binaries are unsigned. Windows SmartScreen and macOS Gatekeeper may
