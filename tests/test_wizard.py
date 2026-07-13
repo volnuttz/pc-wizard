@@ -5,7 +5,7 @@ from typing import cast
 import pytest
 
 from pc_wizard import wizard
-from pc_wizard.models import AbilityGenerationMethod, MagicInitiateChoice
+from pc_wizard.models import AbilityGenerationMethod, ClassChoices, MagicInitiateChoice
 from pc_wizard.rules import (
     POINT_BUY_BUDGET,
     MagicInitiateList,
@@ -14,6 +14,7 @@ from pc_wizard.rules import (
 )
 from pc_wizard.wizard import (
     apply_background_increases,
+    choose_class_choices,
     choose_draconic_ancestry,
     choose_elf_traits,
     choose_gnome_traits,
@@ -439,3 +440,64 @@ def test_origin_feat_details_collect_three_skilled_proficiencies(
 
     assert magic == []
     assert skilled == {"Perception", "Alchemist's Supplies", "Disguise Kit"}
+
+
+def test_wizard_class_choices_collect_spellbook_before_prepared_spells(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, int]] = []
+    spellbook = [
+        "Detect Magic",
+        "Find Familiar",
+        "Mage Armor",
+        "Magic Missile",
+        "Shield",
+        "Sleep",
+    ]
+
+    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+        calls.append((message, count))
+        if "cantrips" in message:
+            return ["Fire Bolt", "Mage Hand", "Prestidigitation"]
+        if "spellbook" in message:
+            return spellbook
+        assert tuple(choices) == tuple(sorted(spellbook))
+        return ["Detect Magic", "Mage Armor", "Magic Missile", "Shield"]
+
+    monkeypatch.setattr(wizard, "checkbox", fake_checkbox)
+
+    choices = choose_class_choices("Wizard", {"Arcana", "History"}, ["Common", "Elvish"])
+
+    assert choices == ClassChoices(
+        cantrips={"Fire Bolt", "Mage Hand", "Prestidigitation"},
+        spellbook_spells=set(spellbook),
+        prepared_spells={"Detect Magic", "Mage Armor", "Magic Missile", "Shield"},
+    )
+    assert [count for _, count in calls] == [3, 6, 4]
+
+
+def test_rogue_class_choices_limit_masteries_and_add_language(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+        if "weapon masteries" in message:
+            assert "Shortsword" in choices
+            assert "Greatsword" not in choices
+            return ["Dagger", "Shortsword"]
+        assert message == "Choose two skills for Expertise"
+        return ["Stealth", "Perception"]
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        assert message == "Choose the Rogue's additional language"
+        assert "Elvish" not in choices
+        return "Draconic"
+
+    monkeypatch.setattr(wizard, "checkbox", fake_checkbox)
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    choices = choose_class_choices(
+        "Rogue", {"Stealth", "Perception", "Sleight of Hand"}, ["Common", "Elvish"]
+    )
+
+    assert choices.expertise == {"Stealth", "Perception"}
+    assert choices.additional_language == "Draconic"

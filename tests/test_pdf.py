@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
-from pc_wizard.models import AbilityScores, Character, MagicInitiateChoice
+from pc_wizard.models import AbilityScores, Character, ClassChoices, MagicInitiateChoice
 from pc_wizard.pdf import field_values, render_character_sheet, validate_template
 
 
@@ -17,6 +17,10 @@ def sample() -> Character:
             strength=17, dexterity=14, constitution=14, intelligence=8, wisdom=10, charisma=12
         ),
         skills={"Athletics", "Intimidation", "Perception", "Survival"},
+        class_choices=ClassChoices(
+            weapon_masteries={"Greataxe", "Greatsword", "Longbow"},
+            fighting_style="Great Weapon Fighting",
+        ),
         languages=["Common", "Dwarvish", "Giant"],
     )
 
@@ -98,6 +102,8 @@ def test_field_values_include_derived_values() -> None:
     assert values["Text19"] == "17"
     assert values["Text63"] == "+5"
     assert values["Text27"] == "13"
+    assert "Fighting Style: Great Weapon Fighting" in values["Text54"]
+    assert "Greataxe (Cleave)" in values["Text54"]
 
 
 def test_field_values_include_elf_keen_senses_proficiency() -> None:
@@ -129,6 +135,7 @@ def test_render_fills_template(tmp_path: Path) -> None:
         "Alert: Initiative Proficiency; Initiative Swap\n"
         "Savage Attacker: roll weapon damage dice twice once per turn"
     )
+    assert "Weapon Mastery: Greataxe (Cleave)" in fields["Text54"]["/V"]
     assert fields["Text59"]["/V"] == "Gaming Set"
 
 

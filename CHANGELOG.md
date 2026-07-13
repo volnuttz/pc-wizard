@@ -33,6 +33,12 @@ All notable changes to pc-wizard are documented here. The project follows
   proficiency to Initiative, Magic Initiate selects validated spells, Skilled
   grants three skill/tool proficiencies, and Savage Attacker is retained in the
   character's rendered feat traits.
+- All level-1 class choices are now interactive and model-validated, including
+  weapon masteries, tools and instruments, Divine and Primal Orders, Fighter
+  Fighting Style, Rogue Expertise and language, class spells, the Wizard
+  spellbook, and eligible level-1 Eldritch Invocations.
+- Class selections and weapon mastery properties are included in the rendered
+  class-features field.
 
 ## [0.1.0] - 2026-07-13
 

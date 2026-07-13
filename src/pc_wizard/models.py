@@ -6,24 +6,34 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from pc_wizard.rules import (
     ABILITIES,
+    ARTISAN_TOOLS,
     BACKGROUND_MAGIC_INITIATE_LISTS,
     BACKGROUND_ORIGIN_FEATS,
     BACKGROUNDS,
+    CLASS_ALWAYS_PREPARED_SPELLS,
+    CLASS_SPELL_LISTS,
     CLASSES,
     DRACONIC_ANCESTORS,
     ELVEN_LINEAGES,
     FIENDISH_LEGACIES,
+    FIGHTING_STYLES,
     GNOMISH_LINEAGES,
     GOLIATH_ANCESTRIES,
+    LEVEL_ONE_WARLOCK_INVOCATIONS,
     MAGIC_INITIATE_SPELL_LISTS,
     MAX_ABILITY_SCORE,
+    MUSICAL_INSTRUMENTS,
     POINT_BUY_BUDGET,
     SKILL_ABILITIES,
     SPECIES,
     STANDARD_ARRAY,
+    STANDARD_LANGUAGES,
     TOOLS,
+    WEAPON_MASTERY_COUNTS,
+    WEAPONS,
     CreatureSize,
     DamageType,
+    DivineOrder,
     DraconicAncestry,
     ElvenLineage,
     ElvenLineageRule,
@@ -36,8 +46,10 @@ from pc_wizard.rules import (
     KeenSensesSkill,
     MagicInitiateList,
     OriginFeat,
+    PrimalOrder,
     SpellcastingAbility,
     point_buy_cost,
+    weapon_mastery_options,
 )
 
 
@@ -148,6 +160,21 @@ class MagicInitiateChoice(BaseModel):
         return self
 
 
+class ClassChoices(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    weapon_masteries: set[str] = Field(default_factory=set)
+    tools: set[str] = Field(default_factory=set)
+    expertise: set[str] = Field(default_factory=set)
+    cantrips: set[str] = Field(default_factory=set)
+    prepared_spells: set[str] = Field(default_factory=set)
+    spellbook_spells: set[str] = Field(default_factory=set)
+    divine_order: DivineOrder | None = None
+    primal_order: PrimalOrder | None = None
+    fighting_style: str | None = None
+    eldritch_invocation: str | None = None
+    additional_language: str | None = None
+
+
 class Character(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1)
@@ -169,6 +196,7 @@ class Character(BaseModel):
     alignment: str
     abilities: AbilityScores
     skills: set[str] = Field(default_factory=set)
+    class_choices: ClassChoices = Field(default_factory=ClassChoices)
     tool_proficiencies: set[str] = Field(default_factory=set)
     magic_initiate_choices: list[MagicInitiateChoice] = Field(
         default_factory=lambda: list[MagicInitiateChoice]()
@@ -301,6 +329,116 @@ class Character(BaseModel):
             raise ValueError("Skilled skill choices must be included in skill proficiencies")
         if not skilled_tools.issubset(self.tool_proficiencies):
             raise ValueError("Skilled tool choices must be included in tool proficiencies")
+        return self
+
+    @model_validator(mode="after")
+    def valid_class_choices(self) -> Self:
+        choices = self.class_choices
+        mastery_count = WEAPON_MASTERY_COUNTS.get(self.character_class, 0)
+        if len(choices.weapon_masteries) != mastery_count:
+            raise ValueError(
+                f"{self.character_class} requires exactly {mastery_count} weapon masteries"
+            )
+        allowed_masteries = set(weapon_mastery_options(self.character_class))
+        if not choices.weapon_masteries.issubset(allowed_masteries):
+            raise ValueError(f"invalid {self.character_class} weapon mastery choice")
+
+        expected_tools = (
+            3 if self.character_class == "Bard" else int(self.character_class == "Monk")
+        )
+        if len(choices.tools) != expected_tools:
+            raise ValueError(
+                f"{self.character_class} requires exactly {expected_tools} class tool choices"
+            )
+        allowed_tools: set[str] = set()
+        if self.character_class == "Bard":
+            allowed_tools.update(MUSICAL_INSTRUMENTS)
+        elif self.character_class == "Monk":
+            allowed_tools.update((*ARTISAN_TOOLS, *MUSICAL_INSTRUMENTS))
+        if not choices.tools.issubset(allowed_tools):
+            raise ValueError(f"invalid {self.character_class} class tool choice")
+
+        expected_expertise = 2 if self.character_class == "Rogue" else 0
+        if len(choices.expertise) != expected_expertise:
+            raise ValueError(
+                f"{self.character_class} requires exactly {expected_expertise} Expertise choices"
+            )
+        if not choices.expertise.issubset(self.skills):
+            raise ValueError("Expertise choices must be existing skill proficiencies")
+
+        expected_cantrips = {
+            "Bard": 2,
+            "Cleric": 3,
+            "Druid": 2,
+            "Sorcerer": 4,
+            "Warlock": 2,
+            "Wizard": 3,
+        }.get(self.character_class, 0)
+        if choices.divine_order == "Thaumaturge":
+            expected_cantrips += 1
+        if choices.primal_order == "Magician":
+            expected_cantrips += 1
+        expected_prepared = {
+            "Bard": 4,
+            "Cleric": 4,
+            "Druid": 4,
+            "Paladin": 2,
+            "Ranger": 2,
+            "Sorcerer": 2,
+            "Warlock": 2,
+            "Wizard": 4,
+        }.get(self.character_class, 0)
+        spell_list = CLASS_SPELL_LISTS.get(self.character_class)
+        allowed_cantrips: set[str] = set(spell_list.cantrips) if spell_list else set()
+        allowed_spells: set[str] = set(spell_list.level_one_spells) if spell_list else set()
+        selectable_spells = allowed_spells - set(
+            CLASS_ALWAYS_PREPARED_SPELLS.get(self.character_class, ())
+        )
+        if len(choices.cantrips) != expected_cantrips or not choices.cantrips.issubset(
+            allowed_cantrips
+        ):
+            raise ValueError(f"invalid number or selection of {self.character_class} cantrips")
+        if len(
+            choices.prepared_spells
+        ) != expected_prepared or not choices.prepared_spells.issubset(selectable_spells):
+            raise ValueError(
+                f"invalid number or selection of {self.character_class} prepared spells"
+            )
+
+        expected_spellbook = 6 if self.character_class == "Wizard" else 0
+        if len(choices.spellbook_spells) != expected_spellbook:
+            raise ValueError(
+                f"{self.character_class} requires exactly {expected_spellbook} spellbook spells"
+            )
+        if not choices.spellbook_spells.issubset(allowed_spells):
+            raise ValueError("Wizard spellbook spells must be level 1 Wizard spells")
+        if self.character_class == "Wizard" and not choices.prepared_spells.issubset(
+            choices.spellbook_spells
+        ):
+            raise ValueError("Wizard prepared spells must be in the character's spellbook")
+
+        if (choices.divine_order is None) != (self.character_class != "Cleric"):
+            raise ValueError("Divine Order is required only for Clerics")
+        if (choices.primal_order is None) != (self.character_class != "Druid"):
+            raise ValueError("Primal Order is required only for Druids")
+        if (choices.fighting_style is None) != (self.character_class != "Fighter"):
+            raise ValueError("Fighting Style is required only for Fighters")
+        if choices.fighting_style is not None and choices.fighting_style not in FIGHTING_STYLES:
+            raise ValueError("invalid Fighter Fighting Style")
+        if (choices.eldritch_invocation is None) != (self.character_class != "Warlock"):
+            raise ValueError("an Eldritch Invocation is required only for Warlocks")
+        if (
+            choices.eldritch_invocation is not None
+            and choices.eldritch_invocation not in LEVEL_ONE_WARLOCK_INVOCATIONS
+        ):
+            raise ValueError("invalid level-1 Warlock invocation")
+        if (choices.additional_language is None) != (self.character_class != "Rogue"):
+            raise ValueError("an additional language is required only for Rogues")
+        if choices.additional_language is not None:
+            if choices.additional_language not in STANDARD_LANGUAGES:
+                raise ValueError("invalid Rogue additional language")
+            if choices.additional_language not in self.languages:
+                raise ValueError("Rogue additional language must be included in languages")
         return self
 
     @property
@@ -462,7 +600,86 @@ class Character(BaseModel):
 
     @property
     def all_tool_proficiencies(self) -> tuple[str, ...]:
-        return tuple(dict.fromkeys((BACKGROUNDS[self.background].tool, *self.tool_proficiencies)))
+        return tuple(
+            dict.fromkeys(
+                (
+                    BACKGROUNDS[self.background].tool,
+                    *sorted(self.class_choices.tools | self.tool_proficiencies),
+                )
+            )
+        )
+
+    @property
+    def class_cantrips(self) -> tuple[str, ...]:
+        return tuple(sorted(self.class_choices.cantrips))
+
+    @property
+    def class_prepared_spells(self) -> tuple[str, ...]:
+        spells = set(self.class_choices.prepared_spells)
+        spells.update(CLASS_ALWAYS_PREPARED_SPELLS.get(self.character_class, ()))
+        return tuple(sorted(spells))
+
+    @property
+    def armor_training(self) -> str:
+        if self.class_choices.divine_order == "Protector":
+            return "Light, Medium, Heavy, Shields"
+        if self.class_choices.primal_order == "Warden":
+            return "Light, Medium, Shields"
+        return CLASSES[self.character_class].armor
+
+    @property
+    def weapon_proficiencies(self) -> str:
+        if (
+            self.class_choices.divine_order == "Protector"
+            or self.class_choices.primal_order == "Warden"
+        ):
+            return "Simple and Martial"
+        return CLASSES[self.character_class].weapons
+
+    @property
+    def class_traits(self) -> tuple[str, ...]:
+        traits = list(CLASSES[self.character_class].features)
+        choices = self.class_choices
+        if choices.weapon_masteries:
+            selected = ", ".join(
+                f"{weapon} ({WEAPONS[weapon].mastery})"
+                for weapon in sorted(choices.weapon_masteries)
+            )
+            traits.append(f"Weapon Mastery: {selected}")
+        if choices.tools:
+            traits.append(f"Class Tools: {', '.join(sorted(choices.tools))}")
+        if choices.expertise:
+            traits.append(f"Expertise: {', '.join(sorted(choices.expertise))}")
+        if choices.divine_order:
+            benefit = (
+                "Martial weapons and Heavy armor"
+                if choices.divine_order == "Protector"
+                else "extra Cleric cantrip; Arcana and Religion bonus"
+            )
+            traits.append(f"Divine Order: {choices.divine_order} ({benefit})")
+        if choices.primal_order:
+            benefit = (
+                "extra Druid cantrip; Arcana and Nature bonus"
+                if choices.primal_order == "Magician"
+                else "Martial weapons and Medium armor"
+            )
+            traits.append(f"Primal Order: {choices.primal_order} ({benefit})")
+        if choices.fighting_style:
+            traits.append(f"Fighting Style: {choices.fighting_style}")
+        if choices.eldritch_invocation:
+            traits.append(
+                f"Eldritch Invocation: {choices.eldritch_invocation} — "
+                f"{LEVEL_ONE_WARLOCK_INVOCATIONS[choices.eldritch_invocation]}"
+            )
+        if choices.additional_language:
+            traits.append(f"Thieves' Cant: additional language ({choices.additional_language})")
+        if choices.cantrips:
+            traits.append(f"Cantrips: {', '.join(sorted(choices.cantrips))}")
+        if choices.spellbook_spells:
+            traits.append(f"Spellbook: {', '.join(sorted(choices.spellbook_spells))}")
+        if choices.prepared_spells:
+            traits.append(f"Prepared Spells: {', '.join(self.class_prepared_spells)}")
+        return tuple(traits)
 
     @property
     def feat_cantrips(self) -> tuple[str, ...]:
@@ -475,6 +692,24 @@ class Character(BaseModel):
     @property
     def feat_prepared_spells(self) -> tuple[str, ...]:
         return tuple(choice.level_one_spell for choice in self.magic_initiate_choices)
+
+    @property
+    def all_cantrips(self) -> tuple[str, ...]:
+        return tuple(
+            dict.fromkeys((*self.species_cantrips, *self.feat_cantrips, *self.class_cantrips))
+        )
+
+    @property
+    def all_prepared_spells(self) -> tuple[str, ...]:
+        return tuple(
+            dict.fromkeys(
+                (
+                    *self.species_prepared_spells,
+                    *self.feat_prepared_spells,
+                    *self.class_prepared_spells,
+                )
+            )
+        )
 
     @property
     def origin_feat_traits(self) -> tuple[str, ...]:
@@ -534,7 +769,15 @@ class Character(BaseModel):
 
     def skill_modifier(self, skill: str) -> int:
         value = self.abilities.modifier(SKILL_ABILITIES[skill])
-        return value + (self.proficiency_bonus if skill in self.skills else 0)
+        if skill in self.class_choices.expertise:
+            value += self.proficiency_bonus * 2
+        elif skill in self.skills:
+            value += self.proficiency_bonus
+        if self.class_choices.divine_order == "Thaumaturge" and skill in {"Arcana", "Religion"}:
+            value += max(1, self.abilities.modifier("wisdom"))
+        if self.class_choices.primal_order == "Magician" and skill in {"Arcana", "Nature"}:
+            value += max(1, self.abilities.modifier("wisdom"))
+        return value
 
     def saving_throw(self, ability: str) -> int:
         value = self.abilities.modifier(ability)

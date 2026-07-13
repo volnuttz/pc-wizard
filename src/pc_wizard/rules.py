@@ -17,6 +17,8 @@ type KeenSensesSkill = Literal["Insight", "Perception", "Survival"]
 type MagicInitiateList = Literal["Cleric", "Druid", "Wizard"]
 type OriginFeat = Literal["Alert", "Magic Initiate", "Savage Attacker", "Skilled"]
 type SpellcastingAbility = Literal["intelligence", "wisdom", "charisma"]
+type DivineOrder = Literal["Protector", "Thaumaturge"]
+type PrimalOrder = Literal["Magician", "Warden"]
 
 DRACONIC_ANCESTORS: dict[DraconicAncestry, DamageType] = {
     "Black": "Acid",
@@ -255,7 +257,170 @@ MAGIC_INITIATE_SPELL_LISTS: dict[MagicInitiateList, MagicInitiateSpellList] = {
     ),
 }
 
-TOOLS = (
+CLASS_SPELL_LISTS: dict[str, MagicInitiateSpellList] = {
+    "Bard": MagicInitiateSpellList(
+        (
+            "Dancing Lights",
+            "Light",
+            "Mage Hand",
+            "Mending",
+            "Message",
+            "Minor Illusion",
+            "Prestidigitation",
+            "Starry Wisp",
+            "True Strike",
+            "Vicious Mockery",
+        ),
+        (
+            "Animal Friendship",
+            "Bane",
+            "Charm Person",
+            "Color Spray",
+            "Command",
+            "Comprehend Languages",
+            "Cure Wounds",
+            "Detect Magic",
+            "Disguise Self",
+            "Dissonant Whispers",
+            "Faerie Fire",
+            "Feather Fall",
+            "Healing Word",
+            "Heroism",
+            "Hideous Laughter",
+            "Identify",
+            "Illusory Script",
+            "Longstrider",
+            "Silent Image",
+            "Sleep",
+            "Speak with Animals",
+            "Thunderwave",
+            "Unseen Servant",
+        ),
+    ),
+    "Cleric": MAGIC_INITIATE_SPELL_LISTS["Cleric"],
+    "Druid": MAGIC_INITIATE_SPELL_LISTS["Druid"],
+    "Paladin": MagicInitiateSpellList(
+        (),
+        (
+            "Bless",
+            "Command",
+            "Cure Wounds",
+            "Detect Evil and Good",
+            "Detect Magic",
+            "Detect Poison and Disease",
+            "Divine Favor",
+            "Divine Smite",
+            "Heroism",
+            "Protection from Evil and Good",
+            "Purify Food and Drink",
+            "Searing Smite",
+            "Shield of Faith",
+        ),
+    ),
+    "Ranger": MagicInitiateSpellList(
+        (),
+        (
+            "Alarm",
+            "Animal Friendship",
+            "Cure Wounds",
+            "Detect Magic",
+            "Detect Poison and Disease",
+            "Ensnaring Strike",
+            "Entangle",
+            "Fog Cloud",
+            "Goodberry",
+            "Hunter's Mark",
+            "Jump",
+            "Longstrider",
+            "Speak with Animals",
+        ),
+    ),
+    "Sorcerer": MagicInitiateSpellList(
+        (
+            "Acid Splash",
+            "Chill Touch",
+            "Dancing Lights",
+            "Elementalism",
+            "Fire Bolt",
+            "Light",
+            "Mage Hand",
+            "Mending",
+            "Message",
+            "Minor Illusion",
+            "Poison Spray",
+            "Prestidigitation",
+            "Ray of Frost",
+            "Shocking Grasp",
+            "Sorcerous Burst",
+            "True Strike",
+        ),
+        (
+            "Burning Hands",
+            "Charm Person",
+            "Chromatic Orb",
+            "Color Spray",
+            "Comprehend Languages",
+            "Detect Magic",
+            "Disguise Self",
+            "Expeditious Retreat",
+            "False Life",
+            "Feather Fall",
+            "Fog Cloud",
+            "Grease",
+            "Ice Knife",
+            "Jump",
+            "Mage Armor",
+            "Magic Missile",
+            "Ray of Sickness",
+            "Shield",
+            "Silent Image",
+            "Sleep",
+            "Thunderwave",
+        ),
+    ),
+    "Warlock": MagicInitiateSpellList(
+        (
+            "Chill Touch",
+            "Eldritch Blast",
+            "Mage Hand",
+            "Minor Illusion",
+            "Poison Spray",
+            "Prestidigitation",
+            "True Strike",
+        ),
+        (
+            "Bane",
+            "Charm Person",
+            "Comprehend Languages",
+            "Detect Magic",
+            "Expeditious Retreat",
+            "Hellish Rebuke",
+            "Hex",
+            "Hideous Laughter",
+            "Illusory Script",
+            "Protection from Evil and Good",
+            "Speak with Animals",
+            "Unseen Servant",
+        ),
+    ),
+    "Wizard": MAGIC_INITIATE_SPELL_LISTS["Wizard"],
+}
+
+CLASS_ALWAYS_PREPARED_SPELLS: dict[str, tuple[str, ...]] = {
+    "Druid": ("Speak with Animals",),
+    "Ranger": ("Hunter's Mark",),
+}
+
+FIGHTING_STYLES = ("Archery", "Defense", "Great Weapon Fighting", "Two-Weapon Fighting")
+LEVEL_ONE_WARLOCK_INVOCATIONS = {
+    "Armor of Shadows": "Cast Mage Armor on yourself without a spell slot.",
+    "Eldritch Mind": "Advantage on Constitution saves to maintain Concentration.",
+    "Pact of the Blade": "Conjure or bond with a pact weapon.",
+    "Pact of the Chain": "Learn Find Familiar and cast it without a spell slot.",
+    "Pact of the Tome": "Conjure a Book of Shadows with cantrips and rituals.",
+}
+
+ARTISAN_TOOLS = (
     "Alchemist's Supplies",
     "Brewer's Supplies",
     "Calligrapher's Supplies",
@@ -273,13 +438,8 @@ TOOLS = (
     "Tinker's Tools",
     "Weaver's Tools",
     "Woodcarver's Tools",
-    "Disguise Kit",
-    "Forgery Kit",
-    "Gaming Set (Dice)",
-    "Gaming Set (Dragonchess)",
-    "Gaming Set (Playing Cards)",
-    "Gaming Set (Three-Dragon Ante)",
-    "Herbalism Kit",
+)
+MUSICAL_INSTRUMENTS = (
     "Musical Instrument (Bagpipes)",
     "Musical Instrument (Drum)",
     "Musical Instrument (Dulcimer)",
@@ -290,6 +450,18 @@ TOOLS = (
     "Musical Instrument (Pan Flute)",
     "Musical Instrument (Shawm)",
     "Musical Instrument (Viol)",
+)
+
+TOOLS = (
+    *ARTISAN_TOOLS,
+    "Disguise Kit",
+    "Forgery Kit",
+    "Gaming Set (Dice)",
+    "Gaming Set (Dragonchess)",
+    "Gaming Set (Playing Cards)",
+    "Gaming Set (Three-Dragon Ante)",
+    "Herbalism Kit",
+    *MUSICAL_INSTRUMENTS,
     "Navigator's Tools",
     "Poisoner's Kit",
     "Thieves' Tools",
@@ -369,6 +541,80 @@ SKILL_ABILITIES = {
     "Stealth": "dexterity",
     "Survival": "wisdom",
 }
+
+
+@dataclass(frozen=True, slots=True)
+class WeaponRule:
+    category: Literal["Simple", "Martial"]
+    kind: Literal["Melee", "Ranged"]
+    properties: tuple[str, ...]
+    mastery: str
+
+
+WEAPONS: dict[str, WeaponRule] = {
+    "Club": WeaponRule("Simple", "Melee", ("Light",), "Slow"),
+    "Dagger": WeaponRule("Simple", "Melee", ("Finesse", "Light", "Thrown"), "Nick"),
+    "Greatclub": WeaponRule("Simple", "Melee", ("Two-Handed",), "Push"),
+    "Handaxe": WeaponRule("Simple", "Melee", ("Light", "Thrown"), "Vex"),
+    "Javelin": WeaponRule("Simple", "Melee", ("Thrown",), "Slow"),
+    "Light Hammer": WeaponRule("Simple", "Melee", ("Light", "Thrown"), "Nick"),
+    "Mace": WeaponRule("Simple", "Melee", (), "Sap"),
+    "Quarterstaff": WeaponRule("Simple", "Melee", ("Versatile",), "Topple"),
+    "Sickle": WeaponRule("Simple", "Melee", ("Light",), "Nick"),
+    "Spear": WeaponRule("Simple", "Melee", ("Thrown", "Versatile"), "Sap"),
+    "Dart": WeaponRule("Simple", "Ranged", ("Finesse", "Thrown"), "Vex"),
+    "Light Crossbow": WeaponRule(
+        "Simple", "Ranged", ("Ammunition", "Loading", "Two-Handed"), "Slow"
+    ),
+    "Shortbow": WeaponRule("Simple", "Ranged", ("Ammunition", "Two-Handed"), "Vex"),
+    "Sling": WeaponRule("Simple", "Ranged", ("Ammunition",), "Slow"),
+    "Battleaxe": WeaponRule("Martial", "Melee", ("Versatile",), "Topple"),
+    "Flail": WeaponRule("Martial", "Melee", (), "Sap"),
+    "Glaive": WeaponRule("Martial", "Melee", ("Heavy", "Reach", "Two-Handed"), "Graze"),
+    "Greataxe": WeaponRule("Martial", "Melee", ("Heavy", "Two-Handed"), "Cleave"),
+    "Greatsword": WeaponRule("Martial", "Melee", ("Heavy", "Two-Handed"), "Graze"),
+    "Halberd": WeaponRule("Martial", "Melee", ("Heavy", "Reach", "Two-Handed"), "Cleave"),
+    "Lance": WeaponRule("Martial", "Melee", ("Heavy", "Reach", "Two-Handed"), "Topple"),
+    "Longsword": WeaponRule("Martial", "Melee", ("Versatile",), "Sap"),
+    "Maul": WeaponRule("Martial", "Melee", ("Heavy", "Two-Handed"), "Topple"),
+    "Morningstar": WeaponRule("Martial", "Melee", (), "Sap"),
+    "Pike": WeaponRule("Martial", "Melee", ("Heavy", "Reach", "Two-Handed"), "Push"),
+    "Rapier": WeaponRule("Martial", "Melee", ("Finesse",), "Vex"),
+    "Scimitar": WeaponRule("Martial", "Melee", ("Finesse", "Light"), "Nick"),
+    "Shortsword": WeaponRule("Martial", "Melee", ("Finesse", "Light"), "Vex"),
+    "Trident": WeaponRule("Martial", "Melee", ("Thrown", "Versatile"), "Topple"),
+    "Warhammer": WeaponRule("Martial", "Melee", ("Versatile",), "Push"),
+    "War Pick": WeaponRule("Martial", "Melee", ("Versatile",), "Sap"),
+    "Whip": WeaponRule("Martial", "Melee", ("Finesse", "Reach"), "Slow"),
+    "Blowgun": WeaponRule("Martial", "Ranged", ("Ammunition", "Loading"), "Vex"),
+    "Hand Crossbow": WeaponRule("Martial", "Ranged", ("Ammunition", "Light", "Loading"), "Vex"),
+    "Heavy Crossbow": WeaponRule(
+        "Martial", "Ranged", ("Ammunition", "Heavy", "Loading", "Two-Handed"), "Push"
+    ),
+    "Longbow": WeaponRule("Martial", "Ranged", ("Ammunition", "Heavy", "Two-Handed"), "Slow"),
+    "Musket": WeaponRule("Martial", "Ranged", ("Ammunition", "Loading", "Two-Handed"), "Slow"),
+    "Pistol": WeaponRule("Martial", "Ranged", ("Ammunition", "Loading"), "Vex"),
+}
+
+WEAPON_MASTERY_COUNTS = {
+    "Barbarian": 2,
+    "Fighter": 3,
+    "Paladin": 2,
+    "Ranger": 2,
+    "Rogue": 2,
+}
+
+
+def weapon_mastery_options(character_class: str) -> tuple[str, ...]:
+    if character_class == "Barbarian":
+        return tuple(name for name, rule in WEAPONS.items() if rule.kind == "Melee")
+    if character_class == "Rogue":
+        return tuple(
+            name
+            for name, rule in WEAPONS.items()
+            if rule.category == "Simple" or {"Finesse", "Light"} & set(rule.properties)
+        )
+    return tuple(WEAPONS)
 
 
 @dataclass(frozen=True, slots=True)

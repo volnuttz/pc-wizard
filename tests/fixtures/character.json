@@ -22,10 +22,16 @@
     "Sleight of Hand",
     "Stealth"
   ],
+  "class_choices": {
+    "weapon_masteries": ["Dagger", "Shortsword"],
+    "expertise": ["Sleight of Hand", "Stealth"],
+    "additional_language": "Draconic"
+  },
   "languages": [
     "Common",
     "Elvish",
-    "Halfling"
+    "Halfling",
+    "Draconic"
   ],
   "level": 1,
   "xp": 0

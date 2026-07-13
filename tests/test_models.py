@@ -9,6 +9,7 @@ from pc_wizard.models import (
     AbilityScores,
     BackgroundAbilityAdjustment,
     Character,
+    ClassChoices,
     MagicInitiateChoice,
 )
 
@@ -25,6 +26,18 @@ def character() -> Character:
             strength=8, dexterity=12, constitution=14, intelligence=17, wisdom=15, charisma=10
         ),
         skills={"Arcana", "History", "Investigation", "Nature"},
+        class_choices=ClassChoices(
+            cantrips={"Fire Bolt", "Mage Hand", "Prestidigitation"},
+            spellbook_spells={
+                "Detect Magic",
+                "Find Familiar",
+                "Mage Armor",
+                "Magic Missile",
+                "Shield",
+                "Sleep",
+            },
+            prepared_spells={"Detect Magic", "Mage Armor", "Magic Missile", "Shield"},
+        ),
         magic_initiate_choices=[
             MagicInitiateChoice(
                 spell_list="Wizard",
@@ -58,6 +71,160 @@ def test_json_round_trip(character: Character, tmp_path: Path) -> None:
     path = tmp_path / "ada.json"
     character.save_json(path)
     assert Character.load_json(path) == character
+
+
+@pytest.mark.parametrize(
+    ("class_name", "choices"),
+    [
+        ("Barbarian", ClassChoices(weapon_masteries={"Greataxe", "Handaxe"})),
+        (
+            "Bard",
+            ClassChoices(
+                tools={
+                    "Musical Instrument (Drum)",
+                    "Musical Instrument (Flute)",
+                    "Musical Instrument (Lute)",
+                },
+                cantrips={"Light", "Vicious Mockery"},
+                prepared_spells={"Cure Wounds", "Faerie Fire", "Healing Word", "Thunderwave"},
+            ),
+        ),
+        (
+            "Cleric",
+            ClassChoices(
+                divine_order="Thaumaturge",
+                cantrips={"Guidance", "Light", "Sacred Flame", "Thaumaturgy"},
+                prepared_spells={"Bless", "Cure Wounds", "Guiding Bolt", "Healing Word"},
+            ),
+        ),
+        (
+            "Druid",
+            ClassChoices(
+                primal_order="Warden",
+                cantrips={"Druidcraft", "Shillelagh"},
+                prepared_spells={"Entangle", "Faerie Fire", "Goodberry", "Healing Word"},
+            ),
+        ),
+        (
+            "Fighter",
+            ClassChoices(
+                weapon_masteries={"Greataxe", "Greatsword", "Longbow"},
+                fighting_style="Defense",
+            ),
+        ),
+        ("Monk", ClassChoices(tools={"Smith's Tools"})),
+        (
+            "Paladin",
+            ClassChoices(
+                weapon_masteries={"Longsword", "Javelin"},
+                prepared_spells={"Bless", "Divine Smite"},
+            ),
+        ),
+        (
+            "Ranger",
+            ClassChoices(
+                weapon_masteries={"Longbow", "Scimitar"},
+                prepared_spells={"Cure Wounds", "Ensnaring Strike"},
+            ),
+        ),
+        (
+            "Rogue",
+            ClassChoices(
+                weapon_masteries={"Dagger", "Shortsword"},
+                expertise={"Arcana", "History"},
+                additional_language="Draconic",
+            ),
+        ),
+        (
+            "Sorcerer",
+            ClassChoices(
+                cantrips={"Fire Bolt", "Light", "Mage Hand", "Sorcerous Burst"},
+                prepared_spells={"Magic Missile", "Shield"},
+            ),
+        ),
+        (
+            "Warlock",
+            ClassChoices(
+                cantrips={"Eldritch Blast", "Prestidigitation"},
+                prepared_spells={"Charm Person", "Hex"},
+                eldritch_invocation="Pact of the Chain",
+            ),
+        ),
+        (
+            "Wizard",
+            ClassChoices(
+                cantrips={"Fire Bolt", "Mage Hand", "Prestidigitation"},
+                spellbook_spells={
+                    "Detect Magic",
+                    "Find Familiar",
+                    "Mage Armor",
+                    "Magic Missile",
+                    "Shield",
+                    "Sleep",
+                },
+                prepared_spells={"Detect Magic", "Mage Armor", "Magic Missile", "Shield"},
+            ),
+        ),
+    ],
+)
+def test_validates_level_one_choices_for_every_class(
+    character: Character, class_name: str, choices: ClassChoices
+) -> None:
+    values = character.model_dump()
+    values.update(character_class=class_name, class_choices=choices)
+    if class_name == "Rogue":
+        values["languages"] = [*character.languages, "Draconic"]
+
+    result = Character.model_validate(values)
+
+    assert result.class_choices == choices
+
+
+def test_class_choices_enforce_eligibility_and_derived_benefits(character: Character) -> None:
+    values = character.model_dump()
+    values.update(
+        character_class="Rogue",
+        class_choices=ClassChoices(
+            weapon_masteries={"Greatsword", "Longsword"},
+            expertise={"Arcana", "History"},
+            additional_language="Draconic",
+        ),
+        languages=[*character.languages, "Draconic"],
+    )
+    with pytest.raises(ValidationError, match="invalid Rogue weapon mastery"):
+        Character.model_validate(values)
+
+    values.update(
+        character_class="Cleric",
+        class_choices=ClassChoices(
+            divine_order="Thaumaturge",
+            cantrips={"Guidance", "Light", "Sacred Flame", "Thaumaturgy"},
+            prepared_spells={"Bless", "Cure Wounds", "Guiding Bolt", "Healing Word"},
+        ),
+        languages=character.languages,
+    )
+    cleric = Character.model_validate(values)
+    assert cleric.skill_modifier("Arcana") == 7
+    assert "Speak with Animals" not in cleric.class_prepared_spells
+
+    values["class_choices"] = ClassChoices(
+        divine_order="Protector",
+        cantrips={"Guidance", "Light", "Sacred Flame"},
+        prepared_spells={"Bless", "Cure Wounds", "Guiding Bolt", "Healing Word"},
+    )
+    protector = Character.model_validate(values)
+    assert protector.weapon_proficiencies == "Simple and Martial"
+    assert protector.armor_training == "Light, Medium, Heavy, Shields"
+
+    values.update(
+        character_class="Ranger",
+        class_choices=ClassChoices(
+            weapon_masteries={"Longbow", "Scimitar"},
+            prepared_spells={"Cure Wounds", "Hunter's Mark"},
+        ),
+    )
+    with pytest.raises(ValidationError, match="invalid number or selection"):
+        Character.model_validate(values)
 
 
 def test_binary_smoke_fixture_is_valid() -> None:

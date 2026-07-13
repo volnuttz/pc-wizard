@@ -10,21 +10,28 @@ from pc_wizard.models import (
     AbilityScores,
     BackgroundAbilityAdjustment,
     Character,
+    ClassChoices,
     MagicInitiateChoice,
 )
 from pc_wizard.rules import (
     ABILITIES,
     ALIGNMENTS,
+    ARTISAN_TOOLS,
     BACKGROUND_MAGIC_INITIATE_LISTS,
     BACKGROUNDS,
+    CLASS_ALWAYS_PREPARED_SPELLS,
+    CLASS_SPELL_LISTS,
     CLASSES,
     DRACONIC_ANCESTORS,
     ELVEN_LINEAGES,
     FIENDISH_LEGACIES,
+    FIGHTING_STYLES,
     GNOMISH_LINEAGES,
     GOLIATH_ANCESTRIES,
     KEEN_SENSES_SKILLS,
+    LEVEL_ONE_WARLOCK_INVOCATIONS,
     MAGIC_INITIATE_SPELL_LISTS,
+    MUSICAL_INSTRUMENTS,
     ORIGIN_FEATS,
     POINT_BUY_BUDGET,
     POINT_BUY_COSTS,
@@ -34,6 +41,7 @@ from pc_wizard.rules import (
     STANDARD_ARRAY,
     STANDARD_LANGUAGES,
     TOOLS,
+    WEAPON_MASTERY_COUNTS,
     CreatureSize,
     DraconicAncestry,
     ElvenLineage,
@@ -46,6 +54,7 @@ from pc_wizard.rules import (
     SpellcastingAbility,
     eligible_abilities_for_increase,
     point_buy_cost,
+    weapon_mastery_options,
 )
 
 Ask = Callable[[], Any]
@@ -219,6 +228,140 @@ def choose_origin_feat_details(
     return magic_choices, skilled_proficiencies
 
 
+def choose_class_choices(
+    class_name: str, skills: set[str], existing_languages: Sequence[str]
+) -> ClassChoices:
+    divine_order = (
+        select("Choose a Divine Order", ("Protector", "Thaumaturge"))
+        if class_name == "Cleric"
+        else None
+    )
+    primal_order = (
+        select("Choose a Primal Order", ("Magician", "Warden")) if class_name == "Druid" else None
+    )
+
+    mastery_count = WEAPON_MASTERY_COUNTS.get(class_name, 0)
+    weapon_masteries: set[str] = (
+        set(
+            checkbox(
+                f"Choose {mastery_count} weapon masteries",
+                weapon_mastery_options(class_name),
+                mastery_count,
+            )
+        )
+        if mastery_count
+        else set()
+    )
+
+    tools: set[str] = set()
+    if class_name == "Bard":
+        tools = set(checkbox("Choose three musical instruments", MUSICAL_INSTRUMENTS, 3))
+    elif class_name == "Monk":
+        tools = {
+            select(
+                "Choose an artisan tool or musical instrument",
+                (*ARTISAN_TOOLS, *MUSICAL_INSTRUMENTS),
+            )
+        }
+
+    expertise: set[str] = (
+        set(checkbox("Choose two skills for Expertise", tuple(sorted(skills)), 2))
+        if class_name == "Rogue"
+        else set()
+    )
+    fighting_style = (
+        select("Choose a Fighting Style", FIGHTING_STYLES) if class_name == "Fighter" else None
+    )
+    eldritch_invocation = (
+        select("Choose an Eldritch Invocation", tuple(LEVEL_ONE_WARLOCK_INVOCATIONS))
+        if class_name == "Warlock"
+        else None
+    )
+    additional_language = (
+        select(
+            "Choose the Rogue's additional language",
+            tuple(
+                language for language in STANDARD_LANGUAGES if language not in existing_languages
+            ),
+        )
+        if class_name == "Rogue"
+        else None
+    )
+
+    cantrip_count = {
+        "Bard": 2,
+        "Cleric": 3,
+        "Druid": 2,
+        "Sorcerer": 4,
+        "Warlock": 2,
+        "Wizard": 3,
+    }.get(class_name, 0)
+    if divine_order == "Thaumaturge" or primal_order == "Magician":
+        cantrip_count += 1
+    prepared_count = {
+        "Bard": 4,
+        "Cleric": 4,
+        "Druid": 4,
+        "Paladin": 2,
+        "Ranger": 2,
+        "Sorcerer": 2,
+        "Warlock": 2,
+        "Wizard": 4,
+    }.get(class_name, 0)
+    spell_list = CLASS_SPELL_LISTS.get(class_name)
+    cantrips: set[str] = (
+        set(
+            checkbox(
+                f"Choose {cantrip_count} {class_name} cantrips", spell_list.cantrips, cantrip_count
+            )
+        )
+        if spell_list and cantrip_count
+        else set()
+    )
+    spellbook_spells: set[str] = (
+        set(checkbox("Choose six level 1 Wizard spellbook spells", spell_list.level_one_spells, 6))
+        if class_name == "Wizard" and spell_list
+        else set()
+    )
+    prepared_options = (
+        tuple(sorted(spellbook_spells))
+        if class_name == "Wizard"
+        else (
+            tuple(
+                spell
+                for spell in spell_list.level_one_spells
+                if spell not in CLASS_ALWAYS_PREPARED_SPELLS.get(class_name, ())
+            )
+            if spell_list
+            else ()
+        )
+    )
+    prepared_spells: set[str] = (
+        set(
+            checkbox(
+                f"Choose {prepared_count} prepared {class_name} spells",
+                prepared_options,
+                prepared_count,
+            )
+        )
+        if prepared_count
+        else set()
+    )
+    return ClassChoices(
+        weapon_masteries=weapon_masteries,
+        tools=tools,
+        expertise=expertise,
+        cantrips=cantrips,
+        prepared_spells=prepared_spells,
+        spellbook_spells=spellbook_spells,
+        divine_order=divine_order,
+        primal_order=primal_order,
+        fighting_style=fighting_style,
+        eldritch_invocation=eldritch_invocation,
+        additional_language=additional_language,
+    )
+
+
 def generated_scores(
     method: AbilityGenerationMethod, rng: random.Random | None = None
 ) -> list[int]:
@@ -353,6 +496,10 @@ def run_wizard() -> Character:
     class_skills = checkbox(
         f"Choose {class_rule.skill_count} class skills", available, class_rule.skill_count
     )
+    all_skills = unavailable_skills | set(class_skills)
+    class_choices = choose_class_choices(class_name, all_skills, languages)
+    if class_choices.additional_language is not None:
+        languages.append(class_choices.additional_language)
     alignment = select("Choose an alignment", ALIGNMENTS)
     backstory = optional_text("Backstory")
     appearance = optional_text("Appearance")
@@ -376,7 +523,8 @@ def run_wizard() -> Character:
         tiefling_spellcasting_ability=tiefling_spellcasting_ability,
         alignment=alignment,
         abilities=AbilityScores(**dict(zip(ABILITIES, values, strict=True))),
-        skills=unavailable_skills | set(class_skills),
+        skills=all_skills,
+        class_choices=class_choices,
         tool_proficiencies=skilled_tools,
         magic_initiate_choices=magic_initiate_choices,
         skilled_proficiencies=skilled_proficiencies,

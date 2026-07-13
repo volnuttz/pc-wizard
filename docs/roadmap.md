@@ -69,10 +69,9 @@ GitHub Release v0.1.0 with SHA-256 files: published
   alternate class calculations are not applied.
 - The model accepts levels 1–20, but the creation workflow and most calculations
   only implement level 1.
-- Class feature choices are not modeled.
 - Starting-equipment alternatives and starting-gold choices are not interactive.
 - Weapons, attacks, damage, coins, spells, and spell slots are incomplete.
-- Expertise and similar selectable proficiency upgrades are not implemented.
+- Later-level class choices remain outside the current level-1 scope.
 
 ### Validation and persistence
 
@@ -187,18 +186,22 @@ level-1 SRD character.
 
 ### Class choices
 
-- [ ] Barbarian weapon masteries
-- [ ] Bard instruments, Expertise, cantrips, and prepared spells
-- [ ] Cleric Divine Order, cantrips, and prepared spells
-- [ ] Druid Primal Order, cantrips, and prepared spells
-- [ ] Fighter Fighting Style and weapon masteries
-- [ ] Monk artisan tool and weapon mastery choices
-- [ ] Paladin weapon masteries and prepared spells
-- [ ] Ranger Expertise, weapon masteries, and prepared spells
-- [ ] Rogue Expertise and weapon masteries
-- [ ] Sorcerer cantrips and prepared spells
-- [ ] Warlock invocation, cantrips, and prepared spells
-- [ ] Wizard cantrips, spellbook spells, and prepared spells
+- [x] Barbarian weapon masteries
+- [x] Bard instruments, cantrips, and prepared spells
+- [x] Cleric Divine Order, cantrips, and prepared spells
+- [x] Druid Primal Order, cantrips, and prepared spells
+- [x] Fighter Fighting Style and weapon masteries
+- [x] Monk artisan tool or musical instrument choice
+- [x] Paladin weapon masteries and prepared spells
+- [x] Ranger weapon masteries and prepared spells
+- [x] Rogue Expertise, additional language, and weapon masteries
+- [x] Sorcerer cantrips and prepared spells
+- [x] Warlock invocation, cantrips, and prepared spells
+- [x] Wizard cantrips, spellbook spells, and prepared spells
+
+The supplied SRD grants Bard Expertise at level 2 and Ranger Expertise at levels
+2 and 9, and it does not grant Monk Weapon Mastery at level 1. Those previously
+listed items were corrected to match the level-1 scope.
 
 ### Equipment and combat values
 
@@ -208,7 +211,7 @@ level-1 SRD character.
 - [ ] Calculate AC from equipped armor, shields, and class features.
 - [ ] Calculate weapon attack bonuses, damage modifiers, ranges, and properties.
 - [ ] Calculate spellcasting modifier, save DC, and attack bonus.
-- [ ] Model level-1 spell slots and prepared spells.
+- [ ] Model level-1 spell slots (prepared-spell choices are completed above).
 
 Exit criteria:
 
