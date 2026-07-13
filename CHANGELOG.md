@@ -5,6 +5,12 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Standard-array, rolled-score, and point-buy menus now wrap numeric values in
+  labeled Questionary choices, preventing integer options from crashing during
+  ability-score assignment.
+
 ### Changed
 
 - Repository-only SRD and character-sheet PDF fixtures now live under `assets/`;
@@ -33,6 +39,10 @@ All notable changes to pc-wizard are documented here. The project follows
 - All 84 spells available during level-1 creation now carry SRD casting-time,
   range, component, duration, Concentration, Ritual, and material metadata; the
   character sheet fills every corresponding spell-table column and duration notes.
+- Class, Magic Initiate, and species spellcasting now use separate derived profiles
+  with ability, modifier, save DC, attack bonus, granted slots, and slotless-cast
+  resources. Noncasting classes use an applicable side profile in the sheet's
+  spellcasting summary; additional profiles remain visible in trait details.
 - Interactive 27-point ability-score point-buy with live remaining-point feedback.
 - Background ability-increase prompts omit choices that would raise a score above
   20.

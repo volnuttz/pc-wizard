@@ -221,6 +221,29 @@ class SpellSlotPool(BaseModel):
     recovery: Literal["Long Rest", "Short or Long Rest"]
 
 
+class SpellcastingProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    source: str
+    ability: SpellcastingAbility
+    modifier: int
+    save_dc: int
+    attack_bonus: int
+    granted_spell_slots: tuple[SpellSlotPool, ...] = ()
+    free_casts: tuple[str, ...] = ()
+
+    @property
+    def summary(self) -> str:
+        values = (
+            f"{self.source}: {self.ability.title()} "
+            f"(mod {self.modifier:+d}, save DC {self.save_dc}, attack {self.attack_bonus:+d})"
+        )
+        if not self.granted_spell_slots:
+            values += "; grants no spell slots"
+        if self.free_casts:
+            values += f"; {'; '.join(self.free_casts)}"
+        return values
+
+
 class SpellTableEntry(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     level: int = Field(ge=0, le=9)
@@ -266,6 +289,7 @@ class CharacterDerivedValues(BaseModel):
     spell_save_dc: int | None
     spell_attack_bonus: int | None
     spell_slots: tuple[SpellSlotPool, ...]
+    spellcasting_profiles: tuple[SpellcastingProfile, ...]
     spells: tuple[SpellTableEntry, ...]
 
 
@@ -691,6 +715,88 @@ class Character(BaseModel):
                 spells.append(legacy.level_five_spell)
         return tuple(spells)
 
+    def _spellcasting_profile(
+        self,
+        source: str,
+        ability: SpellcastingAbility,
+        *,
+        granted_spell_slots: tuple[SpellSlotPool, ...] = (),
+        free_casts: tuple[str, ...] = (),
+    ) -> SpellcastingProfile:
+        modifier = self.abilities.modifier(ability)
+        return SpellcastingProfile(
+            source=source,
+            ability=ability,
+            modifier=modifier,
+            save_dc=8 + modifier + self.proficiency_bonus,
+            attack_bonus=modifier + self.proficiency_bonus,
+            granted_spell_slots=granted_spell_slots,
+            free_casts=free_casts,
+        )
+
+    @property
+    def class_spellcasting_profile(self) -> SpellcastingProfile | None:
+        ability = CLASS_SPELLCASTING_ABILITIES.get(self.character_class)
+        if ability is None:
+            return None
+        return self._spellcasting_profile(
+            f"{self.character_class} Spellcasting",
+            ability,
+            granted_spell_slots=self.spell_slots,
+        )
+
+    @property
+    def magic_initiate_spellcasting_profiles(self) -> tuple[SpellcastingProfile, ...]:
+        return tuple(
+            self._spellcasting_profile(
+                f"Magic Initiate ({choice.spell_list})",
+                choice.spellcasting_ability,
+                free_casts=(f"{choice.level_one_spell}: 1/Long Rest without a spell slot",),
+            )
+            for choice in self.magic_initiate_choices
+        )
+
+    @property
+    def species_spellcasting_profile(self) -> SpellcastingProfile | None:
+        ability = self.species_spellcasting_ability
+        if ability is None:
+            return None
+        free_casts: tuple[str, ...] = ()
+        source = "Species Spellcasting"
+        if self.elf_lineage is not None:
+            source = f"Elven Lineage ({self.elf_lineage})"
+            free_casts = tuple(
+                f"{spell}: 1/Long Rest without a spell slot"
+                for spell in self.species_prepared_spells
+            )
+        elif self.gnome_lineage is not None:
+            source = f"Gnomish Lineage ({self.gnome_lineage})"
+            if self.gnome_lineage == "Forest Gnome":
+                free_casts = (
+                    f"Speak with Animals: {self.proficiency_bonus}/Long Rest without a spell slot",
+                )
+        elif self.tiefling_legacy is not None:
+            source = f"Fiendish Legacy ({self.tiefling_legacy})"
+            free_casts = tuple(
+                f"{spell}: 1/Long Rest without a spell slot"
+                for spell in self.species_prepared_spells
+            )
+        return self._spellcasting_profile(source, ability, free_casts=free_casts)
+
+    @property
+    def spellcasting_profiles(self) -> tuple[SpellcastingProfile, ...]:
+        profiles: list[SpellcastingProfile] = []
+        if self.class_spellcasting_profile is not None:
+            profiles.append(self.class_spellcasting_profile)
+        profiles.extend(self.magic_initiate_spellcasting_profiles)
+        if self.species_spellcasting_profile is not None:
+            profiles.append(self.species_spellcasting_profile)
+        return tuple(profiles)
+
+    @property
+    def primary_spellcasting_profile(self) -> SpellcastingProfile | None:
+        return self.spellcasting_profiles[0] if self.spellcasting_profiles else None
+
     @property
     def species_traits(self) -> tuple[str, ...]:
         traits = list(SPECIES[self.species].traits)
@@ -723,10 +829,8 @@ class Character(BaseModel):
             traits.append(f"Darkvision: {self.darkvision_range} ft.")
         if self.damage_resistances:
             traits.append(f"Damage Resistance: {', '.join(self.damage_resistances)}")
-        if self.species_spellcasting_ability is not None:
-            traits.append(
-                f"Species Spellcasting Ability: {self.species_spellcasting_ability.title()}"
-            )
+        if self.species_spellcasting_profile is not None:
+            traits.append(self.species_spellcasting_profile.summary)
         if self.species_cantrips:
             traits.append(f"Cantrips: {', '.join(self.species_cantrips)}")
         if self.species_prepared_spells:
@@ -1016,11 +1120,15 @@ class Character(BaseModel):
             traits.append("Savage Attacker: roll weapon damage dice twice once per turn")
         if self.skilled_proficiencies:
             traits.append(f"Skilled: {', '.join(sorted(self.skilled_proficiencies))}")
-        traits.extend(
-            f"Magic Initiate ({choice.spell_list}; {choice.spellcasting_ability.title()}): "
-            f"{', '.join(choice.cantrips)}; {choice.level_one_spell}"
-            for choice in self.magic_initiate_choices
-        )
+        for choice, profile in zip(
+            self.magic_initiate_choices,
+            self.magic_initiate_spellcasting_profiles,
+            strict=True,
+        ):
+            traits.append(
+                f"{profile.summary}; Cantrips: {', '.join(choice.cantrips)}; "
+                f"Level 1: {choice.level_one_spell}"
+            )
         return tuple(traits)
 
     @field_validator("character_class")
@@ -1079,22 +1187,23 @@ class Character(BaseModel):
 
     @property
     def spellcasting_ability(self) -> SpellcastingAbility | None:
-        return CLASS_SPELLCASTING_ABILITIES.get(self.character_class)
+        profile = self.primary_spellcasting_profile
+        return profile.ability if profile is not None else None
 
     @property
     def spellcasting_modifier(self) -> int | None:
-        ability = self.spellcasting_ability
-        return self.abilities.modifier(ability) if ability is not None else None
+        profile = self.primary_spellcasting_profile
+        return profile.modifier if profile is not None else None
 
     @property
     def spell_save_dc(self) -> int | None:
-        modifier = self.spellcasting_modifier
-        return 8 + modifier + self.proficiency_bonus if modifier is not None else None
+        profile = self.primary_spellcasting_profile
+        return profile.save_dc if profile is not None else None
 
     @property
     def spell_attack_bonus(self) -> int | None:
-        modifier = self.spellcasting_modifier
-        return modifier + self.proficiency_bonus if modifier is not None else None
+        profile = self.primary_spellcasting_profile
+        return profile.attack_bonus if profile is not None else None
 
     @property
     def spell_slots(self) -> tuple[SpellSlotPool, ...]:
@@ -1208,6 +1317,7 @@ class Character(BaseModel):
             spell_save_dc=self.spell_save_dc,
             spell_attack_bonus=self.spell_attack_bonus,
             spell_slots=self.spell_slots,
+            spellcasting_profiles=self.spellcasting_profiles,
             spells=self.spell_table_entries,
         )
 

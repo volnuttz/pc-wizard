@@ -734,6 +734,11 @@ def test_elf_lineage_records_level_one_rule_metadata(
     assert elf.speed == rule.speed
     assert elf.darkvision_range == rule.darkvision_range
     assert elf.species_cantrips == (rule.cantrip,)
+    assert elf.species_spellcasting_profile is not None
+    assert elf.species_spellcasting_profile.ability == "wisdom"
+    assert elf.species_spellcasting_profile.modifier == 2
+    assert elf.species_spellcasting_profile.save_dc == 12
+    assert elf.species_spellcasting_profile.attack_bonus == 4
 
 
 def test_elf_choices_round_trip_through_json(character: Character, tmp_path: Path) -> None:
@@ -817,6 +822,14 @@ def test_gnome_lineage_records_level_one_rule_metadata(
     ) == expected_rule
     assert gnome.species_cantrips == rule.cantrips
     assert gnome.species_prepared_spells == rule.always_prepared_spells
+    assert gnome.species_spellcasting_profile is not None
+    assert gnome.species_spellcasting_profile.ability == "wisdom"
+    if lineage == "Forest Gnome":
+        assert gnome.species_spellcasting_profile.free_casts == (
+            "Speak with Animals: 2/Long Rest without a spell slot",
+        )
+    else:
+        assert gnome.species_spellcasting_profile.free_casts == ()
 
 
 def test_gnome_choices_round_trip_through_json(character: Character, tmp_path: Path) -> None:
@@ -981,10 +994,63 @@ def test_magic_initiate_validates_spells_and_repeatable_lists(character: Charact
         "Produce Flame",
     )
     assert human.feat_prepared_spells == ("Mage Armor", "Goodberry")
+    assert [profile.source for profile in human.magic_initiate_spellcasting_profiles] == [
+        "Magic Initiate (Wizard)",
+        "Magic Initiate (Druid)",
+    ]
+    assert [profile.ability for profile in human.magic_initiate_spellcasting_profiles] == [
+        "intelligence",
+        "wisdom",
+    ]
 
     values["magic_initiate_choices"][1] = character.magic_initiate_choices[0]
     with pytest.raises(ValidationError, match="must use different spell lists"):
         Character.model_validate(values)
+
+
+def test_magic_initiate_is_primary_spellcasting_for_a_noncasting_class(
+    character: Character,
+) -> None:
+    values = character.model_dump()
+    values.update(
+        character_class="Fighter",
+        class_skills={"Perception", "Survival"},
+        class_choices=ClassChoices(
+            weapon_masteries={"Greataxe", "Greatsword", "Longbow"},
+            fighting_style="Defense",
+        ),
+    )
+
+    initiate = Character.model_validate(values)
+    profile = initiate.primary_spellcasting_profile
+
+    assert profile is not None
+    assert profile.source == "Magic Initiate (Wizard)"
+    assert profile.ability == "intelligence"
+    assert profile.modifier == 3
+    assert profile.save_dc == 13
+    assert profile.attack_bonus == 5
+    assert profile.granted_spell_slots == ()
+    assert profile.free_casts == ("Mage Armor: 1/Long Rest without a spell slot",)
+    assert initiate.spellcasting_ability == "intelligence"
+    assert initiate.spellcasting_modifier == 3
+    assert initiate.spell_save_dc == 13
+    assert initiate.spell_attack_bonus == 5
+    assert initiate.spell_slots == ()
+
+
+def test_class_spellcasting_remains_primary_and_side_profiles_are_preserved(
+    character: Character,
+) -> None:
+    profiles = character.spellcasting_profiles
+
+    assert [profile.source for profile in profiles] == [
+        "Wizard Spellcasting",
+        "Magic Initiate (Wizard)",
+    ]
+    assert character.primary_spellcasting_profile == profiles[0]
+    assert profiles[0].granted_spell_slots == character.spell_slots
+    assert profiles[1].granted_spell_slots == ()
 
 
 def test_origin_feat_subchoices_are_required(character: Character) -> None:
@@ -1047,6 +1113,12 @@ def test_tiefling_legacy_applies_resistance_and_spells(
     assert tiefling.damage_resistances == (resistance,)
     assert tiefling.species_cantrips == (cantrip, "Thaumaturgy")
     assert tiefling.species_prepared_spells == (level_three_spell, level_five_spell)
+    assert tiefling.species_spellcasting_profile is not None
+    assert tiefling.species_spellcasting_profile.ability == "charisma"
+    assert tiefling.species_spellcasting_profile.free_casts == (
+        f"{level_three_spell}: 1/Long Rest without a spell slot",
+        f"{level_five_spell}: 1/Long Rest without a spell slot",
+    )
 
 
 def test_tiefling_choices_round_trip_and_validate_species(

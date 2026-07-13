@@ -1,7 +1,7 @@
 import random
 from collections.abc import Sequence
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import pytest
 
@@ -86,6 +86,29 @@ def complete_draft() -> CharacterDraft:
 
 def test_standard_array() -> None:
     assert generated_scores(AbilityGenerationMethod.STANDARD_ARRAY) == [15, 14, 13, 12, 10, 8]
+
+
+def test_select_wraps_numeric_options_and_preserves_integer_values(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: list[Any] = []
+
+    class FakePrompt:
+        def ask(self) -> object:
+            return captured[1].value
+
+    def fake_questionary_select(_message: str, *, choices: list[Any]) -> FakePrompt:
+        captured.extend(choices)
+        return FakePrompt()
+
+    monkeypatch.setattr(wizard.questionary, "select", fake_questionary_select)
+
+    assert wizard.select("Assign Strength", (15, 14, 13)) == 14
+    assert [(choice.title, choice.value) for choice in captured] == [
+        ("15", 15),
+        ("14", 14),
+        ("13", 13),
+    ]
 
 
 def test_random_scores_are_valid() -> None:

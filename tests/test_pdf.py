@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import pypdfium2 as pdfium  # pyright: ignore[reportMissingTypeStubs]
+import pytest
 from pypdf import PdfReader
 from pypdf.generic import ArrayObject, DictionaryObject, StreamObject
 
@@ -94,6 +95,18 @@ def wood_elf() -> Character:
         elf_lineage="Wood Elf",
         elf_spellcasting_ability="wisdom",
         elf_keen_senses_skill="Insight",
+    )
+    return Character.model_validate(values)
+
+
+def forest_gnome() -> Character:
+    character = sample()
+    values = character.model_dump()
+    values.update(
+        species="Gnome",
+        size="Small",
+        gnome_lineage="Forest Gnome",
+        gnome_spellcasting_ability="wisdom",
     )
     return Character.model_validate(values)
 
@@ -239,6 +252,34 @@ def test_field_values_include_choice_dependent_species_speed_and_traits() -> Non
     assert "Cantrips: Druidcraft" in values["Text57"]
 
 
+@pytest.mark.parametrize(
+    ("character", "ability", "modifier", "save_dc", "attack_bonus", "trait_field"),
+    [
+        (wood_elf(), "Wisdom", "+0", "10", "+2", "Text57"),
+        (forest_gnome(), "Wisdom", "+0", "10", "+2", "Text57"),
+        (rogue_expert(), "Charisma", "-1", "9", "+1", "Text57"),
+        (skilled_sage_human(), "Intelligence", "-1", "9", "+1", "Text58"),
+    ],
+)
+def test_side_spellcasting_fills_global_summary_without_inventing_slots(
+    character: Character,
+    ability: str,
+    modifier: str,
+    save_dc: str,
+    attack_bonus: str,
+    trait_field: str,
+) -> None:
+    values = field_values(character)
+
+    assert values["Text111"] == ability
+    assert values["Text93"] == modifier
+    assert values["Text94"] == save_dc
+    assert values["Text95"] == attack_bonus
+    assert values["Text112"] == ""
+    assert "save DC" in values[trait_field]
+    assert "attack" in values[trait_field]
+
+
 def test_field_values_include_spellcasting_values_spells_and_slots() -> None:
     values = field_values(wizard_spellcaster())
     assert values["Text111"] == "Intelligence"
@@ -361,7 +402,15 @@ def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:
     fields = PdfReader(output).get_fields()
     assert fields is not None
     assert "Skilled: Acrobatics, Alchemist's Supplies, Athletics" in fields["Text58"]["/V"]
-    assert "Magic Initiate (Wizard; Intelligence)" in fields["Text58"]["/V"]
+    assert "Magic Initiate (Wizard): Intelligence" in fields["Text58"]["/V"]
+    assert "save DC 9, attack +1" in fields["Text58"]["/V"]
+    assert "grants no spell slots" in fields["Text58"]["/V"]
+    assert "Mage Armor: 1/Long Rest without a spell slot" in fields["Text58"]["/V"]
+    assert fields["Text111"]["/V"] == "Intelligence"
+    assert fields["Text93"]["/V"] == "-1"
+    assert fields["Text94"]["/V"] == "9"
+    assert fields["Text95"]["/V"] == "+1"
+    assert fields["Text112"]["/V"] == ""
     assert fields["Text60"]["/V"] == "Calligrapher's Supplies\nAlchemist's Supplies"
 
 

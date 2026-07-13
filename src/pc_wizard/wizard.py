@@ -144,15 +144,22 @@ def _required(ask: Ask) -> Any:
     return value
 
 
+def prompt_choices[T](choices: Sequence[T]) -> list[Any]:
+    """Build display labels without losing typed values such as ability scores."""
+    return [questionary.Choice(title=str(choice), value=choice) for choice in choices]
+
+
 def select[T](message: str, choices: Sequence[T]) -> T:
-    prompt_choices = cast(Any, list(choices))
-    return cast(T, _required(questionary.select(message, choices=prompt_choices).ask))
+    choices_for_prompt = prompt_choices(choices)
+    return cast(T, _required(questionary.select(message, choices=choices_for_prompt).ask))
 
 
 def checkbox[T](message: str, choices: Sequence[T], count: int) -> list[T]:
     while True:
-        prompt_choices = cast(Any, list(choices))
-        result = cast(list[T], _required(questionary.checkbox(message, choices=prompt_choices).ask))
+        choices_for_prompt = prompt_choices(choices)
+        result = cast(
+            list[T], _required(questionary.checkbox(message, choices=choices_for_prompt).ask)
+        )
         if len(result) == count:
             return result
         questionary.print(f"Please choose exactly {count}.")

@@ -54,7 +54,7 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 133 passed
+pytest: 140 passed
 CLI help smoke tests (`create`, `render`, `validate`, and `show`): passed
 uv wheel and sdist builds: passed
 Clean wheel create/render smoke tests: passed
@@ -70,8 +70,6 @@ GitHub Release v0.1.0 with SHA-256 files: published
   only implement level 1.
 - Spending starting gold on custom equipment is not yet interactive; gold-route
   characters retain their unspent coins.
-- Spellcasting profiles from species and feats are retained separately from the
-  class spellcasting values used for the primary class.
 - Later-level class choices remain outside the current level-1 scope.
 
 ### Validation and persistence
@@ -206,6 +204,8 @@ listed items were corrected to match the level-1 scope.
 - [x] Calculate AC from equipped armor, shields, and class features.
 - [x] Calculate weapon attack bonuses, damage modifiers, ranges, and properties.
 - [x] Calculate spellcasting modifier, save DC, and attack bonus.
+- [x] Model separate class, Magic Initiate, and species spellcasting profiles,
+  including slotless casting resources without inventing spell slots.
 - [x] Model level-1 spell slots (prepared-spell choices are completed above).
 
 Exit criteria:
@@ -226,6 +226,9 @@ Status: complete and verified on 2026-07-13.
 - [x] Fill weapon names, attack bonuses, damage, type, and notes.
 - [x] Fill equipment and coin fields structurally.
 - [x] Fill spellcasting ability, modifier, save DC, and attack bonus.
+- [x] Use class spellcasting as the sheet's primary summary when present; otherwise
+  fill it from Magic Initiate or species spellcasting, while listing every
+  additional profile and slotless resource in its trait section.
 - [x] Fill cantrips, prepared spells, and spell-slot fields.
 - [x] Fill spell casting time, range, Concentration, Ritual, Required Material,
   and duration notes for every level-1 creation spell.
