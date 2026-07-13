@@ -1,11 +1,12 @@
 import random
 from collections.abc import Sequence
+from pathlib import Path
 from typing import cast
 
 import pytest
 
 from pc_wizard import wizard
-from pc_wizard.models import AbilityGenerationMethod, ClassChoices, MagicInitiateChoice
+from pc_wizard.models import AbilityGenerationMethod, Character, ClassChoices, MagicInitiateChoice
 from pc_wizard.rules import (
     POINT_BUY_BUDGET,
     MagicInitiateList,
@@ -13,7 +14,12 @@ from pc_wizard.rules import (
     point_buy_cost,
 )
 from pc_wizard.wizard import (
+    BuildDraft,
+    CharacterDraft,
+    DetailsDraft,
+    OriginDraft,
     apply_background_increases,
+    character_from_draft,
     choose_class_choices,
     choose_draconic_ancestry,
     choose_elf_traits,
@@ -28,7 +34,54 @@ from pc_wizard.wizard import (
     generated_scores,
     optional_text,
     point_buy_scores,
+    run_wizard,
 )
+
+
+def complete_draft() -> CharacterDraft:
+    fixture = Path(__file__).parent / "fixtures" / "character.json"
+    character = Character.load_json(fixture)
+    origin = OriginDraft(
+        **character.model_dump(
+            include={
+                "name",
+                "character_class",
+                "background",
+                "species",
+                "size",
+                "dragonborn_ancestry",
+                "elf_lineage",
+                "elf_spellcasting_ability",
+                "elf_keen_senses_skill",
+                "gnome_lineage",
+                "gnome_spellcasting_ability",
+                "goliath_ancestry",
+                "human_skill",
+                "human_origin_feat",
+                "tiefling_legacy",
+                "tiefling_spellcasting_ability",
+                "magic_initiate_choices",
+                "skilled_proficiencies",
+                "selected_languages",
+            }
+        )
+    )
+    build = BuildDraft(
+        class_skills=character.class_skills,
+        class_choices=character.class_choices,
+        class_equipment_option=character.class_equipment_option,
+        background_equipment_option=character.background_equipment_option,
+        bard_starting_instrument=character.bard_starting_instrument,
+        alignment=character.alignment,
+    )
+    details = DetailsDraft(
+        backstory=character.backstory,
+        appearance=character.appearance,
+        personality=character.personality,
+    )
+    return CharacterDraft(
+        origin=origin, abilities=character.abilities, build=build, details=details
+    )
 
 
 def test_standard_array() -> None:
@@ -39,6 +92,71 @@ def test_random_scores_are_valid() -> None:
     scores = generated_scores(AbilityGenerationMethod.RANDOM, random.Random(42))
     assert len(scores) == 6
     assert all(3 <= score <= 18 for score in scores)
+
+
+def test_draft_round_trip_and_character_construction(tmp_path: Path) -> None:
+    draft = complete_draft()
+    path = tmp_path / "character-draft.json"
+
+    draft.save(path)
+    restored = CharacterDraft.load(path)
+
+    assert restored == draft
+    assert character_from_draft(restored) == Character.load_json(
+        Path(__file__).parent / "fixtures" / "character.json"
+    )
+
+
+def test_wizard_resumes_complete_draft_at_review(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "character-draft.json"
+    complete_draft().save(path)
+    answers = iter(("Resume saved session", "Finish and write files"))
+
+    def fake_select[T](_message: str, _choices: Sequence[T]) -> T:
+        return cast(T, next(answers))
+
+    def fake_print(_value: object) -> None:
+        pass
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+    monkeypatch.setattr(wizard.questionary, "print", fake_print)
+
+    character = run_wizard(path)
+
+    assert character.name == "Binary Smoke Test"
+
+
+def test_origin_edit_requires_destructive_confirmation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "character-draft.json"
+    complete_draft().save(path)
+    answers = iter(
+        (
+            "Resume saved session",
+            "Edit identity and origin",
+            "Finish and write files",
+        )
+    )
+
+    def fake_select[T](_message: str, _choices: Sequence[T]) -> T:
+        return cast(T, next(answers))
+
+    def deny_confirmation(_message: str) -> bool:
+        return False
+
+    def fake_print(_value: object) -> None:
+        pass
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+    monkeypatch.setattr(wizard, "_confirm", deny_confirmation)
+    monkeypatch.setattr(wizard.questionary, "print", fake_print)
+
+    character = run_wizard(path)
+
+    assert character.name == "Binary Smoke Test"
 
 
 def test_point_buy_cost() -> None:

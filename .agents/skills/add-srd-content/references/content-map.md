@@ -26,6 +26,8 @@ languages; determine ability scores; choose alignment; fill derived details.
 - Human and Tiefling explicitly choose Small or Medium; every other current SRD
   species has a fixed size.
 - JSON is canonical; PDFs are generated artifacts.
+- Character JSON uses only the current schema. Do not add schema versions,
+  migrations, compatibility aliases, or legacy-shape fallbacks.
 - The official character-sheet template is external and always supplied through
   `--template`; it is never a package or release asset.
 

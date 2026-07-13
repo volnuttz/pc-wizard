@@ -17,8 +17,9 @@ models, prompts, serialization, rendering, and tests.
    PDF output, and tests before editing.
 4. Model structured choices explicitly. Keep display text separate from numeric
    mechanics when calculations depend on a choice.
-5. Preserve JSON compatibility where practical. If a schema change is necessary,
-   call it out and add validation tests.
+5. Treat character JSON as current-schema-only. Do not add schema-version fields,
+   migration code, compatibility aliases, or legacy-shape fallbacks. Update the
+   canonical fixture and validation tests when the schema changes.
 6. Add focused rule/model tests and prompt tests where interaction changes. Add a
    PDF assertion if the new value is rendered.
 7. Invoke `$verify-pc-wizard` after implementation.

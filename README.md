@@ -31,10 +31,23 @@ The template must be supplied explicitly each time. Output paths can be changed:
 ```console
 uv run pc-wizard create --template character-sheet.pdf --output my-hero.pdf --json my-hero.json
 uv run pc-wizard render my-hero.json --template character-sheet.pdf --output another-copy.pdf
+uv run pc-wizard validate my-hero.json
+uv run pc-wizard show my-hero.json
+uv run pc-wizard create --template character-sheet.pdf --from-json my-hero.json --force
 ```
 
-Run `uv run pc-wizard --help` for all options. Cancel the interactive wizard at
-any prompt with Ctrl-C.
+Interactive creation checkpoints completed sections in `character-draft.json` by
+default. Re-run the same command to resume, review the complete character before
+writing files, or use `--draft` to choose another checkpoint path. Existing PDF
+and JSON outputs require confirmation; use `--force` for intentional
+non-interactive replacement.
+
+Character JSON always uses the current application schema. The project does not
+add schema-version fields or migrate files created by older releases; recreate or
+manually update an older character file if a later release rejects it.
+
+Run `uv run pc-wizard --help` for all options. Ctrl-C retains the most recent
+completed checkpoint so the interactive session can be resumed.
 
 ## Install a standalone executable
 

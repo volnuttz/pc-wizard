@@ -41,16 +41,17 @@ def sample() -> Character:
         character_class="Fighter",
         background="Soldier",
         species="Dwarf",
+        size="Medium",
         alignment="Lawful Good",
         abilities=AbilityScores(
             strength=17, dexterity=14, constitution=14, intelligence=8, wisdom=10, charisma=12
         ),
-        skills={"Athletics", "Intimidation", "Perception", "Survival"},
+        class_skills={"Perception", "Survival"},
         class_choices=ClassChoices(
             weapon_masteries={"Greataxe", "Greatsword", "Longbow"},
             fighting_style="Great Weapon Fighting",
         ),
-        languages=["Common", "Dwarvish", "Giant"],
+        selected_languages=("Dwarvish", "Giant"),
     )
 
 
@@ -62,7 +63,6 @@ def small_human() -> Character:
         size="Small",
         human_skill="Insight",
         human_origin_feat="Alert",
-        skills=set(character.skills) | {"Insight"},
     )
     return Character.model_validate(values)
 
@@ -75,7 +75,6 @@ def elf_with_keen_senses() -> Character:
         elf_lineage="Drow",
         elf_spellcasting_ability="wisdom",
         elf_keen_senses_skill="Insight",
-        skills=set(character.skills) | {"Insight"},
     )
     return Character.model_validate(values)
 
@@ -88,7 +87,6 @@ def wood_elf() -> Character:
         elf_lineage="Wood Elf",
         elf_spellcasting_ability="wisdom",
         elf_keen_senses_skill="Insight",
-        skills=set(character.skills) | {"Insight"},
     )
     return Character.model_validate(values)
 
@@ -102,15 +100,7 @@ def skilled_sage_human() -> Character:
         size="Medium",
         human_skill="Perception",
         human_origin_feat="Skilled",
-        skills={
-            "Acrobatics",
-            "Arcana",
-            "Athletics",
-            "History",
-            "Investigation",
-            "Nature",
-            "Perception",
-        },
+        class_skills={"Intimidation", "Survival"},
         tool_proficiencies={"Alchemist's Supplies"},
         skilled_proficiencies={"Acrobatics", "Athletics", "Alchemist's Supplies"},
         magic_initiate_choices=[
@@ -131,6 +121,7 @@ def rogue_expert() -> Character:
         character_class="Rogue",
         background="Criminal",
         species="Tiefling",
+        size="Medium",
         tiefling_legacy="Infernal",
         tiefling_spellcasting_ability="charisma",
         alignment="Neutral",
@@ -142,20 +133,13 @@ def rogue_expert() -> Character:
             wisdom=10,
             charisma=8,
         ),
-        skills={
-            "Deception",
-            "Investigation",
-            "Perception",
-            "Persuasion",
-            "Sleight of Hand",
-            "Stealth",
-        },
+        class_skills={"Deception", "Investigation", "Perception", "Persuasion"},
         class_choices=ClassChoices(
             weapon_masteries={"Dagger", "Shortsword"},
             expertise={"Sleight of Hand", "Stealth"},
             additional_language="Draconic",
         ),
-        languages=["Common", "Elvish", "Halfling", "Draconic"],
+        selected_languages=("Elvish", "Halfling"),
     )
 
 
@@ -165,6 +149,7 @@ def wizard_spellcaster() -> Character:
         character_class="Wizard",
         background="Sage",
         species="Dwarf",
+        size="Medium",
         alignment="Neutral Good",
         abilities=AbilityScores(
             strength=8,
@@ -174,7 +159,7 @@ def wizard_spellcaster() -> Character:
             wisdom=15,
             charisma=10,
         ),
-        skills={"Arcana", "History", "Investigation", "Nature"},
+        class_skills={"Investigation", "Nature"},
         class_choices=ClassChoices(
             cantrips={"Fire Bolt", "Mage Hand", "Prestidigitation"},
             spellbook_spells={
@@ -195,7 +180,7 @@ def wizard_spellcaster() -> Character:
                 level_one_spell="Mage Armor",
             )
         ],
-        languages=["Common", "Dwarvish", "Elvish"],
+        selected_languages=("Dwarvish", "Elvish"),
         backstory="Raised in a mountain archive.",
         appearance="Ink-stained fingers and silver braids.",
         personality="Patient, curious, and direct.",

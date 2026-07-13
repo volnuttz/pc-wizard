@@ -37,6 +37,7 @@ from pc_wizard.rules import (
     WEAPON_COMBAT_RULES,
     WEAPON_MASTERY_COUNTS,
     WEAPONS,
+    Alignment,
     CreatureSize,
     DamageType,
     DivineOrder,
@@ -51,10 +52,12 @@ from pc_wizard.rules import (
     GoliathAncestry,
     GoliathAncestryRule,
     KeenSensesSkill,
+    Language,
     MagicInitiateList,
     OriginFeat,
     PrimalOrder,
     SpellcastingAbility,
+    StandardLanguage,
     point_buy_cost,
     weapon_mastery_options,
 )
@@ -179,7 +182,7 @@ class ClassChoices(BaseModel):
     primal_order: PrimalOrder | None = None
     fighting_style: str | None = None
     eldritch_invocation: str | None = None
-    additional_language: str | None = None
+    additional_language: StandardLanguage | None = None
 
 
 class EquipmentItem(BaseModel):
@@ -234,13 +237,31 @@ class ClassResource(BaseModel):
         return "; ".join(parts)
 
 
+class CharacterDerivedValues(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    proficiency_bonus: int
+    hit_points: int
+    armor_class: int
+    initiative_modifier: int
+    speed: int
+    passive_perception: int
+    skills: tuple[str, ...]
+    languages: tuple[Language, ...]
+    equipment: tuple[EquipmentItem, ...]
+    weapon_attacks: tuple[WeaponAttack, ...]
+    spellcasting_ability: SpellcastingAbility | None
+    spell_save_dc: int | None
+    spell_attack_bonus: int | None
+    spell_slots: tuple[SpellSlotPool, ...]
+
+
 class Character(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1)
     character_class: str
     background: str
     species: str
-    size: CreatureSize | None = None
+    size: CreatureSize
     dragonborn_ancestry: DraconicAncestry | None = None
     elf_lineage: ElvenLineage | None = None
     elf_spellcasting_ability: SpellcastingAbility | None = None
@@ -252,9 +273,9 @@ class Character(BaseModel):
     human_origin_feat: OriginFeat | None = None
     tiefling_legacy: FiendishLegacy | None = None
     tiefling_spellcasting_ability: SpellcastingAbility | None = None
-    alignment: str
+    alignment: Alignment
     abilities: AbilityScores
-    skills: set[str] = Field(default_factory=set)
+    class_skills: set[str]
     class_choices: ClassChoices = Field(default_factory=ClassChoices)
     class_equipment_option: str = "A"
     background_equipment_option: Literal["A", "Gold"] = "A"
@@ -264,7 +285,7 @@ class Character(BaseModel):
         default_factory=lambda: list[MagicInitiateChoice]()
     )
     skilled_proficiencies: set[str] = Field(default_factory=set)
-    languages: list[str] = Field(default_factory=lambda: ["Common"])
+    selected_languages: tuple[StandardLanguage, StandardLanguage]
     backstory: str | None = None
     appearance: str | None = None
     personality: str | None = None
@@ -281,9 +302,7 @@ class Character(BaseModel):
     @model_validator(mode="after")
     def valid_species_choices(self) -> Self:
         allowed = SPECIES[self.species].sizes
-        if self.size is None:
-            self.size = allowed[0]
-        elif self.size not in allowed:
+        if self.size not in allowed:
             raise ValueError(
                 f"invalid size for {self.species}: {self.size}; expected {' or '.join(allowed)}"
             )
@@ -301,10 +320,6 @@ class Character(BaseModel):
                 raise ValueError(
                     "Elf characters must choose a lineage, spellcasting ability, "
                     "and Keen Senses skill"
-                )
-            if self.elf_keen_senses_skill not in self.skills:
-                raise ValueError(
-                    "the Elf Keen Senses skill must be included in skill proficiencies"
                 )
         elif any(choice is not None for choice in elf_choices):
             raise ValueError("Elf lineage choices are only valid for Elf characters")
@@ -329,10 +344,6 @@ class Character(BaseModel):
             if self.human_skill in BACKGROUNDS[self.background].skills:
                 raise ValueError(
                     "the Human Skillful proficiency must be additional to background skills"
-                )
-            if self.human_skill not in self.skills:
-                raise ValueError(
-                    "the Human Skillful proficiency must be included in skill proficiencies"
                 )
         elif any(choice is not None for choice in human_choices):
             raise ValueError("Human species choices are only valid for Human characters")
@@ -383,12 +394,11 @@ class Character(BaseModel):
         existing = set(BACKGROUNDS[self.background].skills)
         if self.human_skill is not None:
             existing.add(self.human_skill)
+        if self.elf_keen_senses_skill is not None:
+            existing.add(self.elf_keen_senses_skill)
         if self.skilled_proficiencies & existing:
             raise ValueError("Skilled must grant proficiencies the character does not already have")
-        skilled_skills = self.skilled_proficiencies & set(SKILL_ABILITIES)
         skilled_tools = self.skilled_proficiencies & set(TOOLS)
-        if not skilled_skills.issubset(self.skills):
-            raise ValueError("Skilled skill choices must be included in skill proficiencies")
         if not skilled_tools.issubset(self.tool_proficiencies):
             raise ValueError("Skilled tool choices must be included in tool proficiencies")
         return self
@@ -396,6 +406,20 @@ class Character(BaseModel):
     @model_validator(mode="after")
     def valid_class_choices(self) -> Self:
         choices = self.class_choices
+        class_rule = CLASSES[self.character_class]
+        if len(self.class_skills) != class_rule.skill_count:
+            raise ValueError(
+                f"{self.character_class} requires exactly {class_rule.skill_count} class skills"
+            )
+        if not self.class_skills.issubset(class_rule.skills):
+            raise ValueError(f"invalid {self.character_class} class skill choice")
+        granted_skills = set(BACKGROUNDS[self.background].skills)
+        granted_skills.update(self.skilled_proficiencies & set(SKILL_ABILITIES))
+        for skill in (self.human_skill, self.elf_keen_senses_skill):
+            if skill is not None:
+                granted_skills.add(skill)
+        if self.class_skills & granted_skills:
+            raise ValueError("class skills must not duplicate another granted proficiency")
         mastery_count = WEAPON_MASTERY_COUNTS.get(self.character_class, 0)
         if len(choices.weapon_masteries) != mastery_count:
             raise ValueError(
@@ -504,6 +528,15 @@ class Character(BaseModel):
         return self
 
     @model_validator(mode="after")
+    def valid_languages(self) -> Self:
+        if self.selected_languages[0] == self.selected_languages[1]:
+            raise ValueError("choose two different standard languages")
+        additional = self.class_choices.additional_language
+        if additional is not None and additional in self.selected_languages:
+            raise ValueError("the Rogue additional language must be a new language")
+        return self
+
+    @model_validator(mode="after")
     def valid_starting_equipment(self) -> Self:
         class_rule = CLASS_STARTING_EQUIPMENT[self.character_class]
         allowed_class_options = {*class_rule.packages, "Gold"}
@@ -523,9 +556,24 @@ class Character(BaseModel):
 
     @property
     def character_size(self) -> CreatureSize:
-        if self.size is None:
-            raise RuntimeError("character size was not resolved during validation")
         return self.size
+
+    @property
+    def skills(self) -> set[str]:
+        values = set(BACKGROUNDS[self.background].skills)
+        values.update(self.class_skills)
+        values.update(self.skilled_proficiencies & set(SKILL_ABILITIES))
+        for skill in (self.human_skill, self.elf_keen_senses_skill):
+            if skill is not None:
+                values.add(skill)
+        return values
+
+    @property
+    def languages(self) -> tuple[Language, ...]:
+        values: list[Language] = ["Common", *self.selected_languages]
+        if self.class_choices.additional_language is not None:
+            values.append(self.class_choices.additional_language)
+        return tuple(values)
 
     @property
     def dragonborn_damage_type(self) -> DamageType | None:
@@ -1128,6 +1176,25 @@ class Character(BaseModel):
     @property
     def passive_perception(self) -> int:
         return 10 + self.skill_modifier("Perception")
+
+    @property
+    def derived_values(self) -> CharacterDerivedValues:
+        return CharacterDerivedValues(
+            proficiency_bonus=self.proficiency_bonus,
+            hit_points=self.hit_points,
+            armor_class=self.armor_class,
+            initiative_modifier=self.initiative_modifier,
+            speed=self.speed,
+            passive_perception=self.passive_perception,
+            skills=tuple(sorted(self.skills)),
+            languages=self.languages,
+            equipment=self.inventory,
+            weapon_attacks=self.weapon_attacks,
+            spellcasting_ability=self.spellcasting_ability,
+            spell_save_dc=self.spell_save_dc,
+            spell_attack_bonus=self.spell_attack_bonus,
+            spell_slots=self.spell_slots,
+        )
 
     def skill_modifier(self, skill: str) -> int:
         value = self.abilities.modifier(SKILL_ABILITIES[skill])

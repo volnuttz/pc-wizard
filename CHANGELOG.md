@@ -5,8 +5,28 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Changed
+
+- Character JSON is explicitly current-schema-only: files carry no schema version,
+  and the project does not provide migrations or legacy-shape fallbacks. The binary
+  smoke fixture now contains the complete current canonical shape, and character
+  size must be present rather than being inferred when omitted.
+- Character JSON now stores class skills and selected standard languages as user
+  choices, while aggregate skills, languages, equipment, combat values, and
+  spellcasting values are exposed as derived data.
+- Alignment, language, skill-count, duplicate-proficiency, and other cross-field
+  choices are validated at the model boundary.
+
 ### Added
 
+- Incomplete interactive sessions are checkpointed by stage and can be resumed;
+  completed characters receive a final review with navigation back to each stage
+  and confirmation before clearing dependent answers.
+- `create --from-json` supports non-interactive creation from complete current-schema
+  JSON.
+- New `validate` and `show` commands check character files and display selected and
+  derived values with actionable validation errors.
+- Existing output files require confirmation unless `--force` is supplied.
 - Interactive 27-point ability-score point-buy with live remaining-point feedback.
 - Background ability-increase prompts omit choices that would raise a score above
   20.

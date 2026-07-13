@@ -3,6 +3,16 @@
   "character_class": "Rogue",
   "background": "Criminal",
   "species": "Tiefling",
+  "size": "Medium",
+  "dragonborn_ancestry": null,
+  "elf_lineage": null,
+  "elf_spellcasting_ability": null,
+  "elf_keen_senses_skill": null,
+  "gnome_lineage": null,
+  "gnome_spellcasting_ability": null,
+  "goliath_ancestry": null,
+  "human_skill": null,
+  "human_origin_feat": null,
   "tiefling_legacy": "Infernal",
   "tiefling_spellcasting_ability": "charisma",
   "alignment": "Neutral",
@@ -14,25 +24,44 @@
     "wisdom": 10,
     "charisma": 8
   },
-  "skills": [
+  "class_skills": [
     "Deception",
     "Investigation",
     "Perception",
-    "Persuasion",
-    "Sleight of Hand",
-    "Stealth"
+    "Persuasion"
   ],
   "class_choices": {
-    "weapon_masteries": ["Dagger", "Shortsword"],
-    "expertise": ["Sleight of Hand", "Stealth"],
+    "weapon_masteries": [
+      "Dagger",
+      "Shortsword"
+    ],
+    "tools": [],
+    "expertise": [
+      "Sleight of Hand",
+      "Stealth"
+    ],
+    "cantrips": [],
+    "prepared_spells": [],
+    "spellbook_spells": [],
+    "divine_order": null,
+    "primal_order": null,
+    "fighting_style": null,
+    "eldritch_invocation": null,
     "additional_language": "Draconic"
   },
-  "languages": [
-    "Common",
+  "class_equipment_option": "A",
+  "background_equipment_option": "A",
+  "bard_starting_instrument": null,
+  "tool_proficiencies": [],
+  "magic_initiate_choices": [],
+  "skilled_proficiencies": [],
+  "selected_languages": [
     "Elvish",
-    "Halfling",
-    "Draconic"
+    "Halfling"
   ],
+  "backstory": null,
+  "appearance": null,
+  "personality": null,
   "level": 1,
   "xp": 0
 }

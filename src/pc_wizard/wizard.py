@@ -1,8 +1,10 @@
 import random
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any, Literal, cast
 
 import questionary
+from pydantic import BaseModel, ConfigDict
 
 from pc_wizard.models import (
     AbilityGenerationMethod,
@@ -44,6 +46,7 @@ from pc_wizard.rules import (
     STANDARD_LANGUAGES,
     TOOLS,
     WEAPON_MASTERY_COUNTS,
+    Alignment,
     CreatureSize,
     DraconicAncestry,
     ElvenLineage,
@@ -54,10 +57,76 @@ from pc_wizard.rules import (
     MagicInitiateList,
     OriginFeat,
     SpellcastingAbility,
+    StandardLanguage,
     eligible_abilities_for_increase,
     point_buy_cost,
     weapon_mastery_options,
 )
+
+DraftStage = Literal["origin", "abilities", "build", "details"]
+
+
+class OriginDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str
+    character_class: str
+    background: str
+    species: str
+    size: CreatureSize
+    dragonborn_ancestry: DraconicAncestry | None = None
+    elf_lineage: ElvenLineage | None = None
+    elf_spellcasting_ability: SpellcastingAbility | None = None
+    elf_keen_senses_skill: KeenSensesSkill | None = None
+    gnome_lineage: GnomishLineage | None = None
+    gnome_spellcasting_ability: SpellcastingAbility | None = None
+    goliath_ancestry: GoliathAncestry | None = None
+    human_skill: str | None = None
+    human_origin_feat: OriginFeat | None = None
+    tiefling_legacy: FiendishLegacy | None = None
+    tiefling_spellcasting_ability: SpellcastingAbility | None = None
+    magic_initiate_choices: list[MagicInitiateChoice]
+    skilled_proficiencies: set[str]
+    selected_languages: tuple[StandardLanguage, StandardLanguage]
+
+
+class BuildDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    class_skills: set[str]
+    class_choices: ClassChoices
+    class_equipment_option: str
+    background_equipment_option: Literal["A", "Gold"]
+    bard_starting_instrument: str | None = None
+    alignment: Alignment
+
+
+class DetailsDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    backstory: str | None = None
+    appearance: str | None = None
+    personality: str | None = None
+
+
+class CharacterDraft(BaseModel):
+    """Current-format checkpoints for an incomplete creation session."""
+
+    model_config = ConfigDict(extra="forbid")
+    origin: OriginDraft | None = None
+    abilities: AbilityScores | None = None
+    build: BuildDraft | None = None
+    details: DetailsDraft | None = None
+
+    def save(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(self.model_dump_json(indent=2) + "\n", encoding="utf-8")
+
+    @classmethod
+    def load(cls, path: Path) -> "CharacterDraft":
+        return cls.model_validate_json(path.read_text(encoding="utf-8"))
+
+
+class DraftSaved(Exception):
+    """Signal an intentional exit after retaining the current draft."""
+
 
 Ask = Callable[[], Any]
 ABILITY_GENERATION_CHOICES = {
@@ -279,16 +348,14 @@ def choose_class_choices(
         if class_name == "Warlock"
         else None
     )
-    additional_language = (
-        select(
+    additional_language: StandardLanguage | None = None
+    if class_name == "Rogue":
+        additional_language = select(
             "Choose the Rogue's additional language",
             tuple(
                 language for language in STANDARD_LANGUAGES if language not in existing_languages
             ),
         )
-        if class_name == "Rogue"
-        else None
-    )
 
     cantrip_count = {
         "Bard": 2,
@@ -473,7 +540,7 @@ def apply_background_increases(values: Sequence[int], background_name: str) -> l
     return list(adjustment.adjusted_scores.ordered_values())
 
 
-def run_wizard() -> Character:
+def collect_origin() -> OriginDraft:
     name = text("Character name")
     class_name = select("Choose a class", tuple(CLASSES))
     background_name = select("Choose a background", tuple(BACKGROUNDS))
@@ -489,14 +556,43 @@ def run_wizard() -> Character:
     human_skill, human_origin_feat = choose_human_traits(species_name, background_skills)
     tiefling_legacy, tiefling_spellcasting_ability = choose_tiefling_traits(species_name)
     origin_unavailable_skills = set(background_skills)
+    if elf_keen_senses_skill is not None:
+        origin_unavailable_skills.add(elf_keen_senses_skill)
     if human_skill is not None:
         origin_unavailable_skills.add(human_skill)
     magic_initiate_choices, skilled_proficiencies = choose_origin_feat_details(
         background_name, human_origin_feat, origin_unavailable_skills
     )
-    skilled_skills = skilled_proficiencies & set(SKILL_ABILITIES)
-    skilled_tools = skilled_proficiencies & set(TOOLS)
-    languages = ["Common", *checkbox("Choose two languages", STANDARD_LANGUAGES, 2)]
+    selected_languages = cast(
+        tuple[StandardLanguage, StandardLanguage],
+        tuple(checkbox("Choose two languages", STANDARD_LANGUAGES, 2)),
+    )
+    return OriginDraft(
+        name=name.strip(),
+        character_class=class_name,
+        background=background_name,
+        species=species_name,
+        size=size,
+        dragonborn_ancestry=dragonborn_ancestry,
+        elf_lineage=elf_lineage,
+        elf_spellcasting_ability=elf_spellcasting_ability,
+        elf_keen_senses_skill=elf_keen_senses_skill,
+        gnome_lineage=gnome_lineage,
+        gnome_spellcasting_ability=gnome_spellcasting_ability,
+        goliath_ancestry=goliath_ancestry,
+        human_skill=human_skill,
+        human_origin_feat=human_origin_feat,
+        tiefling_legacy=tiefling_legacy,
+        tiefling_spellcasting_ability=tiefling_spellcasting_ability,
+        magic_initiate_choices=magic_initiate_choices,
+        skilled_proficiencies=skilled_proficiencies,
+        selected_languages=selected_languages,
+    )
+
+
+def collect_abilities(origin: OriginDraft) -> AbilityScores:
+    class_name = origin.character_class
+    background_name = origin.background
 
     method_label = select("Generate ability scores", tuple(ABILITY_GENERATION_CHOICES))
     method = ABILITY_GENERATION_CHOICES[method_label]
@@ -518,58 +614,174 @@ def run_wizard() -> Character:
         character_class=class_name,
     )
     values = apply_background_increases(generation.scores.ordered_values(), background_name)
+    return AbilityScores(**dict(zip(ABILITIES, values, strict=True)))
+
+
+def collect_build(origin: OriginDraft) -> BuildDraft:
+    class_name = origin.character_class
+    background_name = origin.background
+    background_skills = set(BACKGROUNDS[background_name].skills)
+    skilled_skills = origin.skilled_proficiencies & set(SKILL_ABILITIES)
 
     class_rule = CLASSES[class_name]
     unavailable_skills: set[str] = set(background_skills)
-    if elf_keen_senses_skill is not None:
-        unavailable_skills.add(elf_keen_senses_skill)
-    if human_skill is not None:
-        unavailable_skills.add(human_skill)
+    if origin.elf_keen_senses_skill is not None:
+        unavailable_skills.add(origin.elf_keen_senses_skill)
+    if origin.human_skill is not None:
+        unavailable_skills.add(origin.human_skill)
     unavailable_skills.update(skilled_skills)
     available = tuple(skill for skill in class_rule.skills if skill not in unavailable_skills)
     class_skills = checkbox(
         f"Choose {class_rule.skill_count} class skills", available, class_rule.skill_count
     )
     all_skills = unavailable_skills | set(class_skills)
-    class_choices = choose_class_choices(class_name, all_skills, languages)
-    if class_choices.additional_language is not None:
-        languages.append(class_choices.additional_language)
+    class_choices = choose_class_choices(
+        class_name, all_skills, ("Common", *origin.selected_languages)
+    )
     class_equipment_option, background_equipment_option, bard_starting_instrument = (
         choose_starting_equipment(class_name, background_name, class_choices)
     )
     alignment = select("Choose an alignment", ALIGNMENTS)
-    backstory = optional_text("Backstory")
-    appearance = optional_text("Appearance")
-    personality = optional_text("Personality")
-    return Character(
-        name=name.strip(),
-        character_class=class_name,
-        background=background_name,
-        species=species_name,
-        size=size,
-        dragonborn_ancestry=dragonborn_ancestry,
-        elf_lineage=elf_lineage,
-        elf_spellcasting_ability=elf_spellcasting_ability,
-        elf_keen_senses_skill=elf_keen_senses_skill,
-        gnome_lineage=gnome_lineage,
-        gnome_spellcasting_ability=gnome_spellcasting_ability,
-        goliath_ancestry=goliath_ancestry,
-        human_skill=human_skill,
-        human_origin_feat=human_origin_feat,
-        tiefling_legacy=tiefling_legacy,
-        tiefling_spellcasting_ability=tiefling_spellcasting_ability,
-        alignment=alignment,
-        abilities=AbilityScores(**dict(zip(ABILITIES, values, strict=True))),
-        skills=all_skills,
+    return BuildDraft(
+        class_skills=set(class_skills),
         class_choices=class_choices,
         class_equipment_option=class_equipment_option,
         background_equipment_option=background_equipment_option,
         bard_starting_instrument=bard_starting_instrument,
-        tool_proficiencies=skilled_tools,
-        magic_initiate_choices=magic_initiate_choices,
-        skilled_proficiencies=skilled_proficiencies,
-        languages=languages,
-        backstory=backstory,
-        appearance=appearance,
-        personality=personality,
+        alignment=alignment,
     )
+
+
+def collect_details() -> DetailsDraft:
+    return DetailsDraft(
+        backstory=optional_text("Backstory"),
+        appearance=optional_text("Appearance"),
+        personality=optional_text("Personality"),
+    )
+
+
+def character_from_draft(draft: CharacterDraft) -> Character:
+    if any(stage is None for stage in (draft.origin, draft.abilities, draft.build, draft.details)):
+        raise ValueError("the character draft is incomplete")
+    origin = cast(OriginDraft, draft.origin)
+    abilities = cast(AbilityScores, draft.abilities)
+    build = cast(BuildDraft, draft.build)
+    details = cast(DetailsDraft, draft.details)
+    skilled_tools = origin.skilled_proficiencies & set(TOOLS)
+    return Character(
+        name=origin.name,
+        character_class=origin.character_class,
+        background=origin.background,
+        species=origin.species,
+        size=origin.size,
+        dragonborn_ancestry=origin.dragonborn_ancestry,
+        elf_lineage=origin.elf_lineage,
+        elf_spellcasting_ability=origin.elf_spellcasting_ability,
+        elf_keen_senses_skill=origin.elf_keen_senses_skill,
+        gnome_lineage=origin.gnome_lineage,
+        gnome_spellcasting_ability=origin.gnome_spellcasting_ability,
+        goliath_ancestry=origin.goliath_ancestry,
+        human_skill=origin.human_skill,
+        human_origin_feat=origin.human_origin_feat,
+        tiefling_legacy=origin.tiefling_legacy,
+        tiefling_spellcasting_ability=origin.tiefling_spellcasting_ability,
+        alignment=build.alignment,
+        abilities=abilities,
+        class_skills=build.class_skills,
+        class_choices=build.class_choices,
+        class_equipment_option=build.class_equipment_option,
+        background_equipment_option=build.background_equipment_option,
+        bard_starting_instrument=build.bard_starting_instrument,
+        tool_proficiencies=skilled_tools,
+        magic_initiate_choices=origin.magic_initiate_choices,
+        skilled_proficiencies=origin.skilled_proficiencies,
+        selected_languages=origin.selected_languages,
+        backstory=details.backstory,
+        appearance=details.appearance,
+        personality=details.personality,
+    )
+
+
+def review_summary(character: Character) -> str:
+    derived = character.derived_values
+    return (
+        f"\n{character.name} — level 1 {character.species} {character.character_class}\n"
+        f"Background: {character.background} | Alignment: {character.alignment}\n"
+        f"HP {derived.hit_points} | AC {derived.armor_class} | Speed {derived.speed} ft.\n"
+        f"Skills: {', '.join(derived.skills)}\n"
+        f"Languages: {', '.join(derived.languages)}\n"
+        f"Equipment: {', '.join(item.name for item in derived.equipment) or 'None'}"
+    )
+
+
+def _confirm(message: str) -> bool:
+    return cast(bool, _required(questionary.confirm(message, default=False).ask))
+
+
+def run_wizard(draft_path: Path | None = None) -> Character:
+    draft = CharacterDraft()
+    if draft_path is not None and draft_path.exists():
+        action = select(
+            f"A saved creation session exists at {draft_path}",
+            ("Resume saved session", "Discard it and start over"),
+        )
+        if action == "Resume saved session":
+            draft = CharacterDraft.load(draft_path)
+        elif not _confirm("Discard the saved session and all of its answers?"):
+            raise DraftSaved
+
+    while True:
+        if draft.origin is None:
+            draft.origin = collect_origin()
+            draft.abilities = None
+            draft.build = None
+            draft.details = None
+            if draft_path is not None:
+                draft.save(draft_path)
+        if draft.abilities is None:
+            draft.abilities = collect_abilities(draft.origin)
+            if draft_path is not None:
+                draft.save(draft_path)
+        if draft.build is None:
+            draft.build = collect_build(draft.origin)
+            if draft_path is not None:
+                draft.save(draft_path)
+        if draft.details is None:
+            draft.details = collect_details()
+            if draft_path is not None:
+                draft.save(draft_path)
+
+        character = character_from_draft(draft)
+        questionary.print(review_summary(character))
+        action = select(
+            "Review your character",
+            (
+                "Finish and write files",
+                "Edit identity and origin",
+                "Edit ability scores",
+                "Edit class choices and equipment",
+                "Edit character details",
+                "Save draft and exit",
+            ),
+        )
+        if action == "Finish and write files":
+            return character
+        if action == "Save draft and exit":
+            if draft_path is not None:
+                draft.save(draft_path)
+            raise DraftSaved
+        if action == "Edit identity and origin":
+            if not _confirm(
+                "Changing identity or origin clears ability, class, equipment, "
+                "and detail answers. Continue?"
+            ):
+                continue
+            draft = CharacterDraft()
+        elif action == "Edit ability scores":
+            draft.abilities = None
+        elif action == "Edit class choices and equipment":
+            draft.build = None
+        else:
+            draft.details = None
+        if draft_path is not None:
+            draft.save(draft_path)

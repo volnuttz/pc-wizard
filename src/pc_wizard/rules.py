@@ -19,6 +19,40 @@ type OriginFeat = Literal["Alert", "Magic Initiate", "Savage Attacker", "Skilled
 type SpellcastingAbility = Literal["intelligence", "wisdom", "charisma"]
 type DivineOrder = Literal["Protector", "Thaumaturge"]
 type PrimalOrder = Literal["Magician", "Warden"]
+type Alignment = Literal[
+    "Lawful Good",
+    "Neutral Good",
+    "Chaotic Good",
+    "Lawful Neutral",
+    "Neutral",
+    "Chaotic Neutral",
+    "Lawful Evil",
+    "Neutral Evil",
+    "Chaotic Evil",
+]
+type StandardLanguage = Literal[
+    "Common Sign Language",
+    "Draconic",
+    "Dwarvish",
+    "Elvish",
+    "Giant",
+    "Gnomish",
+    "Goblin",
+    "Halfling",
+    "Orc",
+]
+type Language = Literal[
+    "Common",
+    "Common Sign Language",
+    "Draconic",
+    "Dwarvish",
+    "Elvish",
+    "Giant",
+    "Gnomish",
+    "Goblin",
+    "Halfling",
+    "Orc",
+]
 
 DRACONIC_ANCESTORS: dict[DraconicAncestry, DamageType] = {
     "Black": "Acid",
@@ -498,7 +532,7 @@ def eligible_abilities_for_increase(
     return tuple(ability for ability in abilities if scores[ability] + amount <= MAX_ABILITY_SCORE)
 
 
-STANDARD_LANGUAGES = (
+STANDARD_LANGUAGES: tuple[StandardLanguage, ...] = (
     "Common Sign Language",
     "Draconic",
     "Dwarvish",
@@ -509,7 +543,7 @@ STANDARD_LANGUAGES = (
     "Halfling",
     "Orc",
 )
-ALIGNMENTS = (
+ALIGNMENTS: tuple[Alignment, ...] = (
     "Lawful Good",
     "Neutral Good",
     "Chaotic Good",

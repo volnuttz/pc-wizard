@@ -1,4 +1,6 @@
+import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 from pydantic import ValidationError
@@ -21,11 +23,12 @@ def character() -> Character:
         character_class="Wizard",
         background="Sage",
         species="Dwarf",
+        size="Medium",
         alignment="Neutral Good",
         abilities=AbilityScores(
             strength=8, dexterity=12, constitution=14, intelligence=17, wisdom=15, charisma=10
         ),
-        skills={"Arcana", "History", "Investigation", "Nature"},
+        class_skills={"Investigation", "Nature"},
         class_choices=ClassChoices(
             cantrips={"Fire Bolt", "Mage Hand", "Prestidigitation"},
             spellbook_spells={
@@ -46,7 +49,7 @@ def character() -> Character:
                 level_one_spell="Mage Armor",
             )
         ],
-        languages=["Common", "Dwarvish", "Elvish"],
+        selected_languages=("Dwarvish", "Elvish"),
         backstory="Raised in a mountain archive.",
         appearance="Ink-stained fingers and silver braids.",
         personality="Patient, curious, and direct.",
@@ -71,6 +74,41 @@ def test_json_round_trip(character: Character, tmp_path: Path) -> None:
     path = tmp_path / "ada.json"
     character.save_json(path)
     assert Character.load_json(path) == character
+
+
+def test_character_json_contains_selections_not_derived_aggregates(character: Character) -> None:
+    data = character.model_dump(mode="json")
+
+    assert set(data["class_skills"]) == {"Investigation", "Nature"}
+    assert data["selected_languages"] == ["Dwarvish", "Elvish"]
+    assert "skills" not in data
+    assert "languages" not in data
+    assert character.derived_values.skills == tuple(sorted(character.skills))
+    assert character.derived_values.languages == character.languages
+
+
+def test_alignment_and_languages_use_srd_identifiers(character: Character) -> None:
+    data = character.model_dump(mode="json")
+    data["alignment"] = "Chaotic Hungry"
+    with pytest.raises(ValidationError, match="alignment"):
+        Character.model_validate(data)
+
+    data = character.model_dump(mode="json")
+    data["selected_languages"] = ["Elvish", "Elvish"]
+    with pytest.raises(ValidationError, match="two different standard languages"):
+        Character.model_validate(data)
+
+    data["selected_languages"] = ["Elvish", "Undercommon"]
+    with pytest.raises(ValidationError, match="selected_languages"):
+        Character.model_validate(data)
+
+
+def test_class_skill_cannot_duplicate_an_origin_proficiency(character: Character) -> None:
+    data = character.model_dump(mode="json")
+    data["class_skills"] = ["Arcana", "Investigation"]
+
+    with pytest.raises(ValidationError, match="must not duplicate"):
+        Character.model_validate(data)
 
 
 def test_starting_packages_create_structured_inventory_and_coins(character: Character) -> None:
@@ -116,6 +154,7 @@ def test_armor_shields_unarmored_defense_and_strength_requirement(
             weapon_masteries={"Greatsword", "Flail", "Javelin"},
             fighting_style="Defense",
         ),
+        class_skills={"Perception", "Survival"},
         magic_initiate_choices=[],
     )
     fighter = Character.model_validate(fighter_values)
@@ -130,6 +169,7 @@ def test_armor_shields_unarmored_defense_and_strength_requirement(
             weapon_masteries={"Longsword", "Javelin"},
             prepared_spells={"Bless", "Divine Smite"},
         ),
+        class_skills={"Insight", "Persuasion"},
     )
     paladin = Character.model_validate(paladin_values)
     assert paladin.armor_class == 18
@@ -139,6 +179,7 @@ def test_armor_shields_unarmored_defense_and_strength_requirement(
     barbarian_values.update(
         character_class="Barbarian",
         class_choices=ClassChoices(weapon_masteries={"Greataxe", "Handaxe"}),
+        class_skills={"Nature", "Perception"},
     )
     barbarian = Character.model_validate(barbarian_values)
     assert barbarian.equipped_armor is None
@@ -148,6 +189,7 @@ def test_armor_shields_unarmored_defense_and_strength_requirement(
     monk_values.update(
         character_class="Monk",
         class_choices=ClassChoices(tools={"Smith's Tools"}),
+        class_skills={"History", "Stealth"},
     )
     monk = Character.model_validate(monk_values)
     assert monk.armor_class == 12
@@ -159,6 +201,7 @@ def test_weapon_attacks_include_proficiency_damage_range_properties_and_mastery(
         character_class="Fighter",
         background="Soldier",
         species="Dwarf",
+        size="Medium",
         alignment="Lawful Good",
         abilities=AbilityScores(
             strength=17,
@@ -168,12 +211,12 @@ def test_weapon_attacks_include_proficiency_damage_range_properties_and_mastery(
             wisdom=10,
             charisma=12,
         ),
-        skills={"Athletics", "Intimidation", "Perception", "Survival"},
+        class_skills={"Perception", "Survival"},
         class_choices=ClassChoices(
             weapon_masteries={"Greatsword", "Flail", "Javelin"},
             fighting_style="Great Weapon Fighting",
         ),
-        languages=["Common", "Dwarvish", "Giant"],
+        selected_languages=("Dwarvish", "Giant"),
     )
 
     attacks = {attack.name: attack for attack in fighter.weapon_attacks}
@@ -198,6 +241,7 @@ def test_archery_and_finesse_choose_the_correct_attack_modifier(character: Chara
             weapon_masteries={"Longbow", "Scimitar", "Shortsword"},
             fighting_style="Archery",
         ),
+        class_skills={"Perception", "Survival"},
         magic_initiate_choices=[],
     )
     fighter = Character.model_validate(values)
@@ -269,7 +313,21 @@ def test_level_one_spellcasting_values_and_slots(
         "Wizard": character.class_choices,
     }[class_name]
     values = character.model_dump()
-    values.update(character_class=class_name, class_choices=choices)
+    class_skills = {
+        "Barbarian": {"Nature", "Perception"},
+        "Bard": {"Investigation", "Nature", "Perception"},
+        "Cleric": {"Insight", "Medicine"},
+        "Druid": {"Nature", "Perception"},
+        "Fighter": {"Perception", "Survival"},
+        "Monk": {"Insight", "Stealth"},
+        "Paladin": {"Insight", "Persuasion"},
+        "Ranger": {"Nature", "Perception", "Survival"},
+        "Rogue": {"Investigation", "Perception", "Persuasion", "Stealth"},
+        "Sorcerer": {"Insight", "Persuasion"},
+        "Warlock": {"Investigation", "Nature"},
+        "Wizard": {"Investigation", "Nature"},
+    }[class_name]
+    values.update(character_class=class_name, class_choices=choices, class_skills=class_skills)
     if class_name == "Bard":
         values["bard_starting_instrument"] = "Musical Instrument (Flute)"
     caster = Character.model_validate(values)
@@ -393,12 +451,23 @@ def test_validates_level_one_choices_for_every_class(
     character: Character, class_name: str, choices: ClassChoices
 ) -> None:
     values = character.model_dump()
-    values.update(character_class=class_name, class_choices=choices)
+    class_skills = {
+        "Barbarian": {"Nature", "Perception"},
+        "Bard": {"Investigation", "Nature", "Perception"},
+        "Cleric": {"Insight", "Medicine"},
+        "Druid": {"Nature", "Perception"},
+        "Fighter": {"Perception", "Survival"},
+        "Monk": {"Insight", "Stealth"},
+        "Paladin": {"Insight", "Persuasion"},
+        "Ranger": {"Nature", "Perception", "Survival"},
+        "Rogue": {"Investigation", "Perception", "Persuasion", "Stealth"},
+        "Sorcerer": {"Insight", "Persuasion"},
+        "Warlock": {"Investigation", "Nature"},
+        "Wizard": {"Investigation", "Nature"},
+    }[class_name]
+    values.update(character_class=class_name, class_choices=choices, class_skills=class_skills)
     if class_name == "Bard":
         values["bard_starting_instrument"] = "Musical Instrument (Flute)"
-    if class_name == "Rogue":
-        values["languages"] = [*character.languages, "Draconic"]
-
     result = Character.model_validate(values)
 
     assert result.class_choices == choices
@@ -428,7 +497,7 @@ def test_class_choices_enforce_eligibility_and_derived_benefits(character: Chara
             expertise={"Arcana", "History"},
             additional_language="Draconic",
         ),
-        languages=[*character.languages, "Draconic"],
+        class_skills={"Investigation", "Perception", "Persuasion", "Sleight of Hand"},
     )
     with pytest.raises(ValidationError, match="invalid Rogue weapon mastery"):
         Character.model_validate(values)
@@ -440,7 +509,7 @@ def test_class_choices_enforce_eligibility_and_derived_benefits(character: Chara
             cantrips={"Guidance", "Light", "Sacred Flame", "Thaumaturgy"},
             prepared_spells={"Bless", "Cure Wounds", "Guiding Bolt", "Healing Word"},
         ),
-        languages=character.languages,
+        class_skills={"Insight", "Medicine"},
     )
     cleric = Character.model_validate(values)
     assert cleric.skill_modifier("Arcana") == 7
@@ -457,6 +526,7 @@ def test_class_choices_enforce_eligibility_and_derived_benefits(character: Chara
 
     values.update(
         character_class="Ranger",
+        class_skills={"Perception", "Stealth", "Survival"},
         class_choices=ClassChoices(
             weapon_masteries={"Longbow", "Scimitar"},
             prepared_spells={"Cure Wounds", "Hunter's Mark"},
@@ -468,15 +538,28 @@ def test_class_choices_enforce_eligibility_and_derived_benefits(character: Chara
 
 def test_binary_smoke_fixture_is_valid() -> None:
     fixture = Path(__file__).parent / "fixtures" / "character.json"
+    payload = cast(dict[str, object], json.loads(fixture.read_text(encoding="utf-8")))
+    class_choices = cast(dict[str, object], payload["class_choices"])
 
     character = Character.load_json(fixture)
 
+    assert set(payload) == set(Character.model_fields)
+    assert set(class_choices) == set(ClassChoices.model_fields)
+    assert "schema_version" not in payload
     assert character.name == "Binary Smoke Test"
     assert character.character_size == "Medium"
     assert character.initiative_modifier == 5
     assert character.backstory is None
     assert character.appearance is None
     assert character.personality is None
+
+
+def test_character_json_rejects_schema_version(character: Character) -> None:
+    payload = character.model_dump()
+    payload["schema_version"] = 1
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        Character.model_validate(payload)
 
 
 def test_optional_character_details_are_normalized(character: Character) -> None:
@@ -494,14 +577,17 @@ def test_optional_character_details_are_normalized(character: Character) -> None
     assert normalized.personality == "Quietly determined."
 
 
-def test_species_size_defaults_and_validates(character: Character) -> None:
+def test_species_size_is_required_and_validates(character: Character) -> None:
     values = character.model_dump()
+    del values["size"]
+    with pytest.raises(ValidationError, match="Field required"):
+        Character.model_validate(values)
+
     values.update(
         species="Human",
         size="Small",
         human_skill="Perception",
         human_origin_feat="Alert",
-        skills=set(character.skills) | {"Perception"},
     )
     assert Character.model_validate(values).character_size == "Small"
 
@@ -509,9 +595,9 @@ def test_species_size_defaults_and_validates(character: Character) -> None:
     with pytest.raises(ValidationError, match="invalid size for Dwarf"):
         Character.model_validate(values)
 
-    values.pop("size")
     values.update(
         species="Gnome",
+        size="Small",
         human_skill=None,
         human_origin_feat=None,
         gnome_lineage="Forest Gnome",
@@ -592,7 +678,6 @@ def test_elf_lineage_records_level_one_rule_metadata(
         elf_lineage=lineage,
         elf_spellcasting_ability="wisdom",
         elf_keen_senses_skill="Perception",
-        skills=set(character.skills) | {"Perception"},
     )
 
     elf = Character.model_validate(values)
@@ -617,7 +702,6 @@ def test_elf_choices_round_trip_through_json(character: Character, tmp_path: Pat
         elf_lineage="High Elf",
         elf_spellcasting_ability="intelligence",
         elf_keen_senses_skill="Insight",
-        skills=set(character.skills) | {"Insight"},
     )
     elf = Character.model_validate(values)
     path = tmp_path / "elf.json"
@@ -634,7 +718,6 @@ def test_elf_lineage_spells_are_prepared_at_their_required_levels(character: Cha
         elf_lineage="Drow",
         elf_spellcasting_ability="charisma",
         elf_keen_senses_skill="Perception",
-        skills=set(character.skills) | {"Perception"},
         level=5,
     )
 
@@ -643,7 +726,7 @@ def test_elf_lineage_spells_are_prepared_at_their_required_levels(character: Cha
     assert elf.species_prepared_spells == ("Faerie Fire", "Darkness")
 
 
-def test_elf_choices_are_required_species_specific_and_proficient(character: Character) -> None:
+def test_elf_choices_are_required_species_specific_and_derived(character: Character) -> None:
     values = character.model_dump()
     values.update(species="Elf")
     with pytest.raises(ValidationError, match="must choose a lineage"):
@@ -654,10 +737,10 @@ def test_elf_choices_are_required_species_specific_and_proficient(character: Cha
         elf_spellcasting_ability="charisma",
         elf_keen_senses_skill="Survival",
     )
-    with pytest.raises(ValidationError, match="must be included in skill proficiencies"):
-        Character.model_validate(values)
+    elf = Character.model_validate(values)
+    assert "Survival" in elf.skills
 
-    values.update(species="Dwarf", skills=set(character.skills) | {"Survival"})
+    values.update(species="Dwarf")
     with pytest.raises(ValidationError, match="only valid for Elf"):
         Character.model_validate(values)
 
@@ -788,7 +871,6 @@ def test_human_skill_and_origin_feat_are_applied_and_round_trip(
         species="Human",
         human_skill="Perception",
         human_origin_feat="Skilled",
-        skills=set(character.skills) | {"Perception", "Acrobatics", "Athletics"},
         tool_proficiencies={"Alchemist's Supplies"},
         skilled_proficiencies={"Acrobatics", "Athletics", "Alchemist's Supplies"},
     )
@@ -817,7 +899,6 @@ def test_human_choices_are_required_additional_and_species_specific(character: C
     values.update(
         human_skill="Arcana",
         human_origin_feat="Alert",
-        skills=set(character.skills),
     )
     with pytest.raises(ValidationError, match="must be additional to background skills"):
         Character.model_validate(values)
@@ -841,7 +922,6 @@ def test_magic_initiate_validates_spells_and_repeatable_lists(character: Charact
         species="Human",
         human_skill="Perception",
         human_origin_feat="Magic Initiate",
-        skills=set(character.skills) | {"Perception"},
         magic_initiate_choices=[
             *character.magic_initiate_choices,
             MagicInitiateChoice(
@@ -877,7 +957,6 @@ def test_origin_feat_subchoices_are_required(character: Character) -> None:
         species="Human",
         human_skill="Perception",
         human_origin_feat="Skilled",
-        skills=set(character.skills) | {"Perception"},
     )
     with pytest.raises(ValidationError, match="Skilled requires exactly three"):
         Character.model_validate(values)
@@ -955,7 +1034,10 @@ def test_rejects_unknown_class() -> None:
             character_class="Artificer",
             background="Sage",
             species="Human",
+            size="Medium",
             alignment="Neutral",
+            class_skills={"Arcana", "History"},
+            selected_languages=("Elvish", "Giant"),
             abilities=AbilityScores(
                 strength=10, dexterity=10, constitution=10, intelligence=10, wisdom=10, charisma=10
             ),

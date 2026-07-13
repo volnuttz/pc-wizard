@@ -21,7 +21,8 @@ Version: `0.1.0`
 The repository currently provides:
 
 - [x] Python 3.13 project managed with uv
-- [x] Typer CLI with `create` and `render` commands
+- [x] Typer CLI with interactive/non-interactive `create`, `render`, `validate`,
+  and `show` commands
 - [x] Questionary interactive character-creation flow
 - [x] Rich terminal output
 - [x] Pydantic v2 character and creation-workflow validation with JSON
@@ -39,7 +40,7 @@ The repository currently provides:
 - [x] Optional backstory, appearance, and personality details
 - [x] Derived ability modifiers, saving throws, skill modifiers, HP, initiative,
   proficiency bonus, base AC, and Passive Perception
-- [x] JSON save and reload
+- [x] JSON save/reload, incomplete-session checkpoints, resume, and final review
 - [x] Wheel and source-distribution builds
 - [x] MIT license and complete package metadata
 - [x] Clean wheel installation and outside-repository `create`/`render` workflows
@@ -53,8 +54,8 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 28 passed
-CLI help smoke tests: passed
+pytest: 130 passed
+CLI help smoke tests (`create`, `render`, `validate`, and `show`): passed
 uv wheel and sdist builds: passed
 Clean wheel create/render smoke tests: passed
 Cross-platform native binary builds and smoke tests: passed
@@ -75,11 +76,8 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 ### Validation and persistence
 
-- Alignment, skills, and languages are not fully validated against SRD choices.
-- Cross-field rules such as exact proficiency counts are not fully enforced by the
-  model.
-- Character JSON has no explicit schema version or migration strategy.
-- An interrupted wizard cannot be resumed.
+- Character JSON intentionally supports only the current schema. Files produced by
+  older releases are not migrated and may fail validation after the schema changes.
 
 ### PDF output
 
@@ -244,27 +242,26 @@ Exit criteria:
 
 ## Phase 5: Model durability and user experience
 
-Goal: make saved characters reliable and the wizard pleasant to use over time.
+Goal: make current-schema character files reliable and the wizard pleasant to use.
 
-- [ ] Add `schema_version` to character JSON.
-- [ ] Define migrations for older schemas.
-- [ ] Validate alignment, skills, languages, and cross-field rules.
-- [ ] Replace unconstrained rule strings with enums or validated identifiers where
+- [x] Validate alignment, skills, languages, and cross-field rules.
+- [x] Replace unconstrained rule strings with enums or validated identifiers where
   this improves correctness.
-- [ ] Separate user selections from derived values explicitly.
-- [ ] Add save-and-resume support for incomplete creation sessions.
-- [ ] Add a final review screen before writing files.
-- [ ] Add back navigation or confirmation for destructive choice changes.
-- [ ] Add non-interactive creation from a complete JSON input.
-- [ ] Add `validate` and `show` commands.
-- [ ] Improve actionable error messages for missing or invalid templates and JSON.
-- [ ] Avoid overwriting existing outputs without confirmation or `--force`.
+- [x] Separate user selections from derived values explicitly.
+- [x] Add save-and-resume support for incomplete creation sessions.
+- [x] Add a final review screen before writing files.
+- [x] Add back navigation or confirmation for destructive choice changes.
+- [x] Add non-interactive creation from a complete JSON input.
+- [x] Add `validate` and `show` commands.
+- [x] Improve actionable error messages for missing or invalid templates and JSON.
+- [x] Avoid overwriting existing outputs without confirmation or `--force`.
+
+Status: complete and verified on 2026-07-13.
 
 Exit criteria:
 
-- Old character files either migrate cleanly or fail with a clear compatibility
-  message.
-- Users can review, resume, validate, and safely render characters.
+- Current-schema character files validate consistently, and users can review,
+  resume, validate, and safely render them.
 
 ## Phase 6: Engineering and release practices
 
@@ -284,7 +281,7 @@ Goal: make changes and releases repeatable, reviewable, and safe.
 - [ ] Add contributor and code-of-conduct documents if outside contributors are
   expected.
 - [ ] Add issue and pull-request templates.
-- [ ] Add release notes describing schema or output compatibility changes.
+- [ ] Add release notes describing user-visible behavior and output changes.
 
 Exit criteria:
 
@@ -299,7 +296,7 @@ Exit criteria:
 3. [x] Add cross-platform CI and release artifacts.
 4. Complete level-1 choices and calculations in small vertical slices.
 5. Expand PDF coverage alongside each completed rule slice.
-6. Add schema migration and resume support before distributing many saved files.
+6. Add validation, review, and resume support for the current character schema.
 
 Prefer vertical slices after packaging. For example, complete Fighter choices,
 equipment, calculations, PDF fields, and tests together rather than adding every
