@@ -24,16 +24,19 @@ The repository currently provides:
 - [x] Typer CLI with `create` and `render` commands
 - [x] Questionary interactive character-creation flow
 - [x] Rich terminal output
-- [x] Pydantic v2 character validation and JSON serialization
+- [x] Pydantic v2 character and creation-workflow validation with JSON
+  serialization
 - [x] pypdf AcroForm rendering into the separately downloaded official two-page
   character sheet
 - [x] All 12 SRD classes represented at a basic level
 - [x] All 4 SRD backgrounds represented
 - [x] All 9 SRD species represented at a basic level
-- [x] Suggested class arrays, standard-array assignment, and random score generation
-- [x] Background ability increases
+- [x] Suggested class arrays, standard-array assignment, random score generation,
+  and 27-point point-buy with live budget feedback
+- [x] Background ability increases with prompt-time score-cap enforcement
 - [x] Class and background skill selection
-- [x] Language and alignment selection
+- [x] Language, alignment, and Human/Tiefling Small-or-Medium selection
+- [x] Optional backstory, appearance, and personality details
 - [x] Derived ability modifiers, saving throws, skill modifiers, HP, initiative,
   proficiency bonus, base AC, and Passive Perception
 - [x] JSON save and reload
@@ -50,7 +53,7 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 14 passed
+pytest: 28 passed
 CLI help smoke tests: passed
 uv wheel and sdist builds: passed
 Clean wheel create/render smoke tests: passed
@@ -66,9 +69,6 @@ GitHub Release v0.1.0 with SHA-256 files: published
   alternate class calculations are not applied.
 - The model accepts levels 1–20, but the creation workflow and most calculations
   only implement level 1.
-- Background increases are validated only when the final `AbilityScores` model is
-  built; the prompt should prevent scores above 20.
-- Point-buy ability generation is not implemented.
 - Species subchoices and granted choices are not modeled.
 - Class feature choices are not modeled.
 - Starting-equipment alternatives and starting-gold choices are not interactive.
@@ -78,8 +78,8 @@ GitHub Release v0.1.0 with SHA-256 files: published
 ### Validation and persistence
 
 - Alignment, skills, and languages are not fully validated against SRD choices.
-- Cross-field rules, such as exact proficiency counts and allowed background
-  increases, are not enforced by the model.
+- Cross-field rules such as exact proficiency counts are not fully enforced by the
+  model.
 - Character JSON has no explicit schema version or migration strategy.
 - An interrupted wizard cannot be resumed.
 
@@ -89,6 +89,8 @@ GitHub Release v0.1.0 with SHA-256 files: published
   proficiencies.
 - Weapons, damage, coins, spellcasting values, spell lists, and spell slots are not
   fully rendered.
+- Optional backstory, appearance, and personality values are stored in JSON but
+  are not yet rendered.
 - Tests verify stored AcroForm values but do not perform visual regression checks.
 - The official character-sheet template must be downloaded separately and supplied
   with `--template`; direct download URLs may change.
@@ -163,11 +165,11 @@ level-1 SRD character.
 
 ### Ability scores and general details
 
-- [ ] Add 27-point point-buy with live remaining-point feedback.
-- [ ] Prevent background increases from exceeding 20 during prompting.
-- [ ] Validate ability generation and increases at the model boundary.
-- [ ] Add optional backstory, appearance, and personality prompts.
-- [ ] Add explicit Small/Medium selection where the species allows it.
+- [x] Add 27-point point-buy with live remaining-point feedback.
+- [x] Prevent background increases from exceeding 20 during prompting.
+- [x] Validate ability generation and increases at the model boundary.
+- [x] Add optional backstory, appearance, and personality prompts.
+- [x] Add explicit Small/Medium selection where the species allows it.
 
 ### Species choices
 
@@ -221,6 +223,7 @@ Goal: render all implemented character data accurately and visibly.
 - [ ] Fill equipment and coin fields structurally.
 - [ ] Fill spellcasting ability, modifier, save DC, and attack bonus.
 - [ ] Fill cantrips, prepared spells, and spell-slot fields.
+- [ ] Fill optional backstory, appearance, and personality fields.
 - [ ] Fill class-specific resources where the template supports them.
 - [ ] Confirm long text fits or uses appropriate font sizing.
 - [ ] Add representative PDF read-back tests for martial and spellcasting characters.

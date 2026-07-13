@@ -3,6 +3,19 @@
 All notable changes to pc-wizard are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Interactive 27-point ability-score point-buy with live remaining-point feedback.
+- Background ability-increase prompts omit choices that would raise a score above
+  20.
+- Ability-generation methods and background increases are validated at the model
+  boundary before character construction.
+- Optional backstory, appearance, and personality prompts with JSON persistence.
+- Explicit Small/Medium selection for Human and Tiefling characters, including
+  character-sheet rendering.
+
 ## [0.1.0] - 2026-07-13
 
 ### Added

@@ -122,7 +122,8 @@ uv run python scripts/smoke_binary.py \
 
 The current wizard targets level-1 creation and the player options published in
 SRD 5.2.1: 12 classes, 4 backgrounds, and 9 species. The JSON file is the
-canonical character record; the PDF is a rendered output.
+canonical character record; the PDF is a rendered output. Ability scores support
+class-suggested and standard arrays, random generation, and 27-point point-buy.
 
 Release history is maintained in [`CHANGELOG.md`](CHANGELOG.md).
 

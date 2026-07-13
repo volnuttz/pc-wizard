@@ -23,6 +23,8 @@ languages; determine ability scores; choose alignment; fill derived details.
   score above 20.
 - Proficiency bonus is derived from level.
 - Dwarf toughness contributes to maximum HP.
+- Human and Tiefling explicitly choose Small or Medium; every other current SRD
+  species has a fixed size.
 - JSON is canonical; PDFs are generated artifacts.
 - The official character-sheet template is external and always supplied through
   `--template`; it is never a package or release asset.

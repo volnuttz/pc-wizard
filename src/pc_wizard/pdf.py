@@ -101,7 +101,7 @@ def field_values(character: Character) -> dict[str, str]:
         "Text9": character.species,
         "Text11": str(character.xp),
         "Text14": signed(character.abilities.modifier("dexterity")),
-        "Text15": species.size[0],
+        "Text15": character.character_size[0],
         "Text16": str(species.speed),
         "Text17": str(character.passive_perception),
         "Text18": signed(character.proficiency_bonus),

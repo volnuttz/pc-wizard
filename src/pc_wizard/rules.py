@@ -1,6 +1,40 @@
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from typing import Literal
+
+type CreatureSize = Literal["Small", "Medium"]
 
 ABILITIES = ("strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma")
+MAX_ABILITY_SCORE = 20
+POINT_BUY_BUDGET = 27
+STANDARD_ARRAY = (15, 14, 13, 12, 10, 8)
+POINT_BUY_COSTS = {
+    8: 0,
+    9: 1,
+    10: 2,
+    11: 3,
+    12: 4,
+    13: 5,
+    14: 7,
+    15: 9,
+}
+
+
+def point_buy_cost(values: Sequence[int]) -> int:
+    try:
+        return sum(POINT_BUY_COSTS[value] for value in values)
+    except KeyError as error:
+        raise ValueError(f"point-buy scores must be between 8 and 15: {error.args[0]}") from error
+
+
+def eligible_abilities_for_increase(
+    scores: Mapping[str, int], abilities: Sequence[str], amount: int
+) -> tuple[str, ...]:
+    if amount < 1:
+        raise ValueError("ability-score increase must be positive")
+    return tuple(ability for ability in abilities if scores[ability] + amount <= MAX_ABILITY_SCORE)
+
+
 STANDARD_LANGUAGES = (
     "Common Sign Language",
     "Draconic",
@@ -278,37 +312,41 @@ BACKGROUNDS = {
 
 @dataclass(frozen=True, slots=True)
 class SpeciesRule:
-    size: str
+    sizes: tuple[CreatureSize, ...]
     speed: int
     traits: tuple[str, ...]
 
 
 SPECIES = {
     "Dragonborn": SpeciesRule(
-        "Medium",
+        ("Medium",),
         30,
         ("Draconic Ancestry", "Breath Weapon", "Damage Resistance", "Darkvision 60 ft."),
     ),
     "Dwarf": SpeciesRule(
-        "Medium",
+        ("Medium",),
         30,
         ("Darkvision 120 ft.", "Dwarven Resilience", "Dwarven Toughness", "Stonecunning"),
     ),
     "Elf": SpeciesRule(
-        "Medium",
+        ("Medium",),
         30,
         ("Darkvision 60 ft.", "Elven Lineage", "Fey Ancestry", "Keen Senses", "Trance"),
     ),
-    "Gnome": SpeciesRule("Small", 30, ("Darkvision 60 ft.", "Gnomish Cunning", "Gnomish Lineage")),
-    "Goliath": SpeciesRule("Medium", 35, ("Giant Ancestry", "Powerful Build")),
-    "Halfling": SpeciesRule(
-        "Small", 30, ("Brave", "Halfling Nimbleness", "Luck", "Naturally Stealthy")
+    "Gnome": SpeciesRule(
+        ("Small",), 30, ("Darkvision 60 ft.", "Gnomish Cunning", "Gnomish Lineage")
     ),
-    "Human": SpeciesRule("Medium", 30, ("Resourceful", "Skillful", "Versatile")),
+    "Goliath": SpeciesRule(("Medium",), 35, ("Giant Ancestry", "Powerful Build")),
+    "Halfling": SpeciesRule(
+        ("Small",), 30, ("Brave", "Halfling Nimbleness", "Luck", "Naturally Stealthy")
+    ),
+    "Human": SpeciesRule(("Medium", "Small"), 30, ("Resourceful", "Skillful", "Versatile")),
     "Orc": SpeciesRule(
-        "Medium", 30, ("Adrenaline Rush", "Darkvision 120 ft.", "Relentless Endurance")
+        ("Medium",), 30, ("Adrenaline Rush", "Darkvision 120 ft.", "Relentless Endurance")
     ),
     "Tiefling": SpeciesRule(
-        "Medium", 30, ("Darkvision 60 ft.", "Fiendish Legacy", "Otherworldly Presence")
+        ("Medium", "Small"),
+        30,
+        ("Darkvision 60 ft.", "Fiendish Legacy", "Otherworldly Presence"),
     ),
 }

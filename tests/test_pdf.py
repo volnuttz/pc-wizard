@@ -21,6 +21,12 @@ def sample() -> Character:
     )
 
 
+def small_human() -> Character:
+    values = sample().model_dump()
+    values.update(species="Human", size="Small")
+    return Character.model_validate(values)
+
+
 def test_field_values_include_derived_values() -> None:
     values = field_values(sample())
     assert values["Text1"] == "Brunna"
@@ -32,12 +38,13 @@ def test_field_values_include_derived_values() -> None:
 def test_render_fills_template(tmp_path: Path) -> None:
     template = Path(__file__).parents[1] / "character-sheet.pdf"
     output = tmp_path / "sheet.pdf"
-    render_character_sheet(sample(), template, output)
+    render_character_sheet(small_human(), template, output)
     reader = PdfReader(output)
     assert len(reader.pages) == 2
     fields = reader.get_fields()
     assert fields is not None
     assert fields["Text1"]["/V"] == "Brunna"
+    assert fields["Text15"]["/V"] == "S"
 
 
 def test_validate_template_rejects_non_pdf(tmp_path: Path) -> None:
