@@ -90,7 +90,8 @@ Clean wheel create/render smoke tests: passed
 
 ### Distribution
 
-- There are no standalone executables or automated release builds.
+- A Linux x86-64 one-directory executable has been built and smoke-tested locally,
+  but there are no automated cross-platform or published release builds.
 
 ## Phase 1: Reliable packaging and runtime assets
 
@@ -122,15 +123,18 @@ Exit criteria:
 
 Goal: distribute `pc-wizard` to users who do not have Python or uv installed.
 
-- [ ] Add PyInstaller as a development/build dependency.
-- [ ] Add a deterministic PyInstaller spec file.
-- [ ] Build and smoke-test a one-directory bundle first.
-- [ ] Build a one-file executable that accepts the required external template.
-- [ ] Verify output paths and template validation in frozen and normal modes.
-- [ ] Add binary smoke tests for `--help`, `--version`, and `render`.
-- [ ] Add GitHub Actions quality checks on Linux, Windows, and macOS.
+Status: in progress; the Linux x86-64 one-directory milestone is verified.
+
+- [x] Add PyInstaller as a development/build dependency.
+- [x] Add a deterministic PyInstaller spec file.
+- [x] Build and smoke-test a Linux x86-64 one-directory bundle first.
+- [x] Build and smoke-test a Linux x86-64 one-file executable that accepts the
+  required external template.
+- [x] Verify output paths and template validation in frozen and normal modes.
+- [x] Add reusable binary smoke tests for `--help`, `--version`, and `render`.
+- [x] Add GitHub Actions quality checks on Linux, Windows, and macOS.
 - [ ] Add native executable builds for:
-  - [ ] Linux x86-64
+  - [x] Linux x86-64
   - [ ] Windows x86-64
   - [ ] macOS Apple Silicon
   - [ ] macOS Intel, if supported by the release environment

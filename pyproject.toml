@@ -36,6 +36,7 @@ Repository = "https://github.com/volnuttz/pc-wizard"
 
 [dependency-groups]
 dev = [
+  "pyinstaller>=6.21,<7",
   "pyright>=1.1.402",
   "pytest>=8.4",
   "pytest-cov>=6.2",
@@ -76,6 +77,6 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 [tool.pyright]
 pythonVersion = "3.13"
 typeCheckingMode = "strict"
-include = ["src", "tests"]
+include = ["src", "tests", "scripts"]
 venvPath = "."
 venv = ".venv"

@@ -67,6 +67,26 @@ uv run ruff format --check .
 uv run pyright
 ```
 
+Build the platform-native one-directory executable with PyInstaller:
+
+```console
+uv run pyinstaller --clean --noconfirm pc-wizard.spec
+dist/pc-wizard/pc-wizard --version
+uv run python scripts/smoke_binary.py \
+  dist/pc-wizard/pc-wizard character.json character-sheet.pdf
+```
+
+PyInstaller builds for the current operating system only. The generated `build/`
+and `dist/` directories are not source artifacts and are ignored by Git.
+
+Build and smoke-test the single-file executable with:
+
+```console
+uv run pyinstaller --clean --noconfirm pc-wizard-onefile.spec
+uv run python scripts/smoke_binary.py \
+  dist/pc-wizard-onefile character.json character-sheet.pdf
+```
+
 The current wizard targets level-1 creation and the player options published in
 SRD 5.2.1: 12 classes, 4 backgrounds, and 9 species. The JSON file is the
 canonical character record; the PDF is a rendered output.

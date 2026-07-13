@@ -1,0 +1,56 @@
+name: Native binaries
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-binaries-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: pc-wizard-linux-x86_64
+            binary: dist/pc-wizard-onefile
+          - os: windows-latest
+            artifact: pc-wizard-windows-x86_64
+            binary: dist/pc-wizard-onefile.exe
+          - os: macos-15
+            artifact: pc-wizard-macos-arm64
+            binary: dist/pc-wizard-onefile
+          - os: macos-15-intel
+            artifact: pc-wizard-macos-x86_64
+            binary: dist/pc-wizard-onefile
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.13"
+      - name: Sync locked environment
+        run: uv sync --locked --all-groups
+      - name: Build one-file executable
+        run: uv run pyinstaller --clean --noconfirm pc-wizard-onefile.spec
+      - name: Smoke-test executable
+        run: >-
+          uv run python scripts/smoke_binary.py
+          "${{ matrix.binary }}" character.json character-sheet.pdf
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.binary }}
+          if-no-files-found: error
