@@ -7,5 +7,5 @@ dist/
 build/
 *.egg-info/
 *.pyc
-character.json
+/character.json
 *-character-sheet.pdf

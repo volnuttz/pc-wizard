@@ -1,0 +1,30 @@
+{
+  "name": "Binary Smoke Test",
+  "character_class": "Rogue",
+  "background": "Criminal",
+  "species": "Tiefling",
+  "alignment": "Neutral",
+  "abilities": {
+    "strength": 12,
+    "dexterity": 17,
+    "constitution": 13,
+    "intelligence": 15,
+    "wisdom": 10,
+    "charisma": 8
+  },
+  "skills": [
+    "Deception",
+    "Investigation",
+    "Perception",
+    "Persuasion",
+    "Sleight of Hand",
+    "Stealth"
+  ],
+  "languages": [
+    "Common",
+    "Elvish",
+    "Halfling"
+  ],
+  "level": 1,
+  "xp": 0
+}
