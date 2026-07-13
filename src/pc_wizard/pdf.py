@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
+from pypdf.errors import PdfReadError
 
 from pc_wizard.models import Character, signed
 from pc_wizard.rules import ABILITIES, BACKGROUNDS, CLASSES, SPECIES
@@ -33,6 +34,59 @@ SKILL_FIELDS = {
     "Nature": "Text85",
     "Religion": "Text88",
 }
+TEMPLATE_DOWNLOAD_URL = (
+    "https://media.dndbeyond.com/compendium-images/free-rules/ph/character-sheet.pdf"
+)
+TEMPLATE_PAGE_URL = "https://www.dndbeyond.com/resources/1779-d-d-character-sheets"
+BASE_FIELDS = {
+    "Text1",
+    "Text6",
+    "Text7",
+    "Text8",
+    "Text9",
+    "Text11",
+    "Text14",
+    "Text15",
+    "Text16",
+    "Text17",
+    "Text18",
+    "Text26",
+    "Text27",
+    "Text28",
+    "Text29",
+    "Text54",
+    "Text55",
+    "Text57",
+    "Text58",
+    "Text59",
+    "Text60",
+    "Text93",
+    "Text111",
+    "Text226",
+}
+EXPECTED_TEMPLATE_FIELDS = (
+    BASE_FIELDS
+    | set(SKILL_FIELDS.values())
+    | {field for fields_for_ability in ABILITY_FIELDS.values() for field in fields_for_ability}
+)
+
+
+def validate_template(template: Path) -> None:
+    """Validate that a PDF is the supported official character-sheet template."""
+    try:
+        reader = PdfReader(template)
+    except (OSError, PdfReadError) as error:
+        raise ValueError(
+            f"Unable to read PDF template {template}. Download the official sheet from "
+            f"{TEMPLATE_PAGE_URL}."
+        ) from error
+    fields = reader.get_fields()
+    missing_fields = EXPECTED_TEMPLATE_FIELDS - set(fields or {})
+    if len(reader.pages) != 2 or missing_fields:
+        raise ValueError(
+            f"Incompatible PDF template {template}. Download the supported official sheet from "
+            f"{TEMPLATE_DOWNLOAD_URL} (this direct URL may change; see {TEMPLATE_PAGE_URL})."
+        )
 
 
 def field_values(character: Character) -> dict[str, str]:
@@ -76,9 +130,8 @@ def field_values(character: Character) -> dict[str, str]:
 
 
 def render_character_sheet(character: Character, template: Path, output: Path) -> None:
+    validate_template(template)
     reader = PdfReader(template)
-    if not reader.get_fields():
-        raise ValueError(f"PDF template has no AcroForm fields: {template}")
     writer = PdfWriter(clone_from=reader)
     values = field_values(character)
     for page in writer.pages:

@@ -19,3 +19,12 @@ def test_help_lists_version_option() -> None:
 
     assert result.exit_code == 0
     assert "--version" in result.stdout
+
+
+def test_commands_require_a_template() -> None:
+    for command in ("create", "render"):
+        result = runner.invoke(app, [command, "--help"])
+
+        assert result.exit_code == 0
+        assert "--template" in result.stdout
+        assert "required" in result.stdout

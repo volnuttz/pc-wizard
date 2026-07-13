@@ -37,6 +37,8 @@ The repository currently provides:
   proficiency bonus, base AC, and Passive Perception
 - [x] JSON save and reload
 - [x] Wheel and source-distribution builds
+- [x] MIT license and complete package metadata
+- [x] Clean wheel installation and outside-repository `create`/`render` workflows
 - [x] Ruff, Pyright strict mode, pytest, and repository-local Codex guidance
 
 Verified on 2026-07-13:
@@ -45,9 +47,10 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 7 passed
+pytest: 11 passed
 CLI help smoke tests: passed
 uv wheel and sdist builds: passed
+Clean wheel create/render smoke tests: passed
 ```
 
 ## Known limitations
@@ -82,38 +85,37 @@ uv wheel and sdist builds: passed
 - Weapons, damage, coins, spellcasting values, spell lists, and spell slots are not
   fully rendered.
 - Tests verify stored AcroForm values but do not perform visual regression checks.
-- The default template is expected in the current working directory.
+- The official character-sheet template must be downloaded separately and supplied
+  with `--template`; direct download URLs may change.
 
 ### Distribution
 
-- The wheel does not currently contain the character-sheet template.
-- An installed command therefore requires `--template /path/to/character-sheet.pdf`.
 - There are no standalone executables or automated release builds.
-- Redistribution rights for bundling the supplied character sheet must be confirmed,
-  or the project must provide an original distributable template.
 
 ## Phase 1: Reliable packaging and runtime assets
 
 Goal: make the Python package installable and usable outside the repository.
 
-- [ ] Decide whether the supplied character sheet may be redistributed.
-- [ ] If redistribution is unsuitable, design an original fillable template.
-- [ ] Move the approved runtime template into `src/pc_wizard/assets/`.
-- [ ] Load the built-in template with `importlib.resources`.
-- [ ] Keep `--template` as an optional override.
-- [x] Exclude `SRD_CC_v5.2.1.pdf` from wheel and source distributions.
+Status: complete and verified on 2026-07-13.
+
+- [x] Keep the official character sheet out of package distributions.
+- [x] Require an explicit `--template` path for `create` and `render`.
+- [x] Validate the template before starting character creation or rendering.
+- [x] Document the official download page and a changeable direct-download URL.
+- [x] Exclude `SRD_CC_v5.2.1.pdf` and `character-sheet.pdf` from wheel and source
+  distributions.
 - [x] Define intentional sdist contents rather than relying on automatic inclusion.
 - [x] Add `pc-wizard --version`.
-- [ ] Add package metadata: license, authors, classifiers, URLs, and keywords.
-- [ ] Add an SRD attribution and third-party notices document.
-- [ ] Test wheel installation in a clean isolated environment.
-- [ ] Test `create` and `render` from a directory outside the repository.
-- [ ] Document `uv tool install` and uninstall instructions.
+- [x] Add package metadata: MIT license, authors, classifiers, URLs, and keywords.
+- [x] Add an SRD attribution and third-party notices document.
+- [x] Test wheel installation in a clean isolated environment.
+- [x] Test `create` and `render` from a directory outside the repository.
+- [x] Document `uv tool` install, upgrade, and uninstall instructions.
 
 Exit criteria:
 
-- A clean wheel installation can create and render a character without repository
-  files or an externally supplied template.
+- A clean wheel installation can create and render a character with a separately
+  downloaded official template.
 - The wheel and sdist contain only intentional, redistributable files.
 
 ## Phase 2: Self-contained executables and releases
@@ -123,8 +125,8 @@ Goal: distribute `pc-wizard` to users who do not have Python or uv installed.
 - [ ] Add PyInstaller as a development/build dependency.
 - [ ] Add a deterministic PyInstaller spec file.
 - [ ] Build and smoke-test a one-directory bundle first.
-- [ ] Build a one-file executable with the approved template embedded.
-- [ ] Verify output paths and packaged-resource lookup in frozen and normal modes.
+- [ ] Build a one-file executable that accepts the required external template.
+- [ ] Verify output paths and template validation in frozen and normal modes.
 - [ ] Add binary smoke tests for `--help`, `--version`, and `render`.
 - [ ] Add GitHub Actions quality checks on Linux, Windows, and macOS.
 - [ ] Add native executable builds for:

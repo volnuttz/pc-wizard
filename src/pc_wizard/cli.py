@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from pc_wizard.models import Character
-from pc_wizard.pdf import render_character_sheet
+from pc_wizard.pdf import render_character_sheet, validate_template
 from pc_wizard.wizard import run_wizard
 
 app = typer.Typer(help="Create D&D characters using SRD 5.2.1.", no_args_is_help=True)
@@ -39,18 +39,19 @@ def main(
 
 @app.command()
 def create(
+    template: Annotated[
+        Path, typer.Option("--template", help="Official fillable character-sheet PDF.")
+    ],
     output: Annotated[
         Path, typer.Option("--output", "-o", help="Output character-sheet PDF.")
     ] = Path("character-sheet-filled.pdf"),
     json_output: Annotated[Path, typer.Option("--json", help="Output character JSON.")] = Path(
         "character.json"
     ),
-    template: Annotated[
-        Path, typer.Option("--template", help="Fillable character-sheet PDF.")
-    ] = Path("character-sheet.pdf"),
 ) -> None:
     """Run the step-by-step character creation wizard."""
     try:
+        validate_template(template)
         character = run_wizard()
         character.save_json(json_output)
         render_character_sheet(character, template, output)
@@ -71,11 +72,14 @@ def create(
 @app.command()
 def render(
     character_file: Annotated[Path, typer.Argument(help="Character JSON created by pc-wizard.")],
+    template: Annotated[
+        Path, typer.Option("--template", help="Official fillable character-sheet PDF.")
+    ],
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("character-sheet-filled.pdf"),
-    template: Annotated[Path, typer.Option("--template")] = Path("character-sheet.pdf"),
 ) -> None:
     """Render a saved character JSON into the PDF template."""
     try:
+        validate_template(template)
         character = Character.load_json(character_file)
         render_character_sheet(character, template, output)
     except (OSError, ValueError, ValidationError) as error:

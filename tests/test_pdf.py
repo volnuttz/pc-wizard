@@ -3,7 +3,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 from pc_wizard.models import AbilityScores, Character
-from pc_wizard.pdf import field_values, render_character_sheet
+from pc_wizard.pdf import field_values, render_character_sheet, validate_template
 
 
 def sample() -> Character:
@@ -38,3 +38,15 @@ def test_render_fills_template(tmp_path: Path) -> None:
     fields = reader.get_fields()
     assert fields is not None
     assert fields["Text1"]["/V"] == "Brunna"
+
+
+def test_validate_template_rejects_non_pdf(tmp_path: Path) -> None:
+    template = tmp_path / "not-a-template.pdf"
+    template.write_text("not a PDF")
+
+    try:
+        validate_template(template)
+    except ValueError as error:
+        assert "official sheet" in str(error)
+    else:
+        raise AssertionError("Invalid template was accepted")
