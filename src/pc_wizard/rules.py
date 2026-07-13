@@ -161,6 +161,12 @@ FIENDISH_LEGACIES: dict[FiendishLegacy, FiendishLegacyRule] = {
 }
 KEEN_SENSES_SKILLS: tuple[KeenSensesSkill, ...] = ("Insight", "Perception", "Survival")
 ORIGIN_FEATS: tuple[OriginFeat, ...] = ("Alert", "Magic Initiate", "Savage Attacker", "Skilled")
+ORIGIN_FEAT_DESCRIPTIONS: dict[OriginFeat, str] = {
+    "Alert": "Add Proficiency Bonus to Initiative and swap Initiative with a willing ally.",
+    "Magic Initiate": "Learn two cantrips and one level 1 spell from one chosen spell list.",
+    "Savage Attacker": "Once per turn, roll weapon damage dice twice and use either roll.",
+    "Skilled": "Gain proficiency in any combination of three skills or tools.",
+}
 SPELLCASTING_ABILITIES: tuple[SpellcastingAbility, ...] = (
     "intelligence",
     "wisdom",

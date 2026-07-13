@@ -41,7 +41,8 @@ Interactive creation checkpoints completed sections in `character-draft.json` by
 default. Re-run the same command to resume, review the complete character before
 writing files, or use `--draft` to choose another checkpoint path. Existing PDF
 and JSON outputs require confirmation; use `--force` for intentional
-non-interactive replacement.
+non-interactive replacement. Selection menus automatically show contextual rule
+details for the currently highlighted option, including spell casting metadata.
 
 Character JSON always uses the current application schema. The project does not
 add schema-version fields or migrate files created by older releases; recreate or

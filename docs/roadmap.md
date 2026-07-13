@@ -24,6 +24,7 @@ The repository currently provides:
 - [x] Typer CLI with interactive/non-interactive `create`, `render`, `validate`,
   and `show` commands
 - [x] Questionary interactive character-creation flow
+- [x] Contextual details for highlighted rule and equipment choices
 - [x] Rich terminal output
 - [x] Pydantic v2 character and creation-workflow validation with JSON
   serialization
@@ -258,6 +259,8 @@ Goal: make current-schema character files reliable and the wizard pleasant to us
 - [x] Add `validate` and `show` commands.
 - [x] Improve actionable error messages for missing or invalid templates and JSON.
 - [x] Avoid overwriting existing outputs without confirmation or `--force`.
+- [x] Show contextual SRD details while highlighting classes, backgrounds,
+  species choices, feats, spells, weapons, and equipment.
 
 Status: complete and verified on 2026-07-13.
 

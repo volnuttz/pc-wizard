@@ -1,5 +1,5 @@
 import random
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any, Literal, cast
 
@@ -36,20 +36,25 @@ from pc_wizard.rules import (
     LEVEL_ONE_WARLOCK_INVOCATIONS,
     MAGIC_INITIATE_SPELL_LISTS,
     MUSICAL_INSTRUMENTS,
+    ORIGIN_FEAT_DESCRIPTIONS,
     ORIGIN_FEATS,
     POINT_BUY_BUDGET,
     POINT_BUY_COSTS,
     SKILL_ABILITIES,
     SPECIES,
+    SPELL_RULES,
     SPELLCASTING_ABILITIES,
     STANDARD_ARRAY,
     STANDARD_LANGUAGES,
     TOOLS,
+    WEAPON_COMBAT_RULES,
     WEAPON_MASTERY_COUNTS,
+    WEAPONS,
     Alignment,
     CreatureSize,
     DraconicAncestry,
     ElvenLineage,
+    EquipmentPackage,
     FiendishLegacy,
     GnomishLineage,
     GoliathAncestry,
@@ -137,6 +142,80 @@ ABILITY_GENERATION_CHOICES = {
 }
 
 
+def spell_descriptions(spells: Sequence[str]) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for spell in spells:
+        rule = SPELL_RULES[spell]
+        values[spell] = (
+            f"Casting Time: {rule.casting_time}; Range: {rule.range}; "
+            f"Concentration: {'Yes' if rule.concentration else 'No'}; "
+            f"Ritual: {'Yes' if rule.ritual else 'No'}; "
+            f"Required Material: {rule.required_material or 'None'}; "
+            f"Components: {rule.components}; Notes: {rule.table_notes}"
+        )
+    return values
+
+
+def class_descriptions() -> dict[str, str]:
+    return {
+        name: (
+            f"Hit Die d{rule.hit_die}; Saves: {', '.join(value.title() for value in rule.saves)}; "
+            f"Armor: {rule.armor}; Weapons: {rule.weapons}; "
+            f"Features: {', '.join(rule.features)}"
+        )
+        for name, rule in CLASSES.items()
+    }
+
+
+def background_descriptions() -> dict[str, str]:
+    return {
+        name: (
+            f"Abilities: {', '.join(value.title() for value in rule.abilities)}; "
+            f"Feat: {rule.feat}; Skills: {', '.join(rule.skills)}; Tool: {rule.tool}"
+        )
+        for name, rule in BACKGROUNDS.items()
+    }
+
+
+def species_descriptions() -> dict[str, str]:
+    return {
+        name: (
+            f"Size: {' or '.join(rule.sizes)}; Speed: {rule.speed} ft.; "
+            f"Traits: {', '.join(rule.traits)}"
+        )
+        for name, rule in SPECIES.items()
+    }
+
+
+def weapon_descriptions(weapons: Sequence[str]) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for weapon in weapons:
+        rule = WEAPONS[weapon]
+        combat = WEAPON_COMBAT_RULES[weapon]
+        range_ = (
+            f"{combat.normal_range}/{combat.long_range} ft."
+            if combat.long_range is not None
+            else f"{combat.normal_range} ft."
+        )
+        values[weapon] = (
+            f"{combat.damage} {combat.damage_type}; Range: {range_}; "
+            f"Properties: {', '.join(rule.properties) or 'None'}; Mastery: {rule.mastery}"
+        )
+    return values
+
+
+def skill_descriptions(skills: Sequence[str]) -> dict[str, str]:
+    return {skill: f"Uses {SKILL_ABILITIES[skill].title()}." for skill in skills}
+
+
+def equipment_package_description(package: EquipmentPackage) -> str:
+    items = ", ".join(
+        f"{item.quantity} {item.name}" if item.quantity != 1 else item.name
+        for item in package.items
+    )
+    return f"Items: {items}; Remaining gold: {package.gold} GP."
+
+
 def _required(ask: Ask) -> Any:
     value = ask()
     if value is None:
@@ -144,19 +223,37 @@ def _required(ask: Ask) -> Any:
     return value
 
 
-def prompt_choices[T](choices: Sequence[T]) -> list[Any]:
+def prompt_choices[T](
+    choices: Sequence[T], descriptions: Mapping[T, str] | None = None
+) -> list[Any]:
     """Build display labels without losing typed values such as ability scores."""
-    return [questionary.Choice(title=str(choice), value=choice) for choice in choices]
+    return [
+        questionary.Choice(
+            title=str(choice),
+            value=choice,
+            description=descriptions.get(choice) if descriptions is not None else None,
+        )
+        for choice in choices
+    ]
 
 
-def select[T](message: str, choices: Sequence[T]) -> T:
-    choices_for_prompt = prompt_choices(choices)
+def select[T](
+    message: str,
+    choices: Sequence[T],
+    descriptions: Mapping[T, str] | None = None,
+) -> T:
+    choices_for_prompt = prompt_choices(choices, descriptions)
     return cast(T, _required(questionary.select(message, choices=choices_for_prompt).ask))
 
 
-def checkbox[T](message: str, choices: Sequence[T], count: int) -> list[T]:
+def checkbox[T](
+    message: str,
+    choices: Sequence[T],
+    count: int,
+    descriptions: Mapping[T, str] | None = None,
+) -> list[T]:
     while True:
-        choices_for_prompt = prompt_choices(choices)
+        choices_for_prompt = prompt_choices(choices, descriptions)
         result = cast(
             list[T], _required(questionary.checkbox(message, choices=choices_for_prompt).ask)
         )
@@ -187,7 +284,11 @@ def choose_species_size(species_name: str) -> CreatureSize:
 def choose_draconic_ancestry(species_name: str) -> DraconicAncestry | None:
     if species_name != "Dragonborn":
         return None
-    return select("Choose a draconic ancestry", tuple(DRACONIC_ANCESTORS))
+    descriptions: dict[DraconicAncestry, str] = {
+        ancestry: f"Breath Weapon and damage resistance: {damage_type}."
+        for ancestry, damage_type in DRACONIC_ANCESTORS.items()
+    }
+    return select("Choose a draconic ancestry", tuple(DRACONIC_ANCESTORS), descriptions)
 
 
 def choose_elf_traits(
@@ -195,7 +296,15 @@ def choose_elf_traits(
 ) -> tuple[ElvenLineage | None, SpellcastingAbility | None, KeenSensesSkill | None]:
     if species_name != "Elf":
         return None, None, None
-    lineage = select("Choose an elven lineage", tuple(ELVEN_LINEAGES))
+    descriptions: dict[ElvenLineage, str] = {
+        name: (
+            f"Speed: {rule.speed} ft.; Darkvision: {rule.darkvision_range} ft.; "
+            f"Cantrip: {rule.cantrip}; level 3: {rule.level_three_spell}; "
+            f"level 5: {rule.level_five_spell}."
+        )
+        for name, rule in ELVEN_LINEAGES.items()
+    }
+    lineage = select("Choose an elven lineage", tuple(ELVEN_LINEAGES), descriptions)
     spellcasting_ability = select(
         "Choose an Elven Lineage spellcasting ability", SPELLCASTING_ABILITIES
     )
@@ -213,7 +322,24 @@ def choose_gnome_traits(
 ) -> tuple[GnomishLineage | None, SpellcastingAbility | None]:
     if species_name != "Gnome":
         return None, None
-    lineage = select("Choose a Gnomish Lineage", tuple(GNOMISH_LINEAGES))
+    descriptions: dict[GnomishLineage, str] = {
+        name: "; ".join(
+            part
+            for part in (
+                f"Cantrips: {', '.join(rule.cantrips)}",
+                (
+                    f"Always prepared: {', '.join(rule.always_prepared_spells)}"
+                    if rule.always_prepared_spells
+                    else ""
+                ),
+                "Create clockwork devices" if rule.creates_clockwork_devices else "",
+            )
+            if part
+        )
+        + "."
+        for name, rule in GNOMISH_LINEAGES.items()
+    }
+    lineage = select("Choose a Gnomish Lineage", tuple(GNOMISH_LINEAGES), descriptions)
     spellcasting_ability = select(
         "Choose a Gnomish Lineage spellcasting ability", SPELLCASTING_ABILITIES
     )
@@ -223,7 +349,11 @@ def choose_gnome_traits(
 def choose_goliath_ancestry(species_name: str) -> GoliathAncestry | None:
     if species_name != "Goliath":
         return None
-    return select("Choose a Giant Ancestry", tuple(GOLIATH_ANCESTRIES))
+    descriptions: dict[GoliathAncestry, str] = {
+        name: f"{rule.benefit_name} ({rule.trigger}): {rule.effect}"
+        for name, rule in GOLIATH_ANCESTRIES.items()
+    }
+    return select("Choose a Giant Ancestry", tuple(GOLIATH_ANCESTRIES), descriptions)
 
 
 def choose_human_traits(
@@ -232,8 +362,10 @@ def choose_human_traits(
     if species_name != "Human":
         return None, None
     available_skills = tuple(skill for skill in SKILL_ABILITIES if skill not in unavailable_skills)
-    skill = select("Choose an additional Human skill", available_skills)
-    origin_feat = select("Choose a Human Origin feat", ORIGIN_FEATS)
+    skill = select(
+        "Choose an additional Human skill", available_skills, skill_descriptions(available_skills)
+    )
+    origin_feat = select("Choose a Human Origin feat", ORIGIN_FEATS, ORIGIN_FEAT_DESCRIPTIONS)
     return skill, origin_feat
 
 
@@ -242,7 +374,14 @@ def choose_tiefling_traits(
 ) -> tuple[FiendishLegacy | None, SpellcastingAbility | None]:
     if species_name != "Tiefling":
         return None, None
-    legacy = select("Choose a Fiendish Legacy", tuple(FIENDISH_LEGACIES))
+    descriptions: dict[FiendishLegacy, str] = {
+        name: (
+            f"Resistance: {rule.resistance}; Cantrip: {rule.cantrip}; "
+            f"level 3: {rule.level_three_spell}; level 5: {rule.level_five_spell}."
+        )
+        for name, rule in FIENDISH_LEGACIES.items()
+    }
+    legacy = select("Choose a Fiendish Legacy", tuple(FIENDISH_LEGACIES), descriptions)
     spellcasting_ability = select(
         "Choose a Fiendish Legacy spellcasting ability", SPELLCASTING_ABILITIES
     )
@@ -259,10 +398,12 @@ def choose_magic_initiate(spell_list: MagicInitiateList) -> MagicInitiateChoice:
         f"Choose two Magic Initiate ({spell_list}) cantrips",
         spells.cantrips,
         2,
+        spell_descriptions(spells.cantrips),
     )
     level_one_spell = select(
         f"Choose a Magic Initiate ({spell_list}) level 1 spell",
         spells.level_one_spells,
+        spell_descriptions(spells.level_one_spells),
     )
     return MagicInitiateChoice(
         spell_list=spell_list,
@@ -282,13 +423,26 @@ def choose_origin_feat_details(
     if background_magic_list is not None:
         magic_lists.append(background_magic_list)
     if human_origin_feat == "Magic Initiate":
-        available_lists = tuple(
-            spell_list for spell_list in MAGIC_INITIATE_SPELL_LISTS if spell_list not in magic_lists
+        available_lists = cast(
+            tuple[MagicInitiateList, ...],
+            tuple(
+                spell_list
+                for spell_list in MAGIC_INITIATE_SPELL_LISTS
+                if spell_list not in magic_lists
+            ),
         )
         magic_lists.append(
-            cast(
-                MagicInitiateList,
-                select("Choose a Human Magic Initiate spell list", available_lists),
+            select(
+                "Choose a Human Magic Initiate spell list",
+                available_lists,
+                {
+                    name: (
+                        f"{len(MAGIC_INITIATE_SPELL_LISTS[name].cantrips)} cantrips and "
+                        f"{len(MAGIC_INITIATE_SPELL_LISTS[name].level_one_spells)} "
+                        "level 1 spells available."
+                    )
+                    for name in available_lists
+                },
             )
         )
     magic_choices = [choose_magic_initiate(spell_list) for spell_list in magic_lists]
@@ -319,12 +473,14 @@ def choose_class_choices(
     )
 
     mastery_count = WEAPON_MASTERY_COUNTS.get(class_name, 0)
+    mastery_options = weapon_mastery_options(class_name)
     weapon_masteries: set[str] = (
         set(
             checkbox(
                 f"Choose {mastery_count} weapon masteries",
-                weapon_mastery_options(class_name),
+                mastery_options,
                 mastery_count,
+                weapon_descriptions(mastery_options),
             )
         )
         if mastery_count
@@ -343,7 +499,14 @@ def choose_class_choices(
         }
 
     expertise: set[str] = (
-        set(checkbox("Choose two skills for Expertise", tuple(sorted(skills)), 2))
+        set(
+            checkbox(
+                "Choose two skills for Expertise",
+                tuple(sorted(skills)),
+                2,
+                skill_descriptions(tuple(sorted(skills))),
+            )
+        )
         if class_name == "Rogue"
         else set()
     )
@@ -351,7 +514,11 @@ def choose_class_choices(
         select("Choose a Fighting Style", FIGHTING_STYLES) if class_name == "Fighter" else None
     )
     eldritch_invocation = (
-        select("Choose an Eldritch Invocation", tuple(LEVEL_ONE_WARLOCK_INVOCATIONS))
+        select(
+            "Choose an Eldritch Invocation",
+            tuple(LEVEL_ONE_WARLOCK_INVOCATIONS),
+            LEVEL_ONE_WARLOCK_INVOCATIONS,
+        )
         if class_name == "Warlock"
         else None
     )
@@ -388,14 +555,24 @@ def choose_class_choices(
     cantrips: set[str] = (
         set(
             checkbox(
-                f"Choose {cantrip_count} {class_name} cantrips", spell_list.cantrips, cantrip_count
+                f"Choose {cantrip_count} {class_name} cantrips",
+                spell_list.cantrips,
+                cantrip_count,
+                spell_descriptions(spell_list.cantrips),
             )
         )
         if spell_list and cantrip_count
         else set()
     )
     spellbook_spells: set[str] = (
-        set(checkbox("Choose six level 1 Wizard spellbook spells", spell_list.level_one_spells, 6))
+        set(
+            checkbox(
+                "Choose six level 1 Wizard spellbook spells",
+                spell_list.level_one_spells,
+                6,
+                spell_descriptions(spell_list.level_one_spells),
+            )
+        )
         if class_name == "Wizard" and spell_list
         else set()
     )
@@ -418,6 +595,7 @@ def choose_class_choices(
                 f"Choose {prepared_count} prepared {class_name} spells",
                 prepared_options,
                 prepared_count,
+                spell_descriptions(prepared_options),
             )
         )
         if prepared_count
@@ -449,7 +627,19 @@ def choose_starting_equipment(
         for key, package in class_rule.packages.items()
     }
     class_labels[f"Starting gold: {class_rule.gold} GP"] = "Gold"
-    class_label = select("Choose class starting equipment", tuple(class_labels))
+    class_equipment_descriptions = {
+        label: (
+            equipment_package_description(class_rule.packages[value])
+            if value != "Gold"
+            else f"Start with {class_rule.gold} GP and no class equipment package."
+        )
+        for label, value in class_labels.items()
+    }
+    class_label = select(
+        "Choose class starting equipment",
+        tuple(class_labels),
+        class_equipment_descriptions,
+    )
     class_option = class_labels[class_label]
 
     background_rule = BACKGROUND_STARTING_EQUIPMENT[background_name]
@@ -458,7 +648,19 @@ def choose_starting_equipment(
         f"Package A: {package.label} (+{package.gold} GP)": "A",
         f"Starting gold: {background_rule.gold} GP": "Gold",
     }
-    background_label = select("Choose background starting equipment", tuple(background_labels))
+    background_equipment_descriptions = {
+        label: (
+            equipment_package_description(package)
+            if value == "A"
+            else f"Start with {background_rule.gold} GP and no background equipment package."
+        )
+        for label, value in background_labels.items()
+    }
+    background_label = select(
+        "Choose background starting equipment",
+        tuple(background_labels),
+        background_equipment_descriptions,
+    )
     background_option = background_labels[background_label]
 
     bard_instrument = None
@@ -549,9 +751,9 @@ def apply_background_increases(values: Sequence[int], background_name: str) -> l
 
 def collect_origin() -> OriginDraft:
     name = text("Character name")
-    class_name = select("Choose a class", tuple(CLASSES))
-    background_name = select("Choose a background", tuple(BACKGROUNDS))
-    species_name = select("Choose a species", tuple(SPECIES))
+    class_name = select("Choose a class", tuple(CLASSES), class_descriptions())
+    background_name = select("Choose a background", tuple(BACKGROUNDS), background_descriptions())
+    species_name = select("Choose a species", tuple(SPECIES), species_descriptions())
     size = choose_species_size(species_name)
     dragonborn_ancestry = choose_draconic_ancestry(species_name)
     background_skills = set(BACKGROUNDS[background_name].skills)
@@ -639,7 +841,10 @@ def collect_build(origin: OriginDraft) -> BuildDraft:
     unavailable_skills.update(skilled_skills)
     available = tuple(skill for skill in class_rule.skills if skill not in unavailable_skills)
     class_skills = checkbox(
-        f"Choose {class_rule.skill_count} class skills", available, class_rule.skill_count
+        f"Choose {class_rule.skill_count} class skills",
+        available,
+        class_rule.skill_count,
+        skill_descriptions(available),
     )
     all_skills = unavailable_skills | set(class_skills)
     class_choices = choose_class_choices(

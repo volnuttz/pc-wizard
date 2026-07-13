@@ -28,6 +28,9 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ### Added
 
+- Interactive menus now show contextual SRD details for the highlighted class,
+  background, species option, feat, spell, weapon mastery, skill, invocation, and
+  equipment package without changing the selected value.
 - Incomplete interactive sessions are checkpointed by stage and can be resumed;
   completed characters receive a final review with navigation back to each stage
   and confirmation before clearing dependent answers.

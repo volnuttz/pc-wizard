@@ -1,5 +1,5 @@
 import random
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, cast
 
@@ -103,11 +103,11 @@ def test_select_wraps_numeric_options_and_preserves_integer_values(
 
     monkeypatch.setattr(wizard.questionary, "select", fake_questionary_select)
 
-    assert wizard.select("Assign Strength", (15, 14, 13)) == 14
-    assert [(choice.title, choice.value) for choice in captured] == [
-        ("15", 15),
-        ("14", 14),
-        ("13", 13),
+    assert wizard.select("Assign Strength", (15, 14, 13), {14: "A balanced high score."}) == 14
+    assert [(choice.title, choice.value, choice.description) for choice in captured] == [
+        ("15", 15, None),
+        ("14", 14, "A balanced high score."),
+        ("13", 13, None),
     ]
 
 
@@ -322,7 +322,7 @@ def test_draconic_ancestry_prompt_only_appears_for_dragonborn(
 ) -> None:
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         prompts.append((message, tuple(choices)))
         return "Gold"
 
@@ -355,7 +355,7 @@ def test_elf_trait_prompts_collect_choices_without_duplicate_background_skill(
     answers = iter(("Drow", "intelligence", "Perception"))
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         choices = tuple(choices)
         prompts.append((message, choices))
         answer = next(answers)
@@ -392,7 +392,7 @@ def test_gnome_trait_prompts_collect_lineage_and_spellcasting_ability(
     answers = iter(("Forest Gnome", "wisdom"))
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         choices = tuple(choices)
         prompts.append((message, choices))
         answer = next(answers)
@@ -427,7 +427,7 @@ def test_goliath_ancestry_prompt_only_appears_for_goliath(
 ) -> None:
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         prompts.append((message, tuple(choices)))
         return "Stone Giant"
 
@@ -456,7 +456,7 @@ def test_human_trait_prompts_collect_additional_skill_and_origin_feat(
     answers = iter(("Perception", "Alert"))
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         choices = tuple(choices)
         prompts.append((message, choices))
         answer = next(answers)
@@ -482,7 +482,7 @@ def test_tiefling_trait_prompts_collect_legacy_and_spellcasting_ability(
     answers = iter(("Chthonic", "charisma"))
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         choices = tuple(choices)
         prompts.append((message, choices))
         answer = next(answers)
@@ -507,15 +507,27 @@ def test_magic_initiate_prompts_collect_valid_spells(
 ) -> None:
     selected = iter(("wisdom", "Bless"))
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         answer = next(selected)
         assert answer in choices
+        if "level 1 spell" in message:
+            descriptions = cast(Mapping[str, str], _descriptions)
+            assert "Casting Time:" in descriptions["Bless"]
+            assert "Components:" in descriptions["Bless"]
         return answer
 
-    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+    def fake_checkbox(
+        message: str,
+        choices: Sequence[str],
+        count: int,
+        _descriptions: object = None,
+    ) -> list[str]:
         assert message == "Choose two Magic Initiate (Cleric) cantrips"
         assert count == 2
         assert "Guidance" in choices
+        descriptions = cast(Mapping[str, str], _descriptions)
+        assert "Range:" in descriptions["Guidance"]
+        assert "Duration:" in descriptions["Guidance"]
         return ["Guidance", "Light"]
 
     monkeypatch.setattr(wizard, "select", fake_select)
@@ -534,7 +546,7 @@ def test_origin_feat_details_configure_background_and_repeat_magic_initiate(
 ) -> None:
     configured: list[MagicInitiateList] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         assert message == "Choose a Human Magic Initiate spell list"
         assert tuple(choices) == ("Cleric", "Druid")
         return "Druid"
@@ -568,7 +580,12 @@ def test_origin_feat_details_configure_background_and_repeat_magic_initiate(
 def test_origin_feat_details_collect_three_skilled_proficiencies(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+    def fake_checkbox(
+        message: str,
+        choices: Sequence[str],
+        count: int,
+        _descriptions: object = None,
+    ) -> list[str]:
         assert message == "Choose three Skilled skill or tool proficiencies"
         assert count == 3
         assert "Athletics" not in choices
@@ -597,7 +614,12 @@ def test_wizard_class_choices_collect_spellbook_before_prepared_spells(
         "Sleep",
     ]
 
-    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+    def fake_checkbox(
+        message: str,
+        choices: Sequence[str],
+        count: int,
+        _descriptions: object = None,
+    ) -> list[str]:
         calls.append((message, count))
         if "cantrips" in message:
             return ["Fire Bolt", "Mage Hand", "Prestidigitation"]
@@ -621,7 +643,12 @@ def test_wizard_class_choices_collect_spellbook_before_prepared_spells(
 def test_rogue_class_choices_limit_masteries_and_add_language(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fake_checkbox(message: str, choices: Sequence[str], count: int) -> list[str]:
+    def fake_checkbox(
+        message: str,
+        choices: Sequence[str],
+        count: int,
+        _descriptions: object = None,
+    ) -> list[str]:
         if "weapon masteries" in message:
             assert "Shortsword" in choices
             assert "Greatsword" not in choices
@@ -629,7 +656,7 @@ def test_rogue_class_choices_limit_masteries_and_add_language(
         assert message == "Choose two skills for Expertise"
         return ["Stealth", "Perception"]
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         assert message == "Choose the Rogue's additional language"
         assert "Elvish" not in choices
         return "Draconic"
@@ -656,7 +683,7 @@ def test_starting_equipment_prompts_support_fighter_package_and_background_gold(
     )
     prompts: list[tuple[str, tuple[str, ...]]] = []
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         choices = tuple(choices)
         prompts.append((message, choices))
         answer = next(answers)
@@ -682,7 +709,7 @@ def test_bard_package_chooses_one_proficient_instrument(
         )
     )
 
-    def fake_select(message: str, choices: Sequence[str]) -> str:
+    def fake_select(message: str, choices: Sequence[str], _descriptions: object = None) -> str:
         answer = next(answers)
         assert answer in choices
         return answer
