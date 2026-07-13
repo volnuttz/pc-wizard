@@ -31,6 +31,7 @@ from pc_wizard.rules import (
     POINT_BUY_BUDGET,
     SKILL_ABILITIES,
     SPECIES,
+    SPELL_RULES,
     STANDARD_ARRAY,
     STANDARD_LANGUAGES,
     TOOLS,
@@ -220,6 +221,18 @@ class SpellSlotPool(BaseModel):
     recovery: Literal["Long Rest", "Short or Long Rest"]
 
 
+class SpellTableEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    level: int = Field(ge=0, le=9)
+    name: str
+    casting_time: str
+    range: str
+    concentration: bool
+    ritual: bool
+    required_material: bool
+    notes: str
+
+
 class ClassResource(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str
@@ -253,6 +266,7 @@ class CharacterDerivedValues(BaseModel):
     spell_save_dc: int | None
     spell_attack_bonus: int | None
     spell_slots: tuple[SpellSlotPool, ...]
+    spells: tuple[SpellTableEntry, ...]
 
 
 class Character(BaseModel):
@@ -1194,6 +1208,26 @@ class Character(BaseModel):
             spell_save_dc=self.spell_save_dc,
             spell_attack_bonus=self.spell_attack_bonus,
             spell_slots=self.spell_slots,
+            spells=self.spell_table_entries,
+        )
+
+    @property
+    def spell_table_entries(self) -> tuple[SpellTableEntry, ...]:
+        spells = tuple((0, spell) for spell in self.all_cantrips) + tuple(
+            (1, spell) for spell in self.all_prepared_spells
+        )
+        return tuple(
+            SpellTableEntry(
+                level=level,
+                name=name,
+                casting_time=SPELL_RULES[name].table_casting_time,
+                range=SPELL_RULES[name].range,
+                concentration=SPELL_RULES[name].concentration,
+                ritual=SPELL_RULES[name].ritual,
+                required_material=SPELL_RULES[name].required_material is not None,
+                notes=SPELL_RULES[name].table_notes,
+            )
+            for level, name in spells
         )
 
     def skill_modifier(self, skill: str) -> int:

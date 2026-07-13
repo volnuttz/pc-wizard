@@ -128,6 +128,21 @@ SPELL_NOTES_FIELDS = (
     "Text236",
 )
 SPELL_ROW_COUNT = 30
+SPELL_CONCENTRATION_FIELDS = (
+    *(f"Check Box252.{row}" for row in range(7)),
+    *(f"Check Box255.{row}" for row in range(13)),
+    *(f"Check Box258.{row}" for row in range(10)),
+)
+SPELL_RITUAL_FIELDS = (
+    *(f"Check Box253.{row}" for row in range(7)),
+    *(f"Check Box256.{row}" for row in range(13)),
+    *(f"Check Box259.{row}" for row in range(10)),
+)
+SPELL_MATERIAL_FIELDS = (
+    *(f"Check Box254.0.{row}" for row in range(7)),
+    *(f"Check Box257.{row}" for row in range(13)),
+    *(f"Check Box260.{row}" for row in range(10)),
+)
 TEMPLATE_DOWNLOAD_URL = (
     "https://media.dndbeyond.com/compendium-images/free-rules/ph/character-sheet.pdf"
 )
@@ -185,6 +200,9 @@ EXPECTED_TEMPLATE_FIELDS = (
     | set(COIN_FIELDS.values())
     | set(SPELL_SLOT_FIELDS.values())
     | set(SPELL_NOTES_FIELDS)
+    | set(SPELL_CONCENTRATION_FIELDS)
+    | set(SPELL_RITUAL_FIELDS)
+    | set(SPELL_MATERIAL_FIELDS)
     | {
         f"{column}.{row}"
         for column in ("Text105", "Text106", "Text107", "Text109")
@@ -298,16 +316,21 @@ def field_values(character: Character) -> dict[str, str]:
     for level, field in SPELL_SLOT_FIELDS.items():
         pool = next((slot for slot in character.spell_slots if slot.level == level), None)
         values[field] = str(pool.total) if pool is not None else ""
-    spells = tuple((0, spell) for spell in character.all_cantrips) + tuple(
-        (1, spell) for spell in character.all_prepared_spells
-    )
+    spells = character.spell_table_entries
     for row in range(SPELL_ROW_COUNT):
-        level, name = spells[row] if row < len(spells) else ("", "")
-        values[f"Text105.{row}"] = str(level)
-        values[f"Text106.{row}"] = name
-        values[f"Text107.{row}"] = ""
-        values[f"Text109.{row}"] = ""
-        values[SPELL_NOTES_FIELDS[row]] = ""
+        spell = spells[row] if row < len(spells) else None
+        values[f"Text105.{row}"] = str(spell.level) if spell is not None else ""
+        values[f"Text106.{row}"] = spell.name if spell is not None else ""
+        values[f"Text107.{row}"] = spell.casting_time if spell is not None else ""
+        values[f"Text109.{row}"] = spell.range if spell is not None else ""
+        values[SPELL_CONCENTRATION_FIELDS[row]] = (
+            "/Yes" if spell is not None and spell.concentration else "/Off"
+        )
+        values[SPELL_RITUAL_FIELDS[row]] = "/Yes" if spell is not None and spell.ritual else "/Off"
+        values[SPELL_MATERIAL_FIELDS[row]] = (
+            "/Yes" if spell is not None and spell.required_material else "/Off"
+        )
+        values[SPELL_NOTES_FIELDS[row]] = spell.notes if spell is not None else ""
     return values
 
 

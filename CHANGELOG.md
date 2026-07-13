@@ -27,6 +27,9 @@ All notable changes to pc-wizard are documented here. The project follows
 - New `validate` and `show` commands check character files and display selected and
   derived values with actionable validation errors.
 - Existing output files require confirmation unless `--force` is supplied.
+- All 84 spells available during level-1 creation now carry SRD casting-time,
+  range, component, duration, Concentration, Ritual, and material metadata; the
+  character sheet fills every corresponding spell-table column and duration notes.
 - Interactive 27-point ability-score point-buy with live remaining-point feedback.
 - Background ability-increase prompts omit choices that would raise a score above
   20.

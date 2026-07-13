@@ -445,6 +445,245 @@ CLASS_ALWAYS_PREPARED_SPELLS: dict[str, tuple[str, ...]] = {
     "Ranger": ("Hunter's Mark",),
 }
 
+
+@dataclass(frozen=True, slots=True)
+class SpellRule:
+    casting_time: str
+    range: str
+    components: str
+    duration: str
+
+    @property
+    def concentration(self) -> bool:
+        return self.duration.startswith("Concentration")
+
+    @property
+    def ritual(self) -> bool:
+        return "Ritual" in self.casting_time
+
+    @property
+    def required_material(self) -> str | None:
+        marker = "M ("
+        if marker not in self.components:
+            return None
+        return self.components.split(marker, 1)[1].removesuffix(")")
+
+    @property
+    def table_casting_time(self) -> str:
+        return self.casting_time.split(", which", 1)[0].replace(" or Ritual", "")
+
+    @property
+    def table_notes(self) -> str:
+        duration = self.duration.removeprefix("Concentration, ").removeprefix("Concentration ")
+        return f"Duration: {duration}"
+
+
+_SPELL_RULE_DATA: dict[str, tuple[str, str, str, str]] = {
+    "Acid Splash": ("Action", "60 feet", "V, S", "Instantaneous"),
+    "Alarm": ("1 minute or Ritual", "30 feet", "V, S, M (a bell and silver wire)", "8 hours"),
+    "Animal Friendship": ("Action", "30 feet", "V, S, M (a morsel of food)", "24 hours"),
+    "Bane": ("Action", "30 feet", "V, S, M (a drop of blood)", "Concentration, up to 1 minute"),
+    "Bless": (
+        "Action",
+        "30 feet",
+        "V, S, M (a Holy Symbol worth 5+ GP)",
+        "Concentration, up to 1 minute",
+    ),
+    "Burning Hands": ("Action", "Self", "V, S", "Instantaneous"),
+    "Charm Person": ("Action", "30 feet", "V, S", "1 hour"),
+    "Chill Touch": ("Action", "Touch", "V, S", "Instantaneous"),
+    "Chromatic Orb": ("Action", "90 feet", "V, S, M (a diamond worth 50+ GP)", "Instantaneous"),
+    "Color Spray": ("Action", "Self", "V, S, M (a pinch of colorful sand)", "Instantaneous"),
+    "Command": ("Action", "60 feet", "V", "Instantaneous"),
+    "Comprehend Languages": (
+        "Action or Ritual",
+        "Self",
+        "V, S, M (a pinch of soot and salt)",
+        "1 hour",
+    ),
+    "Create or Destroy Water": (
+        "Action",
+        "30 feet",
+        "V, S, M (a mix of water and sand)",
+        "Instantaneous",
+    ),
+    "Cure Wounds": ("Action", "Touch", "V, S", "Instantaneous"),
+    "Dancing Lights": (
+        "Action",
+        "120 feet",
+        "V, S, M (a bit of phosphorus)",
+        "Concentration, up to 1 minute",
+    ),
+    "Detect Evil and Good": ("Action", "Self", "V, S", "Concentration, up to 10 minutes"),
+    "Detect Magic": ("Action or Ritual", "Self", "V, S", "Concentration, up to 10 minutes"),
+    "Detect Poison and Disease": (
+        "Action or Ritual",
+        "Self",
+        "V, S, M (a yew leaf)",
+        "Concentration, up to 10 minutes",
+    ),
+    "Disguise Self": ("Action", "Self", "V, S", "1 hour"),
+    "Dissonant Whispers": ("Action", "60 feet", "V", "Instantaneous"),
+    "Divine Favor": ("Bonus Action", "Self", "V, S", "1 minute"),
+    "Divine Smite": (
+        "Bonus Action, which you take immediately after hitting a target with a Melee "
+        "weapon or an Unarmed Strike",
+        "Self",
+        "V",
+        "Instantaneous",
+    ),
+    "Druidcraft": ("Action", "30 feet", "V, S", "Instantaneous"),
+    "Eldritch Blast": ("Action", "120 feet", "V, S", "Instantaneous"),
+    "Elementalism": ("Action", "30 feet", "V, S", "Instantaneous"),
+    "Ensnaring Strike": (
+        "Bonus Action, which you take immediately after hitting a creature with a weapon",
+        "Self",
+        "V",
+        "Concentration, up to 1 minute",
+    ),
+    "Entangle": ("Action", "90 feet", "V, S", "Concentration, up to 1 minute"),
+    "Expeditious Retreat": ("Bonus Action", "Self", "V, S", "Concentration, up to 10 minutes"),
+    "Faerie Fire": ("Action", "60 feet", "V", "Concentration, up to 1 minute"),
+    "False Life": ("Action", "Self", "V, S, M (a drop of alcohol)", "Instantaneous"),
+    "Feather Fall": (
+        "Reaction, which you take when you or a creature you can see within 60 feet of you falls",
+        "60 feet",
+        "V, M (a small feather or piece of down)",
+        "1 minute",
+    ),
+    "Find Familiar": (
+        "1 hour or Ritual",
+        "10 feet",
+        "V, S, M (burning incense worth 10+ GP, which the spell consumes)",
+        "Instantaneous",
+    ),
+    "Fire Bolt": ("Action", "120 feet", "V, S", "Instantaneous"),
+    "Floating Disk": ("Action or Ritual", "30 feet", "V, S, M (a drop of mercury)", "1 hour"),
+    "Fog Cloud": ("Action", "120 feet", "V, S", "Concentration, up to 1 hour"),
+    "Goodberry": ("Action", "Self", "V, S, M (a sprig of mistletoe)", "24 hours"),
+    "Grease": ("Action", "60 feet", "V, S, M (a bit of pork rind or butter)", "1 minute"),
+    "Guidance": ("Action", "Touch", "V, S", "Concentration, up to 1 minute"),
+    "Guiding Bolt": ("Action", "120 feet", "V, S", "1 round"),
+    "Healing Word": ("Bonus Action", "60 feet", "V", "Instantaneous"),
+    "Hellish Rebuke": (
+        "Reaction, which you take in response to taking damage from a creature that you "
+        "can see within 60 feet of yourself",
+        "60 feet",
+        "V, S",
+        "Instantaneous",
+    ),
+    "Heroism": ("Action", "Touch", "V, S", "Concentration, up to 1 minute"),
+    "Hex": (
+        "Bonus Action",
+        "90 feet",
+        "V, S, M (the petrified eye of a newt)",
+        "Concentration, up to 1 hour",
+    ),
+    "Hideous Laughter": (
+        "Action",
+        "30 feet",
+        "V, S, M (a tart and a feather)",
+        "Concentration, up to 1 minute",
+    ),
+    "Hunter's Mark": ("Bonus Action", "90 feet", "V", "Concentration, up to 1 hour"),
+    "Ice Knife": ("Action", "60 feet", "S, M (a drop of water or a piece of ice)", "Instantaneous"),
+    "Identify": ("1 minute or Ritual", "Touch", "V, S, M (a pearl worth 100+ GP)", "Instantaneous"),
+    "Illusory Script": (
+        "1 minute or Ritual",
+        "Touch",
+        "S, M (ink worth 10+ GP, which the spell consumes)",
+        "10 days",
+    ),
+    "Inflict Wounds": ("Action", "Touch", "V, S", "Instantaneous"),
+    "Jump": ("Bonus Action", "Touch", "V, S, M (a grasshopper's hind leg)", "1 minute"),
+    "Light": ("Action", "Touch", "V, M (a firefly or phosphorescent moss)", "1 hour"),
+    "Longstrider": ("Action", "Touch", "V, S, M (a pinch of dirt)", "1 hour"),
+    "Mage Armor": ("Action", "Touch", "V, S, M (a piece of cured leather)", "8 hours"),
+    "Mage Hand": ("Action", "30 feet", "V, S", "1 minute"),
+    "Magic Missile": ("Action", "120 feet", "V, S", "Instantaneous"),
+    "Mending": ("1 minute", "Touch", "V, S, M (two lodestones)", "Instantaneous"),
+    "Message": ("Action", "120 feet", "S, M (a copper wire)", "1 round"),
+    "Minor Illusion": ("Action", "30 feet", "S, M (a bit of fleece)", "1 minute"),
+    "Poison Spray": ("Action", "30 feet", "V, S", "Instantaneous"),
+    "Prestidigitation": ("Action", "10 feet", "V, S", "Up to 1 hour"),
+    "Produce Flame": ("Bonus Action", "Self", "V, S", "10 minutes"),
+    "Protection from Evil and Good": (
+        "Action",
+        "Touch",
+        "V, S, M (a flask of Holy Water worth 25+ GP, which the spell consumes)",
+        "Concentration, up to 10 minutes",
+    ),
+    "Purify Food and Drink": ("Action or Ritual", "10 feet", "V, S", "Instantaneous"),
+    "Ray of Frost": ("Action", "60 feet", "V, S", "Instantaneous"),
+    "Ray of Sickness": ("Action", "60 feet", "V, S", "Instantaneous"),
+    "Resistance": ("Action", "Touch", "V, S", "Concentration, up to 1 minute"),
+    "Sacred Flame": ("Action", "60 feet", "V, S", "Instantaneous"),
+    "Sanctuary": (
+        "Bonus Action",
+        "30 feet",
+        "V, S, M (a shard of glass from a mirror)",
+        "1 minute",
+    ),
+    "Searing Smite": (
+        "Bonus Action, which you take immediately after hitting a target with a Melee "
+        "weapon or an Unarmed Strike",
+        "Self",
+        "V",
+        "1 minute",
+    ),
+    "Shield": (
+        "Reaction, which you take when you are hit by an attack roll or targeted by the "
+        "Magic Missile spell",
+        "Self",
+        "V, S",
+        "1 round",
+    ),
+    "Shield of Faith": (
+        "Bonus Action",
+        "60 feet",
+        "V, S, M (a prayer scroll)",
+        "Concentration, up to 10 minutes",
+    ),
+    "Shillelagh": ("Bonus Action", "Self", "V, S, M (mistletoe)", "1 minute"),
+    "Shocking Grasp": ("Action", "Touch", "V, S", "Instantaneous"),
+    "Silent Image": (
+        "Action",
+        "60 feet",
+        "V, S, M (a bit of fleece)",
+        "Concentration, up to 10 minutes",
+    ),
+    "Sleep": (
+        "Action",
+        "60 feet",
+        "V, S, M (a pinch of sand or rose petals)",
+        "Concentration, up to 1 minute",
+    ),
+    "Sorcerous Burst": ("Action", "120 feet", "V, S", "Instantaneous"),
+    "Spare the Dying": ("Action", "15 feet", "V, S", "Instantaneous"),
+    "Speak with Animals": ("Action or Ritual", "Self", "V, S", "10 minutes"),
+    "Starry Wisp": ("Action", "60 feet", "V, S", "Instantaneous"),
+    "Thaumaturgy": ("Action", "30 feet", "V", "Up to 1 minute"),
+    "Thunderwave": ("Action", "Self", "V, S", "Instantaneous"),
+    "True Strike": (
+        "Action",
+        "Self",
+        "S, M (a weapon with which you have proficiency and that is worth 1+ CP)",
+        "Instantaneous",
+    ),
+    "Unseen Servant": (
+        "Action or Ritual",
+        "60 feet",
+        "V, S, M (a bit of string and of wood)",
+        "1 hour",
+    ),
+    "Vicious Mockery": ("Action", "60 feet", "V", "Instantaneous"),
+}
+
+SPELL_RULES = {
+    name: SpellRule(casting_time, range_, components, duration)
+    for name, (casting_time, range_, components, duration) in _SPELL_RULE_DATA.items()
+}
+
 FIGHTING_STYLES = ("Archery", "Defense", "Great Weapon Fighting", "Two-Weapon Fighting")
 LEVEL_ONE_WARLOCK_INVOCATIONS = {
     "Armor of Shadows": "Cast Mage Armor on yourself without a spell slot.",

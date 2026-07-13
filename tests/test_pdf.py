@@ -6,7 +6,14 @@ from pypdf import PdfReader
 from pypdf.generic import ArrayObject, DictionaryObject, StreamObject
 
 from pc_wizard.models import AbilityScores, Character, ClassChoices, MagicInitiateChoice
-from pc_wizard.pdf import field_values, render_character_sheet, validate_template
+from pc_wizard.pdf import (
+    SPELL_CONCENTRATION_FIELDS,
+    SPELL_MATERIAL_FIELDS,
+    SPELL_RITUAL_FIELDS,
+    field_values,
+    render_character_sheet,
+    validate_template,
+)
 
 
 def rendered_page(path: Path, page_number: int) -> tuple[int, int, int, bytes]:
@@ -255,6 +262,27 @@ def test_field_values_include_spellcasting_values_spells_and_slots() -> None:
         "Magic Missile",
         "Shield",
     ]
+    assert values["Text107.0"] == "Action"
+    assert values["Text109.0"] == "30 feet"
+    assert values["Text108"] == "Duration: 1 minute"
+    assert values["Check Box252.0"] == "/Off"
+    assert values["Check Box253.0"] == "/Off"
+    assert values["Check Box254.0.0"] == "/Off"
+    assert values["Check Box254.0.3"] == "/Yes"
+    assert values["Check Box252.4"] == "/Yes"
+    assert values["Check Box253.4"] == "/Yes"
+    assert values["Check Box254.0.4"] == "/Off"
+    assert values["Text211"] == "Duration: up to 10 minutes"
+
+
+def test_spell_checkbox_fields_cover_all_thirty_rows_in_visual_order() -> None:
+    assert len(SPELL_CONCENTRATION_FIELDS) == 30
+    assert len(SPELL_RITUAL_FIELDS) == 30
+    assert len(SPELL_MATERIAL_FIELDS) == 30
+    assert SPELL_CONCENTRATION_FIELDS[6:8] == ("Check Box252.6", "Check Box255.0")
+    assert SPELL_CONCENTRATION_FIELDS[19:21] == ("Check Box255.12", "Check Box258.0")
+    assert SPELL_RITUAL_FIELDS[6:8] == ("Check Box253.6", "Check Box256.0")
+    assert SPELL_MATERIAL_FIELDS[6:8] == ("Check Box254.0.6", "Check Box257.0")
 
 
 def test_render_fills_template(tmp_path: Path) -> None:
@@ -354,6 +382,15 @@ def test_render_reads_back_spellcaster_fields(tmp_path: Path) -> None:
     assert fields["Text106.0"]["/V"] == "Mage Hand"
     assert fields["Text105.3"]["/V"] == "1"
     assert fields["Text106.3"]["/V"] == "Mage Armor"
+    assert fields["Text107.3"]["/V"] == "Action"
+    assert fields["Text109.3"]["/V"] == "Touch"
+    assert fields["Check Box254.0.3"]["/V"] == "/Yes"
+    assert fields["Check Box252.4"]["/V"] == "/Yes"
+    assert fields["Check Box253.4"]["/V"] == "/Yes"
+    assert fields["Check Box254.0.4"]["/V"] == "/Off"
+    assert fields["Check Box255.0"]["/V"] == "/Off"
+    assert fields["Check Box258.0"]["/V"] == "/Off"
+    assert fields["Text211"]["/V"] == "Duration: up to 10 minutes"
     assert fields["Text96"]["/V"] == "Ink-stained fingers and silver braids."
     assert fields["Text97"]["/V"] == (
         "Backstory\nRaised in a mountain archive.\n\nPersonality\nPatient, curious, and direct."

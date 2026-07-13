@@ -54,7 +54,7 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 130 passed
+pytest: 133 passed
 CLI help smoke tests (`create`, `render`, `validate`, and `show`): passed
 uv wheel and sdist builds: passed
 Clean wheel create/render smoke tests: passed
@@ -83,8 +83,6 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 - Death-save and magic-item-attunement trackers remain blank because character
   creation does not record active adventuring-state values for them.
-- Spell casting-time, range, component, and concentration metadata is not yet
-  modeled or rendered in the spell list.
 - The official character-sheet template must be downloaded separately and supplied
   with `--template`; direct download URLs may change.
 
@@ -229,6 +227,8 @@ Status: complete and verified on 2026-07-13.
 - [x] Fill equipment and coin fields structurally.
 - [x] Fill spellcasting ability, modifier, save DC, and attack bonus.
 - [x] Fill cantrips, prepared spells, and spell-slot fields.
+- [x] Fill spell casting time, range, Concentration, Ritual, Required Material,
+  and duration notes for every level-1 creation spell.
 - [x] Fill optional backstory, appearance, and personality fields.
 - [x] Fill class-specific resources where the template supports them.
 - [x] Confirm long text fits or uses appropriate font sizing.

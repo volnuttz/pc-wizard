@@ -14,6 +14,12 @@ from pc_wizard.models import (
     ClassChoices,
     MagicInitiateChoice,
 )
+from pc_wizard.rules import (
+    CLASS_ALWAYS_PREPARED_SPELLS,
+    CLASS_SPELL_LISTS,
+    MAGIC_INITIATE_SPELL_LISTS,
+    SPELL_RULES,
+)
 
 
 @pytest.fixture
@@ -68,6 +74,41 @@ def test_derived_values(character: Character) -> None:
     assert character.damage_resistances == ("Poison",)
     assert character.feat_cantrips == ("Mage Hand", "Prestidigitation")
     assert character.feat_prepared_spells == ("Mage Armor",)
+
+
+def test_every_creation_spell_has_structured_srd_metadata() -> None:
+    creation_spells: set[str] = set()
+    for spell_list in (*CLASS_SPELL_LISTS.values(), *MAGIC_INITIATE_SPELL_LISTS.values()):
+        creation_spells.update(spell_list.cantrips)
+        creation_spells.update(spell_list.level_one_spells)
+    for spells in CLASS_ALWAYS_PREPARED_SPELLS.values():
+        creation_spells.update(spells)
+
+    assert set(SPELL_RULES) == creation_spells
+    assert all(rule.casting_time and rule.range and rule.duration for rule in SPELL_RULES.values())
+
+
+def test_spell_table_entries_include_all_sheet_details(character: Character) -> None:
+    entries = {entry.name: entry for entry in character.spell_table_entries}
+
+    fire_bolt = entries["Fire Bolt"]
+    assert fire_bolt.casting_time == "Action"
+    assert fire_bolt.range == "120 feet"
+    assert not fire_bolt.concentration
+    assert not fire_bolt.ritual
+    assert not fire_bolt.required_material
+    assert fire_bolt.notes == "Duration: Instantaneous"
+
+    detect_magic = entries["Detect Magic"]
+    assert detect_magic.concentration
+    assert detect_magic.ritual
+    assert not detect_magic.required_material
+    assert detect_magic.notes == "Duration: up to 10 minutes"
+
+    mage_armor = entries["Mage Armor"]
+    assert mage_armor.required_material
+    assert mage_armor.notes == "Duration: 8 hours"
+    assert SPELL_RULES["Mage Armor"].required_material == "a piece of cured leather"
 
 
 def test_json_round_trip(character: Character, tmp_path: Path) -> None:
