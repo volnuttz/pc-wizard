@@ -1,8 +1,12 @@
 # AcroForm notes
 
-The supplied template has two pages and hundreds of mostly opaque fields such as
-`Text19` and `Check Box5`. `PdfReader.get_fields()` is useful but parent fields and
-individual widgets may differ, so inspect page annotations as well.
+The supported official template has two pages and hundreds of mostly opaque fields
+such as `Text19` and `Check Box5`. The repository copy is a development/test
+fixture only and is excluded from distributions. At runtime, both CLI commands
+require the user's local template through `--template`.
+
+`PdfReader.get_fields()` is useful but parent fields and individual widgets may
+differ, so inspect page annotations as well.
 
 For each `/Annots` entry, resolve `/T` directly or through `/Parent`, and record
 `/FT`, `/Rect`, `/V`, `/AS`, and `/AP` `/N` keys. PDF coordinates start at the
@@ -15,5 +19,6 @@ Verify output by reopening it and checking `get_fields()` values; also assert pa
 count. Visual placement still requires coordinate correlation or viewing a marked
 diagnostic PDF.
 
-Existing mappings live in `ABILITY_FIELDS`, `SKILL_FIELDS`, and `field_values()` in
-`src/pc_wizard/pdf.py`.
+Existing mappings and compatibility checks live in `ABILITY_FIELDS`,
+`SKILL_FIELDS`, `BASE_FIELDS`, `EXPECTED_TEMPLATE_FIELDS`, `validate_template()`,
+and `field_values()` in `src/pc_wizard/pdf.py`.

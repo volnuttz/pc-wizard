@@ -30,6 +30,8 @@ Use $add-srd-content to add spell choices for level-1 Wizards from the supplied 
 Use $maintain-pdf-mapping to fill the saving-throw proficiency checkboxes.
 
 Use $verify-pc-wizard to validate my current branch and fix any failures.
+
+Use $verify-pc-wizard to rebuild the one-file executable and run its binary smoke tests.
 ```
 
 ## Good task prompts
@@ -62,6 +64,12 @@ uv run ruff check .
 uv run pyright
 uv run pytest
 ```
+
+Release tooling lives in `pc-wizard.spec`, `pc-wizard-onefile.spec`, `scripts/`,
+and `.github/workflows/`. The official character-sheet PDF is a development fixture
+only: distributions and releases must require the user's separately downloaded
+copy through `--template`. See [`releasing.md`](releasing.md) for version tags,
+release recovery, checksums, and the unsigned-binary policy.
 
 Codex's official documentation explains the discovery and precedence rules for
 [`AGENTS.md`](https://developers.openai.com/codex/guides/agents-md) and the

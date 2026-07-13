@@ -3,7 +3,7 @@
 ## Project scope
 
 - Build a Python 3.13 CLI that creates D&D characters from `SRD_CC_v5.2.1.pdf` and
-  renders them into `character-sheet.pdf`.
+  renders them with a separately downloaded official `character-sheet.pdf`.
 - Treat the supplied SRD PDF as the authority for game rules. Do not silently mix
   in rules from the Player's Handbook, older SRDs, third-party sources, or memory.
 - Keep JSON as the canonical character record. The filled PDF is a rendered view.
@@ -18,8 +18,13 @@
 - `src/pc_wizard/pdf.py`: character-sheet AcroForm mapping and rendering.
 - `src/pc_wizard/cli.py`: Typer commands and Rich output.
 - `tests/`: unit and PDF integration tests.
+- `CHANGELOG.md`: versioned user-visible release history.
 - `docs/codex.md`: Codex usage and repository skills.
+- `docs/releasing.md`: versioning, release recovery, and signing policy.
 - `docs/roadmap.md`: current baseline, known gaps, phases, and pending tasks.
+- `scripts/`: frozen-binary smoke testing and release packaging.
+- `pc-wizard.spec` / `pc-wizard-onefile.spec`: PyInstaller build definitions.
+- `.github/workflows/`: cross-platform quality, binary, checksum, and release jobs.
 - `.agents/skills/`: reusable Codex workflows for this repository.
 
 ## Working rules
@@ -32,10 +37,13 @@
 - Keep prompts thin: gather choices in `wizard.py`, validate in Pydantic models,
   and render from a completed `Character`.
 - Preserve user changes and avoid modifying the source PDFs.
+- Keep the official character-sheet template out of wheels, sdists, standalone
+  executables, and release assets. Require it through `--template`.
 - Keep `docs/roadmap.md` current when completing, adding, blocking, or
   reprioritizing roadmap work. Mark tasks complete only after verification.
 - Add or update tests for every behavior change. PDF mapping changes require a
-  write/read-back test against the supplied template.
+  write/read-back test against the supported official template used as the local
+  development fixture.
 - When adding dependencies, explain why the standard library and current
   dependencies are insufficient.
 
@@ -53,6 +61,8 @@ uv run pytest
 
 Also run `uv run pc-wizard --help` after changing commands or options. For an
 interactive-flow change, exercise the affected path or test the prompt adapters.
+For packaging or release changes, build the affected PyInstaller spec and run
+`scripts/smoke_binary.py`; validate workflow YAML when Actions files change.
 
 ## Repository skills
 

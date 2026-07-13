@@ -1,11 +1,15 @@
 # Releasing pc-wizard
 
+pc-wizard follows Semantic Versioning. The package version, Git tag, executable
+version output, changelog heading, and release title must agree.
+
 ## Release checklist
 
 1. Confirm the quality and native-binary workflows pass on the release commit.
 2. Update `version` in `pyproject.toml` and `__version__` in
    `src/pc_wizard/__init__.py`, then run `uv lock`.
 3. Update `docs/roadmap.md` and user-facing documentation for the release.
+   Add the release summary to `CHANGELOG.md`.
 4. Run the complete local gate:
 
    ```console
@@ -19,8 +23,8 @@
 5. Commit the release changes and push an annotated tag matching the version:
 
    ```console
-   git tag -a v0.1.0 -m "pc-wizard 0.1.0"
-   git push origin v0.1.0
+   git tag -a vX.Y.Z -m "pc-wizard X.Y.Z"
+   git push origin vX.Y.Z
    ```
 
 The `Native binaries` workflow rebuilds and smoke-tests all platforms, creates
@@ -32,11 +36,14 @@ If a tag build succeeds but its release job fails, fix the workflow on the defau
 branch and recover without moving the tag:
 
 ```console
-gh workflow run "Native binaries" --ref main -f release_tag=v0.1.0
+gh workflow run "Native binaries" --ref main -f release_tag=vX.Y.Z
 ```
 
 The manual run rebuilds and smoke-tests every artifact before publishing the
 existing tag. Leave `release_tag` empty for ordinary non-release manual builds.
+If `gh workflow run` returns `HTTP 403: Resource not accessible by integration`,
+open **Actions → Native binaries → Run workflow** on GitHub, select `main`, enter
+the existing tag in `release_tag`, and start the workflow there.
 
 ## Signing and notarization
 

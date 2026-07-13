@@ -15,6 +15,10 @@ change without rewriting unrelated user work.
    - Wizard prompts: `uv run pytest tests/test_wizard.py`
    - PDF mapping: `uv run pytest tests/test_pdf.py`
    - CLI surface: `uv run pc-wizard --help` and command-specific help
+   - Release packaging: `uv run pytest tests/test_package_binary.py`
+   - Python distributions: `uv build --clear`, then inspect wheel and sdist
+     contents for intentional files only
+   - Actions changes: parse every edited workflow as YAML before relying on CI
 2. Run the complete gate before handoff:
 
    ```console
@@ -28,8 +32,16 @@ change without rewriting unrelated user work.
    the current work, make the narrowest appropriate fix, and rerun the failed
    check plus the full gate.
 4. For PDF changes, require a real render/read-back test. For CLI changes, require
-   help output. Do not claim interactive behavior was verified when only unit
-   tests ran.
+   help output. For frozen-binary changes, build the affected `.spec` and run:
+
+   ```console
+   uv run python scripts/smoke_binary.py \
+     PATH_TO_BINARY tests/fixtures/character.json character-sheet.pdf
+   ```
+
+   Do not claim interactive behavior was verified when only unit tests ran. Do not
+   claim a platform build or GitHub Release passed until its Actions run or release
+   assets were inspected.
 
 ## Handoff
 

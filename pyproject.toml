@@ -55,6 +55,7 @@ include = [
   "/.agents/skills",
   "/.github/workflows",
   "/AGENTS.md",
+  "/CHANGELOG.md",
   "/LICENSE",
   "/README.md",
   "/docs",

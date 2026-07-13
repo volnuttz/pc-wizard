@@ -24,6 +24,8 @@ languages; determine ability scores; choose alignment; fill derived details.
 - Proficiency bonus is derived from level.
 - Dwarf toughness contributes to maximum HP.
 - JSON is canonical; PDFs are generated artifacts.
+- The official character-sheet template is external and always supplied through
+  `--template`; it is never a package or release asset.
 
 ## Test routing
 

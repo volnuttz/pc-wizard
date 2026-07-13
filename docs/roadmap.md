@@ -25,7 +25,8 @@ The repository currently provides:
 - [x] Questionary interactive character-creation flow
 - [x] Rich terminal output
 - [x] Pydantic v2 character validation and JSON serialization
-- [x] pypdf AcroForm rendering into the supplied two-page character sheet
+- [x] pypdf AcroForm rendering into the separately downloaded official two-page
+  character sheet
 - [x] All 12 SRD classes represented at a basic level
 - [x] All 4 SRD backgrounds represented
 - [x] All 9 SRD species represented at a basic level
@@ -39,6 +40,8 @@ The repository currently provides:
 - [x] Wheel and source-distribution builds
 - [x] MIT license and complete package metadata
 - [x] Clean wheel installation and outside-repository `create`/`render` workflows
+- [x] Published v0.1.0 native executables and SHA-256 files for Linux x86-64,
+  Windows x86-64, macOS Apple Silicon, and macOS Intel
 - [x] Ruff, Pyright strict mode, pytest, and repository-local Codex guidance
 
 Verified on 2026-07-13:
@@ -47,10 +50,12 @@ Verified on 2026-07-13:
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 11 passed
+pytest: 14 passed
 CLI help smoke tests: passed
 uv wheel and sdist builds: passed
 Clean wheel create/render smoke tests: passed
+Cross-platform native binary builds and smoke tests: passed
+GitHub Release v0.1.0 with SHA-256 files: published
 ```
 
 ## Known limitations
@@ -90,8 +95,8 @@ Clean wheel create/render smoke tests: passed
 
 ### Distribution
 
-- A Linux x86-64 one-directory executable has been built and smoke-tested locally,
-  but there are no automated cross-platform or published release builds.
+- Native executables are unsigned, so Windows SmartScreen and macOS Gatekeeper may
+  warn or block first launch.
 
 ## Phase 1: Reliable packaging and runtime assets
 
@@ -123,8 +128,7 @@ Exit criteria:
 
 Goal: distribute `pc-wizard` to users who do not have Python or uv installed.
 
-Status: in progress; all four native CI builds are verified and tag-triggered
-release automation is implemented but has not yet published its first release.
+Status: complete and verified on 2026-07-13 with the published v0.1.0 release.
 
 - [x] Add PyInstaller as a development/build dependency.
 - [x] Add a deterministic PyInstaller spec file.
@@ -139,9 +143,8 @@ release automation is implemented but has not yet published its first release.
   - [x] Windows x86-64
   - [x] macOS Apple Silicon
   - [x] macOS Intel
-- [ ] Publish versioned artifacts through GitHub Releases.
-- [~] Publish SHA-256 checksums: generation and release upload are implemented;
-  publication awaits the first version tag.
+- [x] Publish versioned artifacts through GitHub Releases.
+- [x] Publish SHA-256 checksums.
 - [x] Document platform installation, upgrade, and removal steps.
 - [x] Evaluate signing and notarization for Windows and macOS; unsigned 0.1.0
   artifacts are documented, with signing deferred pending certificates.
@@ -256,16 +259,17 @@ Exit criteria:
 
 Goal: make changes and releases repeatable, reviewable, and safe.
 
-- [ ] Add continuous integration for Ruff, Pyright, pytest, package builds, and
-  clean-install tests.
+- [~] Continuous integration runs Ruff, Pyright, pytest, and package builds on
+  Linux, Windows, and macOS; automate the existing clean-install test procedure.
 - [ ] Add a test-coverage report and agree on a minimum threshold.
-- [ ] Extract reusable character fixtures for tests.
+- [~] A reusable character JSON fixture supports model and binary smoke tests;
+  extract broader fixtures as character coverage grows.
 - [ ] Add parameterized tests for every class, background, and species.
 - [ ] Add property-based tests for scores, modifiers, and point-buy constraints.
 - [ ] Add dependency update automation.
 - [ ] Add dependency vulnerability review or audit automation.
-- [ ] Add a changelog and release checklist.
-- [ ] Adopt semantic versioning and tagged releases.
+- [x] Add a changelog and release checklist.
+- [x] Adopt semantic versioning and tagged releases.
 - [ ] Add contributor and code-of-conduct documents if outside contributors are
   expected.
 - [ ] Add issue and pull-request templates.
@@ -278,9 +282,10 @@ Exit criteria:
 
 ## Suggested milestone order
 
-1. Package the runtime template and prove a clean wheel installation.
-2. Produce and test one Linux standalone executable.
-3. Add cross-platform CI and release artifacts.
+1. [x] Require a separately downloaded template and prove a clean wheel
+   installation.
+2. [x] Produce and test one Linux standalone executable.
+3. [x] Add cross-platform CI and release artifacts.
 4. Complete level-1 choices and calculations in small vertical slices.
 5. Expand PDF coverage alongside each completed rule slice.
 6. Add schema migration and resume support before distributing many saved files.

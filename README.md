@@ -1,8 +1,8 @@
 # pc-wizard
 
 An interactive command-line wizard for creating level-1 D&D characters using the
-rules in `SRD_CC_v5.2.1.pdf`. It saves validated JSON and fills the supplied
-`character-sheet.pdf` AcroForm.
+rules in `SRD_CC_v5.2.1.pdf`. It saves validated JSON and fills a separately
+downloaded official `character-sheet.pdf` AcroForm.
 
 ## Requirements
 
@@ -123,6 +123,8 @@ uv run python scripts/smoke_binary.py \
 The current wizard targets level-1 creation and the player options published in
 SRD 5.2.1: 12 classes, 4 backgrounds, and 9 species. The JSON file is the
 canonical character record; the PDF is a rendered output.
+
+Release history is maintained in [`CHANGELOG.md`](CHANGELOG.md).
 
 SRD attribution, template copyright information, and current licensing limitations
 are recorded in
