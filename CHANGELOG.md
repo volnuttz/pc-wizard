@@ -5,6 +5,8 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-13
+
 ### Fixed
 
 - Standard-array, rolled-score, and point-buy menus now wrap numeric values in
@@ -133,4 +135,6 @@ All notable changes to pc-wizard are documented here. The project follows
   executables with SHA-256 files.
 - Cross-platform quality, native-binary, and tag-triggered GitHub Release jobs.
 
+[Unreleased]: https://github.com/volnuttz/pc-wizard/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/volnuttz/pc-wizard/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/volnuttz/pc-wizard/releases/tag/v0.1.0

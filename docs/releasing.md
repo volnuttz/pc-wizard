@@ -47,7 +47,7 @@ the existing tag in `release_tag`, and start the workflow there.
 
 ## Signing and notarization
 
-Version 0.1.0 binaries are unsigned. Windows SmartScreen and macOS Gatekeeper may
+Native binaries are currently unsigned. Windows SmartScreen and macOS Gatekeeper may
 therefore warn users or block first launch. Do not tell users that an unsigned
 artifact is trusted merely because it was downloaded from GitHub; they should
 verify its SHA-256 file before running it.
