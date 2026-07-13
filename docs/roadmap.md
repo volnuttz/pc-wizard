@@ -101,9 +101,9 @@ Goal: make the Python package installable and usable outside the repository.
 - [ ] Move the approved runtime template into `src/pc_wizard/assets/`.
 - [ ] Load the built-in template with `importlib.resources`.
 - [ ] Keep `--template` as an optional override.
-- [ ] Exclude `SRD_CC_v5.2.1.pdf` from wheel and source distributions.
-- [ ] Define intentional sdist contents rather than relying on automatic inclusion.
-- [ ] Add `pc-wizard --version`.
+- [x] Exclude `SRD_CC_v5.2.1.pdf` from wheel and source distributions.
+- [x] Define intentional sdist contents rather than relying on automatic inclusion.
+- [x] Add `pc-wizard --version`.
 - [ ] Add package metadata: license, authors, classifiers, URLs, and keywords.
 - [ ] Add an SRD attribution and third-party notices document.
 - [ ] Test wheel installation in a clean isolated environment.

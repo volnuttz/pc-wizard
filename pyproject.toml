@@ -30,6 +30,18 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pc_wizard"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+  "/.agents/skills",
+  "/AGENTS.md",
+  "/README.md",
+  "/docs",
+  "/pyproject.toml",
+  "/src",
+  "/tests",
+  "/uv.lock",
+]
+
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]

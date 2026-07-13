@@ -1,3 +1,4 @@
+from importlib.metadata import version
 from pathlib import Path
 from typing import Annotated
 
@@ -12,6 +13,28 @@ from pc_wizard.wizard import run_wizard
 
 app = typer.Typer(help="Create D&D characters using SRD 5.2.1.", no_args_is_help=True)
 console = Console()
+
+
+def version_callback(value: bool) -> None:
+    """Print the installed package version and exit."""
+    if value:
+        typer.echo(f"pc-wizard {version('pc-wizard')}")
+        raise typer.Exit
+
+
+@app.callback()
+def main(
+    version_requested: Annotated[
+        bool | None,
+        typer.Option(
+            "--version",
+            callback=version_callback,
+            is_eager=True,
+            help="Show the version and exit.",
+        ),
+    ] = None,
+) -> None:
+    """Create D&D characters using SRD 5.2.1."""
 
 
 @app.command()
