@@ -73,6 +73,215 @@ def test_json_round_trip(character: Character, tmp_path: Path) -> None:
     assert Character.load_json(path) == character
 
 
+def test_starting_packages_create_structured_inventory_and_coins(character: Character) -> None:
+    inventory = {(item.name, item.quantity, item.category) for item in character.inventory}
+
+    assert ("Dagger", 2, "Weapon") in inventory
+    assert ("Arcane Focus (Quarterstaff)", 1, "Weapon") in inventory
+    assert ("Spellbook", 1, "Gear") in inventory
+    assert ("Parchment", 8, "Gear") in inventory
+    assert character.coins.gold == 13
+    assert character.equipment_summary.endswith("Coins: 13 GP")
+
+
+def test_starting_gold_options_preserve_coins_without_package_items(
+    character: Character,
+) -> None:
+    values = character.model_dump()
+    values.update(class_equipment_option="Gold", background_equipment_option="Gold")
+
+    wealthy = Character.model_validate(values)
+
+    assert wealthy.inventory == ()
+    assert wealthy.coins.gold == 105
+    assert wealthy.weapon_attacks == ()
+
+
+def test_armor_shields_unarmored_defense_and_strength_requirement(
+    character: Character,
+) -> None:
+    fighter_values = character.model_dump()
+    fighter_values.update(
+        character_class="Fighter",
+        background="Soldier",
+        abilities={
+            "strength": 17,
+            "dexterity": 14,
+            "constitution": 14,
+            "intelligence": 8,
+            "wisdom": 10,
+            "charisma": 12,
+        },
+        class_choices=ClassChoices(
+            weapon_masteries={"Greatsword", "Flail", "Javelin"},
+            fighting_style="Defense",
+        ),
+        magic_initiate_choices=[],
+    )
+    fighter = Character.model_validate(fighter_values)
+    assert fighter.equipped_armor == "Chain Mail"
+    assert fighter.armor_class == 17
+
+    paladin_values = fighter.model_dump()
+    paladin_values.update(
+        character_class="Paladin",
+        abilities={**paladin_values["abilities"], "strength": 12},
+        class_choices=ClassChoices(
+            weapon_masteries={"Longsword", "Javelin"},
+            prepared_spells={"Bless", "Divine Smite"},
+        ),
+    )
+    paladin = Character.model_validate(paladin_values)
+    assert paladin.armor_class == 18
+    assert paladin.speed == 20
+
+    barbarian_values = fighter.model_dump()
+    barbarian_values.update(
+        character_class="Barbarian",
+        class_choices=ClassChoices(weapon_masteries={"Greataxe", "Handaxe"}),
+    )
+    barbarian = Character.model_validate(barbarian_values)
+    assert barbarian.equipped_armor is None
+    assert barbarian.armor_class == 14
+
+    monk_values = fighter.model_dump()
+    monk_values.update(
+        character_class="Monk",
+        class_choices=ClassChoices(tools={"Smith's Tools"}),
+    )
+    monk = Character.model_validate(monk_values)
+    assert monk.armor_class == 12
+
+
+def test_weapon_attacks_include_proficiency_damage_range_properties_and_mastery() -> None:
+    fighter = Character(
+        name="Brunna",
+        character_class="Fighter",
+        background="Soldier",
+        species="Dwarf",
+        alignment="Lawful Good",
+        abilities=AbilityScores(
+            strength=17,
+            dexterity=14,
+            constitution=14,
+            intelligence=8,
+            wisdom=10,
+            charisma=12,
+        ),
+        skills={"Athletics", "Intimidation", "Perception", "Survival"},
+        class_choices=ClassChoices(
+            weapon_masteries={"Greatsword", "Flail", "Javelin"},
+            fighting_style="Great Weapon Fighting",
+        ),
+        languages=["Common", "Dwarvish", "Giant"],
+    )
+
+    attacks = {attack.name: attack for attack in fighter.weapon_attacks}
+
+    assert attacks["Greatsword"].attack_bonus == 5
+    assert attacks["Greatsword"].damage == "2d6+3"
+    assert attacks["Greatsword"].damage_type == "Slashing"
+    assert attacks["Greatsword"].range == "5 ft."
+    assert attacks["Greatsword"].properties == ("Heavy", "Two-Handed")
+    assert "Mastery: Graze" in attacks["Greatsword"].notes
+    assert attacks["Javelin"].range == "30/120 ft."
+    assert "Quantity 8" in attacks["Javelin"].notes
+
+
+def test_archery_and_finesse_choose_the_correct_attack_modifier(character: Character) -> None:
+    values = character.model_dump()
+    values.update(
+        character_class="Fighter",
+        background="Soldier",
+        class_equipment_option="B",
+        class_choices=ClassChoices(
+            weapon_masteries={"Longbow", "Scimitar", "Shortsword"},
+            fighting_style="Archery",
+        ),
+        magic_initiate_choices=[],
+    )
+    fighter = Character.model_validate(values)
+    attacks = {attack.name: attack for attack in fighter.weapon_attacks}
+
+    assert attacks["Longbow"].attack_bonus == 5
+    assert attacks["Scimitar"].attack_bonus == 3
+    assert attacks["Scimitar"].damage == "1d6+1"
+
+
+@pytest.mark.parametrize(
+    ("class_name", "ability", "modifier", "slots", "recovery"),
+    [
+        ("Bard", "charisma", 0, 2, "Long Rest"),
+        ("Cleric", "wisdom", 2, 2, "Long Rest"),
+        ("Druid", "wisdom", 2, 2, "Long Rest"),
+        ("Paladin", "charisma", 0, 2, "Long Rest"),
+        ("Ranger", "wisdom", 2, 2, "Long Rest"),
+        ("Sorcerer", "charisma", 0, 2, "Long Rest"),
+        ("Warlock", "charisma", 0, 1, "Short or Long Rest"),
+        ("Wizard", "intelligence", 3, 2, "Long Rest"),
+    ],
+)
+def test_level_one_spellcasting_values_and_slots(
+    character: Character,
+    class_name: str,
+    ability: str,
+    modifier: int,
+    slots: int,
+    recovery: str,
+) -> None:
+    choices = {
+        "Bard": ClassChoices(
+            tools={
+                "Musical Instrument (Drum)",
+                "Musical Instrument (Flute)",
+                "Musical Instrument (Lute)",
+            },
+            cantrips={"Light", "Vicious Mockery"},
+            prepared_spells={"Cure Wounds", "Faerie Fire", "Healing Word", "Thunderwave"},
+        ),
+        "Cleric": ClassChoices(
+            divine_order="Protector",
+            cantrips={"Guidance", "Light", "Sacred Flame"},
+            prepared_spells={"Bless", "Cure Wounds", "Guiding Bolt", "Healing Word"},
+        ),
+        "Druid": ClassChoices(
+            primal_order="Warden",
+            cantrips={"Druidcraft", "Shillelagh"},
+            prepared_spells={"Entangle", "Faerie Fire", "Goodberry", "Healing Word"},
+        ),
+        "Paladin": ClassChoices(
+            weapon_masteries={"Longsword", "Javelin"},
+            prepared_spells={"Bless", "Divine Smite"},
+        ),
+        "Ranger": ClassChoices(
+            weapon_masteries={"Longbow", "Scimitar"},
+            prepared_spells={"Cure Wounds", "Ensnaring Strike"},
+        ),
+        "Sorcerer": ClassChoices(
+            cantrips={"Fire Bolt", "Light", "Mage Hand", "Sorcerous Burst"},
+            prepared_spells={"Magic Missile", "Shield"},
+        ),
+        "Warlock": ClassChoices(
+            cantrips={"Eldritch Blast", "Prestidigitation"},
+            prepared_spells={"Charm Person", "Hex"},
+            eldritch_invocation="Pact of the Chain",
+        ),
+        "Wizard": character.class_choices,
+    }[class_name]
+    values = character.model_dump()
+    values.update(character_class=class_name, class_choices=choices)
+    if class_name == "Bard":
+        values["bard_starting_instrument"] = "Musical Instrument (Flute)"
+    caster = Character.model_validate(values)
+
+    assert caster.spellcasting_ability == ability
+    assert caster.spellcasting_modifier == modifier
+    assert caster.spell_save_dc == 10 + modifier
+    assert caster.spell_attack_bonus == 2 + modifier
+    assert caster.spell_slots[0].total == slots
+    assert caster.spell_slots[0].recovery == recovery
+
+
 @pytest.mark.parametrize(
     ("class_name", "choices"),
     [
@@ -172,6 +381,8 @@ def test_validates_level_one_choices_for_every_class(
 ) -> None:
     values = character.model_dump()
     values.update(character_class=class_name, class_choices=choices)
+    if class_name == "Bard":
+        values["bard_starting_instrument"] = "Musical Instrument (Flute)"
     if class_name == "Rogue":
         values["languages"] = [*character.languages, "Draconic"]
 

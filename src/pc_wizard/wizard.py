@@ -1,6 +1,6 @@
 import random
 from collections.abc import Callable, Sequence
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import questionary
 
@@ -18,9 +18,11 @@ from pc_wizard.rules import (
     ALIGNMENTS,
     ARTISAN_TOOLS,
     BACKGROUND_MAGIC_INITIATE_LISTS,
+    BACKGROUND_STARTING_EQUIPMENT,
     BACKGROUNDS,
     CLASS_ALWAYS_PREPARED_SPELLS,
     CLASS_SPELL_LISTS,
+    CLASS_STARTING_EQUIPMENT,
     CLASSES,
     DRACONIC_ANCESTORS,
     ELVEN_LINEAGES,
@@ -362,6 +364,38 @@ def choose_class_choices(
     )
 
 
+def choose_starting_equipment(
+    class_name: str,
+    background_name: str,
+    class_choices: ClassChoices,
+) -> tuple[str, Literal["A", "Gold"], str | None]:
+    class_rule = CLASS_STARTING_EQUIPMENT[class_name]
+    class_labels = {
+        f"Package {key}: {package.label} (+{package.gold} GP)": key
+        for key, package in class_rule.packages.items()
+    }
+    class_labels[f"Starting gold: {class_rule.gold} GP"] = "Gold"
+    class_label = select("Choose class starting equipment", tuple(class_labels))
+    class_option = class_labels[class_label]
+
+    background_rule = BACKGROUND_STARTING_EQUIPMENT[background_name]
+    package = background_rule.packages["A"]
+    background_labels: dict[str, Literal["A", "Gold"]] = {
+        f"Package A: {package.label} (+{package.gold} GP)": "A",
+        f"Starting gold: {background_rule.gold} GP": "Gold",
+    }
+    background_label = select("Choose background starting equipment", tuple(background_labels))
+    background_option = background_labels[background_label]
+
+    bard_instrument = None
+    if class_name == "Bard" and class_option != "Gold":
+        bard_instrument = select(
+            "Choose the musical instrument in the Bard package",
+            tuple(sorted(class_choices.tools)),
+        )
+    return class_option, background_option, bard_instrument
+
+
 def generated_scores(
     method: AbilityGenerationMethod, rng: random.Random | None = None
 ) -> list[int]:
@@ -500,6 +534,9 @@ def run_wizard() -> Character:
     class_choices = choose_class_choices(class_name, all_skills, languages)
     if class_choices.additional_language is not None:
         languages.append(class_choices.additional_language)
+    class_equipment_option, background_equipment_option, bard_starting_instrument = (
+        choose_starting_equipment(class_name, background_name, class_choices)
+    )
     alignment = select("Choose an alignment", ALIGNMENTS)
     backstory = optional_text("Backstory")
     appearance = optional_text("Appearance")
@@ -525,6 +562,9 @@ def run_wizard() -> Character:
         abilities=AbilityScores(**dict(zip(ABILITIES, values, strict=True))),
         skills=all_skills,
         class_choices=class_choices,
+        class_equipment_option=class_equipment_option,
+        background_equipment_option=background_equipment_option,
+        bard_starting_instrument=bard_starting_instrument,
         tool_proficiencies=skilled_tools,
         magic_initiate_choices=magic_initiate_choices,
         skilled_proficiencies=skilled_proficiencies,

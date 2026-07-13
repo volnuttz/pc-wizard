@@ -39,6 +39,20 @@ All notable changes to pc-wizard are documented here. The project follows
   spellbook, and eligible level-1 Eldritch Invocations.
 - Class selections and weapon mastery properties are included in the rendered
   class-features field.
+- Class and background starting-equipment packages can be chosen independently
+  from their starting-gold alternatives, including both Fighter packages and
+  the Bard's package instrument choice.
+- Starting inventories now model weapons, armor, shields, ammunition, gear, and
+  coins as structured derived data.
+- Armor Class now accounts for armor, Dexterity limits, shields, Barbarian and
+  Monk Unarmored Defense, and the Defense Fighting Style; heavy armor can reduce
+  Speed when its Strength requirement is unmet.
+- Weapon attacks now include proficiency, attack and damage modifiers, range,
+  properties, quantity, Fighting Style adjustments, and unlocked mastery notes.
+- Level-1 class spellcasting ability, modifier, save DC, attack bonus, spell-slot
+  count, and recovery cadence are calculated from SRD class rules.
+- Rendered equipment summaries and Armor Class now reflect the selected starting
+  equipment rather than static package descriptions.
 
 ## [0.1.0] - 2026-07-13
 

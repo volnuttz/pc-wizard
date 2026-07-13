@@ -4,7 +4,7 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.errors import PdfReadError
 
 from pc_wizard.models import Character, signed
-from pc_wizard.rules import ABILITIES, BACKGROUNDS, CLASSES
+from pc_wizard.rules import ABILITIES, CLASSES
 
 ABILITY_FIELDS = {
     "strength": ("Text19", "Text20", "Text63"),
@@ -91,7 +91,6 @@ def validate_template(template: Path) -> None:
 
 def field_values(character: Character) -> dict[str, str]:
     class_rule = CLASSES[character.character_class]
-    background = BACKGROUNDS[character.background]
     values = {
         "Text1": character.name,
         "Text6": character.character_class,
@@ -110,7 +109,7 @@ def field_values(character: Character) -> dict[str, str]:
         "Text29": f"1d{class_rule.hit_die}",
         "Text54": "\n".join(character.class_traits),
         "Text55": "\n".join(character.species_traits),
-        "Text57": f"Class: {class_rule.equipment}\nBackground: {background.equipment}",
+        "Text57": character.equipment_summary,
         "Text58": "\n".join(character.origin_feat_traits),
         "Text59": "\n".join(character.all_tool_proficiencies),
         "Text60": character.weapon_proficiencies,

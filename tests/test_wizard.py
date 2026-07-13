@@ -23,6 +23,7 @@ from pc_wizard.wizard import (
     choose_magic_initiate,
     choose_origin_feat_details,
     choose_species_size,
+    choose_starting_equipment,
     choose_tiefling_traits,
     generated_scores,
     optional_text,
@@ -501,3 +502,61 @@ def test_rogue_class_choices_limit_masteries_and_add_language(
 
     assert choices.expertise == {"Stealth", "Perception"}
     assert choices.additional_language == "Draconic"
+
+
+def test_starting_equipment_prompts_support_fighter_package_and_background_gold(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(
+        (
+            "Package B: Studded leather and ranged weapons (+11 GP)",
+            "Starting gold: 50 GP",
+        )
+    )
+    prompts: list[tuple[str, tuple[str, ...]]] = []
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        choices = tuple(choices)
+        prompts.append((message, choices))
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+
+    result = choose_starting_equipment("Fighter", "Soldier", ClassChoices())
+
+    assert result == ("B", "Gold", None)
+    assert "Starting gold: 155 GP" in prompts[0][1]
+
+
+def test_bard_package_chooses_one_proficient_instrument(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    answers = iter(
+        (
+            "Package A: Leather armor and instruments (+19 GP)",
+            "Package A: Acolyte equipment (+8 GP)",
+            "Musical Instrument (Lute)",
+        )
+    )
+
+    def fake_select(message: str, choices: Sequence[str]) -> str:
+        answer = next(answers)
+        assert answer in choices
+        return answer
+
+    monkeypatch.setattr(wizard, "select", fake_select)
+    class_choices = ClassChoices(
+        tools={
+            "Musical Instrument (Drum)",
+            "Musical Instrument (Flute)",
+            "Musical Instrument (Lute)",
+        }
+    )
+
+    assert choose_starting_equipment("Bard", "Acolyte", class_choices) == (
+        "A",
+        "A",
+        "Musical Instrument (Lute)",
+    )

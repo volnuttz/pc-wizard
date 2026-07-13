@@ -1,17 +1,21 @@
 from enum import StrEnum
 from pathlib import Path
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from pc_wizard.rules import (
     ABILITIES,
+    ARMOR,
     ARTISAN_TOOLS,
     BACKGROUND_MAGIC_INITIATE_LISTS,
     BACKGROUND_ORIGIN_FEATS,
+    BACKGROUND_STARTING_EQUIPMENT,
     BACKGROUNDS,
     CLASS_ALWAYS_PREPARED_SPELLS,
     CLASS_SPELL_LISTS,
+    CLASS_SPELLCASTING_ABILITIES,
+    CLASS_STARTING_EQUIPMENT,
     CLASSES,
     DRACONIC_ANCESTORS,
     ELVEN_LINEAGES,
@@ -19,6 +23,7 @@ from pc_wizard.rules import (
     FIGHTING_STYLES,
     GNOMISH_LINEAGES,
     GOLIATH_ANCESTRIES,
+    LEVEL_ONE_SPELL_SLOTS,
     LEVEL_ONE_WARLOCK_INVOCATIONS,
     MAGIC_INITIATE_SPELL_LISTS,
     MAX_ABILITY_SCORE,
@@ -29,6 +34,7 @@ from pc_wizard.rules import (
     STANDARD_ARRAY,
     STANDARD_LANGUAGES,
     TOOLS,
+    WEAPON_COMBAT_RULES,
     WEAPON_MASTERY_COUNTS,
     WEAPONS,
     CreatureSize,
@@ -37,6 +43,7 @@ from pc_wizard.rules import (
     DraconicAncestry,
     ElvenLineage,
     ElvenLineageRule,
+    EquipmentGrant,
     FiendishLegacy,
     FiendishLegacyRule,
     GnomishLineage,
@@ -175,6 +182,41 @@ class ClassChoices(BaseModel):
     additional_language: str | None = None
 
 
+class EquipmentItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str
+    quantity: int = Field(default=1, ge=1)
+    category: str
+    weapon: str | None = None
+
+
+class CoinPurse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    copper: int = Field(default=0, ge=0)
+    silver: int = Field(default=0, ge=0)
+    electrum: int = Field(default=0, ge=0)
+    gold: int = Field(default=0, ge=0)
+    platinum: int = Field(default=0, ge=0)
+
+
+class WeaponAttack(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str
+    attack_bonus: int
+    damage: str
+    damage_type: str
+    range: str
+    properties: tuple[str, ...]
+    notes: tuple[str, ...] = ()
+
+
+class SpellSlotPool(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    level: int
+    total: int
+    recovery: Literal["Long Rest", "Short or Long Rest"]
+
+
 class Character(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1)
@@ -197,6 +239,9 @@ class Character(BaseModel):
     abilities: AbilityScores
     skills: set[str] = Field(default_factory=set)
     class_choices: ClassChoices = Field(default_factory=ClassChoices)
+    class_equipment_option: str = "A"
+    background_equipment_option: Literal["A", "Gold"] = "A"
+    bard_starting_instrument: str | None = None
     tool_proficiencies: set[str] = Field(default_factory=set)
     magic_initiate_choices: list[MagicInitiateChoice] = Field(
         default_factory=lambda: list[MagicInitiateChoice]()
@@ -441,6 +486,24 @@ class Character(BaseModel):
                 raise ValueError("Rogue additional language must be included in languages")
         return self
 
+    @model_validator(mode="after")
+    def valid_starting_equipment(self) -> Self:
+        class_rule = CLASS_STARTING_EQUIPMENT[self.character_class]
+        allowed_class_options = {*class_rule.packages, "Gold"}
+        if self.class_equipment_option not in allowed_class_options:
+            raise ValueError(
+                f"invalid {self.character_class} starting-equipment option: "
+                f"{self.class_equipment_option}"
+            )
+        if self.character_class == "Bard" and self.class_equipment_option != "Gold":
+            if self.bard_starting_instrument not in self.class_choices.tools:
+                raise ValueError(
+                    "the Bard starting instrument must be one of the chosen proficiencies"
+                )
+        elif self.bard_starting_instrument is not None:
+            raise ValueError("a Bard starting instrument requires the Bard equipment package")
+        return self
+
     @property
     def character_size(self) -> CreatureSize:
         if self.size is None:
@@ -480,9 +543,16 @@ class Character(BaseModel):
     @property
     def speed(self) -> int:
         lineage = self.elven_lineage_rule
-        if lineage is not None:
-            return lineage.speed
-        return SPECIES[self.species].speed
+        speed = lineage.speed if lineage is not None else SPECIES[self.species].speed
+        armor = self.equipped_armor
+        strength_requirement = ARMOR[armor].strength_requirement if armor is not None else None
+        if (
+            armor is not None
+            and strength_requirement is not None
+            and self.abilities.strength < strength_requirement
+        ):
+            speed -= 10
+        return speed
 
     @property
     def darkvision_range(self) -> int | None:
@@ -608,6 +678,153 @@ class Character(BaseModel):
                 )
             )
         )
+
+    @property
+    def inventory(self) -> tuple[EquipmentItem, ...]:
+        grants: list[EquipmentGrant] = []
+        class_rule = CLASS_STARTING_EQUIPMENT[self.character_class]
+        if self.class_equipment_option != "Gold":
+            grants.extend(class_rule.packages[self.class_equipment_option].items)
+        background_rule = BACKGROUND_STARTING_EQUIPMENT[self.background]
+        if self.background_equipment_option == "A":
+            grants.extend(background_rule.packages["A"].items)
+
+        merged: dict[tuple[str, str | None], int] = {}
+        for grant in grants:
+            name = grant.name
+            if name == "Chosen Musical Instrument":
+                if self.bard_starting_instrument is None:
+                    raise RuntimeError("Bard starting instrument was not resolved")
+                name = self.bard_starting_instrument
+            elif name == "Chosen Monk Tool":
+                name = next(iter(self.class_choices.tools))
+            key = (name, grant.weapon)
+            merged[key] = merged.get(key, 0) + grant.quantity
+
+        items: list[EquipmentItem] = []
+        for (name, weapon), quantity in merged.items():
+            base_weapon = weapon or (name if name in WEAPONS else None)
+            if base_weapon is not None:
+                category = "Weapon"
+            elif name in ARMOR:
+                category = "Armor"
+            elif name == "Shield":
+                category = "Shield"
+            elif name in {"Arrow", "Bolt", "Firearm Bullet", "Sling Bullet", "Needle"}:
+                category = "Ammunition"
+            else:
+                category = "Gear"
+            items.append(
+                EquipmentItem(
+                    name=name,
+                    quantity=quantity,
+                    category=category,
+                    weapon=base_weapon,
+                )
+            )
+        return tuple(items)
+
+    @property
+    def coins(self) -> CoinPurse:
+        class_rule = CLASS_STARTING_EQUIPMENT[self.character_class]
+        class_gold = (
+            class_rule.gold
+            if self.class_equipment_option == "Gold"
+            else class_rule.packages[self.class_equipment_option].gold
+        )
+        background_rule = BACKGROUND_STARTING_EQUIPMENT[self.background]
+        background_gold = (
+            background_rule.gold
+            if self.background_equipment_option == "Gold"
+            else background_rule.packages["A"].gold
+        )
+        return CoinPurse(gold=class_gold + background_gold)
+
+    @property
+    def equipment_summary(self) -> str:
+        lines = [
+            f"{item.quantity} x {item.name}" if item.quantity > 1 else item.name
+            for item in self.inventory
+        ]
+        lines.append(f"Coins: {self.coins.gold} GP")
+        return "\n".join(lines)
+
+    @property
+    def equipped_armor(self) -> str | None:
+        return next((item.name for item in self.inventory if item.category == "Armor"), None)
+
+    @property
+    def shield_equipped(self) -> bool:
+        return any(item.category == "Shield" for item in self.inventory)
+
+    def is_weapon_proficient(self, weapon: str) -> bool:
+        rule = WEAPONS[weapon]
+        if self.weapon_proficiencies == "Simple and Martial":
+            return True
+        if rule.category == "Simple":
+            return True
+        if self.character_class == "Monk":
+            return rule.kind == "Melee" and "Light" in rule.properties
+        if self.character_class == "Rogue":
+            return bool({"Finesse", "Light"} & set(rule.properties))
+        return False
+
+    def weapon_ability(self, weapon: str) -> str:
+        rule = WEAPONS[weapon]
+        choices = ["dexterity"] if rule.kind == "Ranged" else ["strength"]
+        if "Finesse" in rule.properties:
+            choices = ["strength", "dexterity"]
+        if self.character_class == "Monk" and (
+            rule.category == "Simple" or (rule.kind == "Melee" and "Light" in rule.properties)
+        ):
+            choices = ["strength", "dexterity"]
+        return max(choices, key=self.abilities.modifier)
+
+    @property
+    def weapon_attacks(self) -> tuple[WeaponAttack, ...]:
+        attacks: list[WeaponAttack] = []
+        for item in self.inventory:
+            if item.weapon is None:
+                continue
+            weapon = item.weapon
+            rule = WEAPONS[weapon]
+            combat = WEAPON_COMBAT_RULES[weapon]
+            ability_modifier = self.abilities.modifier(self.weapon_ability(weapon))
+            attack_bonus = ability_modifier
+            if self.is_weapon_proficient(weapon):
+                attack_bonus += self.proficiency_bonus
+            if self.class_choices.fighting_style == "Archery" and rule.kind == "Ranged":
+                attack_bonus += 2
+            damage_modifier = f"{ability_modifier:+d}" if ability_modifier else ""
+            attack_range = (
+                f"{combat.normal_range}/{combat.long_range} ft."
+                if combat.long_range is not None
+                else f"{combat.normal_range} ft."
+            )
+            notes: list[str] = []
+            if item.quantity > 1:
+                notes.append(f"Quantity {item.quantity}")
+            if combat.versatile_damage is not None:
+                notes.append(f"Versatile {combat.versatile_damage}{damage_modifier}")
+            if weapon in self.class_choices.weapon_masteries:
+                notes.append(f"Mastery: {rule.mastery}")
+            if "Heavy" in rule.properties:
+                minimum = 13
+                ability = "dexterity" if rule.kind == "Ranged" else "strength"
+                if getattr(self.abilities, ability) < minimum:
+                    notes.append("Heavy: attack rolls have Disadvantage")
+            attacks.append(
+                WeaponAttack(
+                    name=item.name,
+                    attack_bonus=attack_bonus,
+                    damage=f"{combat.damage}{damage_modifier}",
+                    damage_type=combat.damage_type,
+                    range=attack_range,
+                    properties=rule.properties,
+                    notes=tuple(notes),
+                )
+            )
+        return tuple(attacks)
 
     @property
     def class_cantrips(self) -> tuple[str, ...]:
@@ -761,7 +978,55 @@ class Character(BaseModel):
 
     @property
     def armor_class(self) -> int:
-        return 10 + self.abilities.modifier("dexterity")
+        dexterity = self.abilities.modifier("dexterity")
+        armor_name = self.equipped_armor
+        if armor_name is not None:
+            armor = ARMOR[armor_name]
+            dexterity_bonus = 0 if armor.dexterity_cap == 0 else dexterity
+            if armor.dexterity_cap is not None and armor.dexterity_cap > 0:
+                dexterity_bonus = min(dexterity_bonus, armor.dexterity_cap)
+            value = armor.base_ac + dexterity_bonus
+            if self.class_choices.fighting_style == "Defense":
+                value += 1
+        elif self.character_class == "Barbarian":
+            value = 10 + dexterity + self.abilities.modifier("constitution")
+        elif self.character_class == "Monk":
+            value = 10 + dexterity + self.abilities.modifier("wisdom")
+        else:
+            value = 10 + dexterity
+        if self.shield_equipped:
+            value += 2
+        return value
+
+    @property
+    def spellcasting_ability(self) -> SpellcastingAbility | None:
+        return CLASS_SPELLCASTING_ABILITIES.get(self.character_class)
+
+    @property
+    def spellcasting_modifier(self) -> int | None:
+        ability = self.spellcasting_ability
+        return self.abilities.modifier(ability) if ability is not None else None
+
+    @property
+    def spell_save_dc(self) -> int | None:
+        modifier = self.spellcasting_modifier
+        return 8 + modifier + self.proficiency_bonus if modifier is not None else None
+
+    @property
+    def spell_attack_bonus(self) -> int | None:
+        modifier = self.spellcasting_modifier
+        return modifier + self.proficiency_bonus if modifier is not None else None
+
+    @property
+    def spell_slots(self) -> tuple[SpellSlotPool, ...]:
+        slot = LEVEL_ONE_SPELL_SLOTS.get(self.character_class)
+        if slot is None:
+            return ()
+        level, total = slot
+        recovery: Literal["Long Rest", "Short or Long Rest"] = (
+            "Short or Long Rest" if self.character_class == "Warlock" else "Long Rest"
+        )
+        return (SpellSlotPool(level=level, total=total, recovery=recovery),)
 
     @property
     def passive_perception(self) -> int:

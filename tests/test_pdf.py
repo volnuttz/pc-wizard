@@ -102,6 +102,10 @@ def test_field_values_include_derived_values() -> None:
     assert values["Text19"] == "17"
     assert values["Text63"] == "+5"
     assert values["Text27"] == "13"
+    assert values["Text26"] == "16"
+    assert "Chain Mail" in values["Text57"]
+    assert "8 x Javelin" in values["Text57"]
+    assert values["Text57"].endswith("Coins: 18 GP")
     assert "Fighting Style: Great Weapon Fighting" in values["Text54"]
     assert "Greataxe (Cleave)" in values["Text54"]
 
@@ -129,6 +133,7 @@ def test_render_fills_template(tmp_path: Path) -> None:
     assert fields["Text15"]["/V"] == "S"
     assert fields["Text16"]["/V"] == "30"
     assert fields["Text14"]["/V"] == "+4"
+    assert fields["Text26"]["/V"] == "16"
     assert "Skillful: Insight" in fields["Text55"]["/V"]
     assert "Versatile: Alert" in fields["Text55"]["/V"]
     assert fields["Text58"]["/V"] == (
@@ -137,6 +142,8 @@ def test_render_fills_template(tmp_path: Path) -> None:
     )
     assert "Weapon Mastery: Greataxe (Cleave)" in fields["Text54"]["/V"]
     assert fields["Text59"]["/V"] == "Gaming Set"
+    assert "Chain Mail" in fields["Text57"]["/V"]
+    assert fields["Text57"]["/V"].endswith("Coins: 18 GP")
 
 
 def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:

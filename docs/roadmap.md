@@ -65,12 +65,12 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 ### Rules and character creation
 
-- Armor Class currently uses only `10 + Dexterity modifier`; armor, shields, and
-  alternate class calculations are not applied.
 - The model accepts levels 1–20, but the creation workflow and most calculations
   only implement level 1.
-- Starting-equipment alternatives and starting-gold choices are not interactive.
-- Weapons, attacks, damage, coins, spells, and spell slots are incomplete.
+- Spending starting gold on custom equipment is not yet interactive; gold-route
+  characters retain their unspent coins.
+- Spellcasting profiles from species and feats are retained separately from the
+  class spellcasting values used for the primary class.
 - Later-level class choices remain outside the current level-1 scope.
 
 ### Validation and persistence
@@ -161,6 +161,8 @@ Exit criteria:
 Goal: implement the meaningful choices and calculations required for a complete
 level-1 SRD character.
 
+Status: complete and verified on 2026-07-13.
+
 ### Ability scores and general details
 
 - [x] Add 27-point point-buy with live remaining-point feedback.
@@ -205,13 +207,13 @@ listed items were corrected to match the level-1 scope.
 
 ### Equipment and combat values
 
-- [ ] Support class equipment package or starting gold.
-- [ ] Support background equipment package or 50 GP.
-- [ ] Model individual weapons, armor, shields, gear, ammunition, and coins.
-- [ ] Calculate AC from equipped armor, shields, and class features.
-- [ ] Calculate weapon attack bonuses, damage modifiers, ranges, and properties.
-- [ ] Calculate spellcasting modifier, save DC, and attack bonus.
-- [ ] Model level-1 spell slots (prepared-spell choices are completed above).
+- [x] Support class equipment package or starting gold.
+- [x] Support background equipment package or 50 GP.
+- [x] Model individual weapons, armor, shields, gear, ammunition, and coins.
+- [x] Calculate AC from equipped armor, shields, and class features.
+- [x] Calculate weapon attack bonuses, damage modifiers, ranges, and properties.
+- [x] Calculate spellcasting modifier, save DC, and attack bonus.
+- [x] Model level-1 spell slots (prepared-spell choices are completed above).
 
 Exit criteria:
 

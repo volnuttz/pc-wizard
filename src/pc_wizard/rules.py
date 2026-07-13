@@ -551,6 +551,15 @@ class WeaponRule:
     mastery: str
 
 
+@dataclass(frozen=True, slots=True)
+class WeaponCombatRule:
+    damage: str
+    damage_type: Literal["Bludgeoning", "Piercing", "Slashing"]
+    normal_range: int = 5
+    long_range: int | None = None
+    versatile_damage: str | None = None
+
+
 WEAPONS: dict[str, WeaponRule] = {
     "Club": WeaponRule("Simple", "Melee", ("Light",), "Slow"),
     "Dagger": WeaponRule("Simple", "Melee", ("Finesse", "Light", "Thrown"), "Nick"),
@@ -594,6 +603,396 @@ WEAPONS: dict[str, WeaponRule] = {
     "Longbow": WeaponRule("Martial", "Ranged", ("Ammunition", "Heavy", "Two-Handed"), "Slow"),
     "Musket": WeaponRule("Martial", "Ranged", ("Ammunition", "Loading", "Two-Handed"), "Slow"),
     "Pistol": WeaponRule("Martial", "Ranged", ("Ammunition", "Loading"), "Vex"),
+}
+
+WEAPON_COMBAT_RULES: dict[str, WeaponCombatRule] = {
+    "Club": WeaponCombatRule("1d4", "Bludgeoning"),
+    "Dagger": WeaponCombatRule("1d4", "Piercing", 20, 60),
+    "Greatclub": WeaponCombatRule("1d8", "Bludgeoning"),
+    "Handaxe": WeaponCombatRule("1d6", "Slashing", 20, 60),
+    "Javelin": WeaponCombatRule("1d6", "Piercing", 30, 120),
+    "Light Hammer": WeaponCombatRule("1d4", "Bludgeoning", 20, 60),
+    "Mace": WeaponCombatRule("1d6", "Bludgeoning"),
+    "Quarterstaff": WeaponCombatRule("1d6", "Bludgeoning", versatile_damage="1d8"),
+    "Sickle": WeaponCombatRule("1d4", "Slashing"),
+    "Spear": WeaponCombatRule("1d6", "Piercing", 20, 60, "1d8"),
+    "Dart": WeaponCombatRule("1d4", "Piercing", 20, 60),
+    "Light Crossbow": WeaponCombatRule("1d8", "Piercing", 80, 320),
+    "Shortbow": WeaponCombatRule("1d6", "Piercing", 80, 320),
+    "Sling": WeaponCombatRule("1d4", "Bludgeoning", 30, 120),
+    "Battleaxe": WeaponCombatRule("1d8", "Slashing", versatile_damage="1d10"),
+    "Flail": WeaponCombatRule("1d8", "Bludgeoning"),
+    "Glaive": WeaponCombatRule("1d10", "Slashing", 10),
+    "Greataxe": WeaponCombatRule("1d12", "Slashing"),
+    "Greatsword": WeaponCombatRule("2d6", "Slashing"),
+    "Halberd": WeaponCombatRule("1d10", "Slashing", 10),
+    "Lance": WeaponCombatRule("1d10", "Piercing", 10),
+    "Longsword": WeaponCombatRule("1d8", "Slashing", versatile_damage="1d10"),
+    "Maul": WeaponCombatRule("2d6", "Bludgeoning"),
+    "Morningstar": WeaponCombatRule("1d8", "Piercing"),
+    "Pike": WeaponCombatRule("1d10", "Piercing", 10),
+    "Rapier": WeaponCombatRule("1d8", "Piercing"),
+    "Scimitar": WeaponCombatRule("1d6", "Slashing"),
+    "Shortsword": WeaponCombatRule("1d6", "Piercing"),
+    "Trident": WeaponCombatRule("1d8", "Piercing", 20, 60, "1d10"),
+    "Warhammer": WeaponCombatRule("1d8", "Bludgeoning", versatile_damage="1d10"),
+    "War Pick": WeaponCombatRule("1d8", "Piercing", versatile_damage="1d10"),
+    "Whip": WeaponCombatRule("1d4", "Slashing", 10),
+    "Blowgun": WeaponCombatRule("1", "Piercing", 25, 100),
+    "Hand Crossbow": WeaponCombatRule("1d6", "Piercing", 30, 120),
+    "Heavy Crossbow": WeaponCombatRule("1d10", "Piercing", 100, 400),
+    "Longbow": WeaponCombatRule("1d8", "Piercing", 150, 600),
+    "Musket": WeaponCombatRule("1d12", "Piercing", 40, 120),
+    "Pistol": WeaponCombatRule("1d10", "Piercing", 30, 90),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class ArmorRule:
+    category: Literal["Light", "Medium", "Heavy"]
+    base_ac: int
+    dexterity_cap: int | None
+    strength_requirement: int | None = None
+    stealth_disadvantage: bool = False
+
+
+ARMOR: dict[str, ArmorRule] = {
+    "Padded Armor": ArmorRule("Light", 11, None, stealth_disadvantage=True),
+    "Leather Armor": ArmorRule("Light", 11, None),
+    "Studded Leather Armor": ArmorRule("Light", 12, None),
+    "Hide Armor": ArmorRule("Medium", 12, 2),
+    "Chain Shirt": ArmorRule("Medium", 13, 2),
+    "Scale Mail": ArmorRule("Medium", 14, 2, stealth_disadvantage=True),
+    "Breastplate": ArmorRule("Medium", 14, 2),
+    "Half Plate Armor": ArmorRule("Medium", 15, 2, stealth_disadvantage=True),
+    "Ring Mail": ArmorRule("Heavy", 14, 0, stealth_disadvantage=True),
+    "Chain Mail": ArmorRule("Heavy", 16, 0, 13, True),
+    "Splint Armor": ArmorRule("Heavy", 17, 0, 15, True),
+    "Plate Armor": ArmorRule("Heavy", 18, 0, 15, True),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class EquipmentGrant:
+    name: str
+    quantity: int = 1
+    weapon: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class EquipmentPackage:
+    label: str
+    items: tuple[EquipmentGrant, ...]
+    gold: int
+
+
+@dataclass(frozen=True, slots=True)
+class StartingEquipmentRule:
+    packages: dict[str, EquipmentPackage]
+    gold: int
+
+
+CLASS_STARTING_EQUIPMENT: dict[str, StartingEquipmentRule] = {
+    "Barbarian": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Greataxe and Handaxes",
+                (
+                    EquipmentGrant("Greataxe"),
+                    EquipmentGrant("Handaxe", 4),
+                    EquipmentGrant("Explorer's Pack"),
+                ),
+                15,
+            )
+        },
+        75,
+    ),
+    "Bard": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Leather armor and instruments",
+                (
+                    EquipmentGrant("Leather Armor"),
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Chosen Musical Instrument"),
+                    EquipmentGrant("Entertainer's Pack"),
+                ),
+                19,
+            )
+        },
+        90,
+    ),
+    "Cleric": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Chain shirt, shield, and mace",
+                (
+                    EquipmentGrant("Chain Shirt"),
+                    EquipmentGrant("Shield"),
+                    EquipmentGrant("Mace"),
+                    EquipmentGrant("Holy Symbol"),
+                    EquipmentGrant("Priest's Pack"),
+                ),
+                7,
+            )
+        },
+        110,
+    ),
+    "Druid": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Leather armor, shield, and sickle",
+                (
+                    EquipmentGrant("Leather Armor"),
+                    EquipmentGrant("Shield"),
+                    EquipmentGrant("Sickle"),
+                    EquipmentGrant("Druidic Focus (Quarterstaff)", weapon="Quarterstaff"),
+                    EquipmentGrant("Explorer's Pack"),
+                    EquipmentGrant("Herbalism Kit"),
+                ),
+                9,
+            )
+        },
+        50,
+    ),
+    "Fighter": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Chain mail and heavy weapons",
+                (
+                    EquipmentGrant("Chain Mail"),
+                    EquipmentGrant("Greatsword"),
+                    EquipmentGrant("Flail"),
+                    EquipmentGrant("Javelin", 8),
+                    EquipmentGrant("Dungeoneer's Pack"),
+                ),
+                4,
+            ),
+            "B": EquipmentPackage(
+                "Studded leather and ranged weapons",
+                (
+                    EquipmentGrant("Studded Leather Armor"),
+                    EquipmentGrant("Scimitar"),
+                    EquipmentGrant("Shortsword"),
+                    EquipmentGrant("Longbow"),
+                    EquipmentGrant("Arrow", 20),
+                    EquipmentGrant("Quiver"),
+                    EquipmentGrant("Dungeoneer's Pack"),
+                ),
+                11,
+            ),
+        },
+        155,
+    ),
+    "Monk": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Spear, daggers, and chosen tool",
+                (
+                    EquipmentGrant("Spear"),
+                    EquipmentGrant("Dagger", 5),
+                    EquipmentGrant("Chosen Monk Tool"),
+                    EquipmentGrant("Explorer's Pack"),
+                ),
+                11,
+            )
+        },
+        50,
+    ),
+    "Paladin": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Chain mail, shield, and longsword",
+                (
+                    EquipmentGrant("Chain Mail"),
+                    EquipmentGrant("Shield"),
+                    EquipmentGrant("Longsword"),
+                    EquipmentGrant("Javelin", 6),
+                    EquipmentGrant("Holy Symbol"),
+                    EquipmentGrant("Priest's Pack"),
+                ),
+                9,
+            )
+        },
+        150,
+    ),
+    "Ranger": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Studded leather and ranger weapons",
+                (
+                    EquipmentGrant("Studded Leather Armor"),
+                    EquipmentGrant("Scimitar"),
+                    EquipmentGrant("Shortsword"),
+                    EquipmentGrant("Longbow"),
+                    EquipmentGrant("Arrow", 20),
+                    EquipmentGrant("Quiver"),
+                    EquipmentGrant("Druidic Focus (Sprig of Mistletoe)"),
+                    EquipmentGrant("Explorer's Pack"),
+                ),
+                7,
+            )
+        },
+        150,
+    ),
+    "Rogue": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Leather armor and rogue weapons",
+                (
+                    EquipmentGrant("Leather Armor"),
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Shortsword"),
+                    EquipmentGrant("Shortbow"),
+                    EquipmentGrant("Arrow", 20),
+                    EquipmentGrant("Quiver"),
+                    EquipmentGrant("Thieves' Tools"),
+                    EquipmentGrant("Burglar's Pack"),
+                ),
+                8,
+            )
+        },
+        100,
+    ),
+    "Sorcerer": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Spear, daggers, and arcane focus",
+                (
+                    EquipmentGrant("Spear"),
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Arcane Focus (Crystal)"),
+                    EquipmentGrant("Dungeoneer's Pack"),
+                ),
+                28,
+            )
+        },
+        50,
+    ),
+    "Warlock": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Leather armor and occult gear",
+                (
+                    EquipmentGrant("Leather Armor"),
+                    EquipmentGrant("Sickle"),
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Arcane Focus (Orb)"),
+                    EquipmentGrant("Book (Occult Lore)"),
+                    EquipmentGrant("Scholar's Pack"),
+                ),
+                15,
+            )
+        },
+        100,
+    ),
+    "Wizard": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Daggers, focus, and spellbook",
+                (
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Arcane Focus (Quarterstaff)", weapon="Quarterstaff"),
+                    EquipmentGrant("Robe"),
+                    EquipmentGrant("Spellbook"),
+                    EquipmentGrant("Scholar's Pack"),
+                ),
+                5,
+            )
+        },
+        55,
+    ),
+}
+
+BACKGROUND_STARTING_EQUIPMENT: dict[str, StartingEquipmentRule] = {
+    "Acolyte": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Acolyte equipment",
+                (
+                    EquipmentGrant("Calligrapher's Supplies"),
+                    EquipmentGrant("Book (Prayers)"),
+                    EquipmentGrant("Holy Symbol"),
+                    EquipmentGrant("Parchment", 10),
+                    EquipmentGrant("Robe"),
+                ),
+                8,
+            )
+        },
+        50,
+    ),
+    "Criminal": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Criminal equipment",
+                (
+                    EquipmentGrant("Dagger", 2),
+                    EquipmentGrant("Thieves' Tools"),
+                    EquipmentGrant("Crowbar"),
+                    EquipmentGrant("Pouch", 2),
+                    EquipmentGrant("Traveler's Clothes"),
+                ),
+                16,
+            )
+        },
+        50,
+    ),
+    "Sage": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Sage equipment",
+                (
+                    EquipmentGrant("Quarterstaff"),
+                    EquipmentGrant("Calligrapher's Supplies"),
+                    EquipmentGrant("Book (History)"),
+                    EquipmentGrant("Parchment", 8),
+                    EquipmentGrant("Robe"),
+                ),
+                8,
+            )
+        },
+        50,
+    ),
+    "Soldier": StartingEquipmentRule(
+        {
+            "A": EquipmentPackage(
+                "Soldier equipment",
+                (
+                    EquipmentGrant("Spear"),
+                    EquipmentGrant("Shortbow"),
+                    EquipmentGrant("Arrow", 20),
+                    EquipmentGrant("Gaming Set"),
+                    EquipmentGrant("Healer's Kit"),
+                    EquipmentGrant("Quiver"),
+                    EquipmentGrant("Traveler's Clothes"),
+                ),
+                14,
+            )
+        },
+        50,
+    ),
+}
+
+CLASS_SPELLCASTING_ABILITIES: dict[str, SpellcastingAbility] = {
+    "Bard": "charisma",
+    "Cleric": "wisdom",
+    "Druid": "wisdom",
+    "Paladin": "charisma",
+    "Ranger": "wisdom",
+    "Sorcerer": "charisma",
+    "Warlock": "charisma",
+    "Wizard": "intelligence",
+}
+
+LEVEL_ONE_SPELL_SLOTS: dict[str, tuple[int, int]] = {
+    "Bard": (1, 2),
+    "Cleric": (1, 2),
+    "Druid": (1, 2),
+    "Paladin": (1, 2),
+    "Ranger": (1, 2),
+    "Sorcerer": (1, 2),
+    "Warlock": (1, 1),
+    "Wizard": (1, 2),
 }
 
 WEAPON_MASTERY_COUNTS = {
