@@ -2,8 +2,9 @@
 
 ## Project scope
 
-- Build a Python 3.13 CLI that creates D&D characters from `SRD_CC_v5.2.1.pdf` and
-  renders them with a separately downloaded official `character-sheet.pdf`.
+- Build a Python 3.13 CLI that creates D&D characters from
+  `assets/SRD_CC_v5.2.1.pdf` and renders them with the separately downloaded
+  official `assets/character-sheet.pdf` development fixture.
 - Treat the supplied SRD PDF as the authority for game rules. Do not silently mix
   in rules from the Player's Handbook, older SRDs, third-party sources, or memory.
 - Keep JSON as the canonical character record. The filled PDF is a rendered view.

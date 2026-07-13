@@ -7,6 +7,9 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ### Changed
 
+- Repository-only SRD and character-sheet PDF fixtures now live under `assets/`;
+  they remain excluded from wheels, source distributions, executables, and release
+  assets.
 - Character JSON is explicitly current-schema-only: files carry no schema version,
   and the project does not provide migrations or legacy-shape fallbacks. The binary
   smoke fixture now contains the complete current canonical shape, and character

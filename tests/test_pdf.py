@@ -286,7 +286,7 @@ def test_spell_checkbox_fields_cover_all_thirty_rows_in_visual_order() -> None:
 
 
 def test_render_fills_template(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "sheet.pdf"
     render_character_sheet(small_human(), template, output)
     reader = PdfReader(output)
@@ -335,7 +335,7 @@ def test_render_fills_template(tmp_path: Path) -> None:
 
 
 def test_render_reads_back_skill_expertise_and_armor_indicators(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "expertise.pdf"
 
     render_character_sheet(rogue_expert(), template, output)
@@ -353,7 +353,7 @@ def test_render_reads_back_skill_expertise_and_armor_indicators(tmp_path: Path) 
 
 
 def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "origin-feats.pdf"
 
     render_character_sheet(skilled_sage_human(), template, output)
@@ -366,7 +366,7 @@ def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:
 
 
 def test_render_reads_back_spellcaster_fields(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "spellcaster.pdf"
 
     render_character_sheet(wizard_spellcaster(), template, output)
@@ -399,7 +399,7 @@ def test_render_reads_back_spellcaster_fields(tmp_path: Path) -> None:
 
 
 def test_render_autosizes_long_text_appearances(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "autosized.pdf"
     render_character_sheet(sample(), template, output)
 
@@ -420,7 +420,7 @@ def test_render_autosizes_long_text_appearances(tmp_path: Path) -> None:
 
 
 def test_rendered_pages_change_each_mapped_region(tmp_path: Path) -> None:
-    template = Path(__file__).parents[1] / "character-sheet.pdf"
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     martial_output = tmp_path / "martial.pdf"
     spellcaster_output = tmp_path / "spellcaster.pdf"
     render_character_sheet(sample(), template, martial_output)

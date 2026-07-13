@@ -36,7 +36,7 @@ change without rewriting unrelated user work.
 
    ```console
    uv run python scripts/smoke_binary.py \
-     PATH_TO_BINARY tests/fixtures/character.json character-sheet.pdf
+     PATH_TO_BINARY tests/fixtures/character.json assets/character-sheet.pdf
    ```
 
    Do not claim interactive behavior was verified when only unit tests ran. Do not

@@ -101,8 +101,8 @@ Status: complete and verified on 2026-07-13.
 - [x] Require an explicit `--template` path for `create` and `render`.
 - [x] Validate the template before starting character creation or rendering.
 - [x] Document the official download page and a changeable direct-download URL.
-- [x] Exclude `SRD_CC_v5.2.1.pdf` and `character-sheet.pdf` from wheel and source
-  distributions.
+- [x] Exclude `assets/SRD_CC_v5.2.1.pdf` and `assets/character-sheet.pdf` from
+  wheel and source distributions.
 - [x] Define intentional sdist contents rather than relying on automatic inclusion.
 - [x] Add `pc-wizard --version`.
 - [x] Add package metadata: MIT license, authors, classifiers, URLs, and keywords.

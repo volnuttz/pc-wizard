@@ -1,6 +1,6 @@
 ---
 name: add-srd-content
-description: Extend or correct pc-wizard game data and character-creation behavior from SRD_CC_v5.2.1.pdf. Use for classes, backgrounds, species, feats, spells, equipment, proficiencies, ability scores, derived rules, or wizard choices sourced from the supplied SRD; do not use for PDF field mapping alone.
+description: Extend or correct pc-wizard game data and character-creation behavior from assets/SRD_CC_v5.2.1.pdf. Use for classes, backgrounds, species, feats, spells, equipment, proficiencies, ability scores, derived rules, or wizard choices sourced from the supplied SRD; do not use for PDF field mapping alone.
 ---
 
 # Add SRD content
@@ -11,7 +11,7 @@ models, prompts, serialization, rendering, and tests.
 ## Workflow
 
 1. Read `references/content-map.md` to identify affected modules and invariants.
-2. Locate the rule in `SRD_CC_v5.2.1.pdf` with `pypdf`; record the PDF page in
+2. Locate the rule in `assets/SRD_CC_v5.2.1.pdf` with `pypdf`; record the PDF page in
    working notes. Do not rely on memory or another D&D edition.
 3. Inspect existing structures in `rules.py`, model derivations, wizard prompts,
    PDF output, and tests before editing.
@@ -26,7 +26,7 @@ models, prompts, serialization, rendering, and tests.
 
 ## Boundaries
 
-- Treat `SRD_CC_v5.2.1.pdf` as authoritative.
+- Treat `assets/SRD_CC_v5.2.1.pdf` as authoritative.
 - Do not edit either source PDF.
 - Do not add non-SRD content without an explicit product decision and clear
   labeling.

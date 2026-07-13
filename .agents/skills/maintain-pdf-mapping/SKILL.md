@@ -11,8 +11,8 @@ and write/read-back tests. The template's names are opaque and must not be guess
 ## Workflow
 
 1. Read `references/acroform.md` before changing mappings.
-2. Inspect the repository's development-only `character-sheet.pdf` fixture, or the
-   explicit user-supplied template under diagnosis, with `pypdf`. Capture field
+2. Inspect the repository's development-only `assets/character-sheet.pdf` fixture,
+   or the explicit user-supplied template under diagnosis, with `pypdf`. Capture field
    name, type, page, rectangle, parent field, current value, and checkbox
    appearance states.
 3. Correlate annotation coordinates with extracted page labels. If ambiguity
@@ -28,7 +28,7 @@ and write/read-back tests. The template's names are opaque and must not be guess
 
 ## Safety
 
-- Never overwrite `character-sheet.pdf`.
+- Never overwrite `assets/character-sheet.pdf`.
 - Never copy the official template into package assets or release artifacts.
 - Do not flatten the form unless explicitly requested.
 - Do not infer semantic meaning from numeric field names alone.

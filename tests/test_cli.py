@@ -76,9 +76,9 @@ def test_validate_reports_actionable_json_errors(tmp_path: Path) -> None:
     result = runner.invoke(app, ["validate", str(invalid)])
 
     assert result.exit_code == 1
-    output = plain_output(result.stdout)
+    output = plain_output(result.stdout).replace("\n", "")
     assert "invalid character JSON" in output
-    assert str(invalid) in output.replace("\n", "")
+    assert str(invalid) in output
     assert "character_class: Field required" in output
 
 
@@ -88,7 +88,7 @@ def test_missing_character_file_names_the_path(tmp_path: Path) -> None:
     result = runner.invoke(app, ["show", str(missing)])
 
     assert result.exit_code == 1
-    assert str(missing) in plain_output(result.stdout)
+    assert str(missing) in plain_output(result.stdout).replace("\n", "")
 
 
 def test_overwrite_requires_confirmation_unless_forced(
@@ -119,7 +119,7 @@ def test_create_noninteractively_from_complete_json(tmp_path: Path) -> None:
         [
             "create",
             "--template",
-            str(root / "character-sheet.pdf"),
+            str(root / "assets" / "character-sheet.pdf"),
             "--from-json",
             str(source),
             "--json",

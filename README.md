@@ -1,8 +1,9 @@
 # pc-wizard
 
 An interactive command-line wizard for creating level-1 D&D characters using the
-rules in `SRD_CC_v5.2.1.pdf`. It saves validated JSON and fills a separately
-downloaded official `character-sheet.pdf` AcroForm.
+rules in `assets/SRD_CC_v5.2.1.pdf`. It saves validated JSON and fills a separately
+downloaded official `character-sheet.pdf` AcroForm. Repository development fixtures
+live under `assets/` and remain excluded from distributions.
 
 ## Requirements
 
@@ -22,18 +23,18 @@ use the official downloads page to find the current 2024 fillable sheet.
 
 ```console
 uv sync
-uv run pc-wizard create --template character-sheet.pdf
+uv run pc-wizard create --template assets/character-sheet.pdf
 ```
 
 By default, creation writes `character.json` and `character-sheet-filled.pdf`.
 The template must be supplied explicitly each time. Output paths can be changed:
 
 ```console
-uv run pc-wizard create --template character-sheet.pdf --output my-hero.pdf --json my-hero.json
-uv run pc-wizard render my-hero.json --template character-sheet.pdf --output another-copy.pdf
+uv run pc-wizard create --template assets/character-sheet.pdf --output my-hero.pdf --json my-hero.json
+uv run pc-wizard render my-hero.json --template assets/character-sheet.pdf --output another-copy.pdf
 uv run pc-wizard validate my-hero.json
 uv run pc-wizard show my-hero.json
-uv run pc-wizard create --template character-sheet.pdf --from-json my-hero.json --force
+uv run pc-wizard create --template assets/character-sheet.pdf --from-json my-hero.json --force
 ```
 
 Interactive creation checkpoints completed sections in `character-draft.json` by
@@ -119,7 +120,7 @@ Build the platform-native one-directory executable with PyInstaller:
 uv run pyinstaller --clean --noconfirm pc-wizard.spec
 dist/pc-wizard/pc-wizard --version
 uv run python scripts/smoke_binary.py \
-  dist/pc-wizard/pc-wizard tests/fixtures/character.json character-sheet.pdf
+  dist/pc-wizard/pc-wizard tests/fixtures/character.json assets/character-sheet.pdf
 ```
 
 PyInstaller builds for the current operating system only. The generated `build/`
@@ -130,7 +131,7 @@ Build and smoke-test the single-file executable with:
 ```console
 uv run pyinstaller --clean --noconfirm pc-wizard-onefile.spec
 uv run python scripts/smoke_binary.py \
-  dist/pc-wizard-onefile tests/fixtures/character.json character-sheet.pdf
+  dist/pc-wizard-onefile tests/fixtures/character.json assets/character-sheet.pdf
 ```
 
 The current wizard targets level-1 creation and the player options published in
