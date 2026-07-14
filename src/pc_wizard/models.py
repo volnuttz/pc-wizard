@@ -28,6 +28,7 @@ from pc_wizard.rules import (
     MAGIC_INITIATE_SPELL_LISTS,
     MAX_ABILITY_SCORE,
     MUSICAL_INSTRUMENTS,
+    PACK_CONTENTS,
     POINT_BUY_BUDGET,
     SKILL_ABILITIES,
     SPECIES,
@@ -873,7 +874,10 @@ class Character(BaseModel):
             grants.extend(background_rule.packages["A"].items)
 
         merged: dict[tuple[str, str | None], int] = {}
-        for grant in grants:
+        expanded_grants = tuple(
+            item for grant in grants for item in PACK_CONTENTS.get(grant.name, (grant,))
+        )
+        for grant in expanded_grants:
             name = grant.name
             if name == "Chosen Musical Instrument":
                 if self.bard_starting_instrument is None:

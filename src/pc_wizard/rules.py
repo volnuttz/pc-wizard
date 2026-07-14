@@ -971,6 +971,62 @@ class StartingEquipmentRule:
     gold: int
 
 
+PACK_CONTENTS: dict[str, tuple[EquipmentGrant, ...]] = {
+    "Dungeoneer's Pack": (
+        EquipmentGrant("Backpack"),
+        EquipmentGrant("Caltrops"),
+        EquipmentGrant("Crowbar"),
+        EquipmentGrant("Oil", 2),
+        EquipmentGrant("Rations", 10),
+        EquipmentGrant("Rope"),
+        EquipmentGrant("Tinderbox"),
+        EquipmentGrant("Torch", 10),
+        EquipmentGrant("Waterskin"),
+    ),
+    "Entertainer's Pack": (
+        EquipmentGrant("Backpack"),
+        EquipmentGrant("Bedroll"),
+        EquipmentGrant("Bell"),
+        EquipmentGrant("Bullseye Lantern"),
+        EquipmentGrant("Costume", 3),
+        EquipmentGrant("Mirror"),
+        EquipmentGrant("Oil", 8),
+        EquipmentGrant("Rations", 9),
+        EquipmentGrant("Tinderbox"),
+        EquipmentGrant("Waterskin"),
+    ),
+    "Explorer's Pack": (
+        EquipmentGrant("Backpack"),
+        EquipmentGrant("Bedroll"),
+        EquipmentGrant("Oil", 2),
+        EquipmentGrant("Rations", 10),
+        EquipmentGrant("Rope"),
+        EquipmentGrant("Tinderbox"),
+        EquipmentGrant("Torch", 10),
+        EquipmentGrant("Waterskin"),
+    ),
+    "Priest's Pack": (
+        EquipmentGrant("Backpack"),
+        EquipmentGrant("Blanket"),
+        EquipmentGrant("Holy Water"),
+        EquipmentGrant("Lamp"),
+        EquipmentGrant("Rations", 7),
+        EquipmentGrant("Robe"),
+        EquipmentGrant("Tinderbox"),
+    ),
+    "Scholar's Pack": (
+        EquipmentGrant("Backpack"),
+        EquipmentGrant("Book"),
+        EquipmentGrant("Ink"),
+        EquipmentGrant("Ink Pen"),
+        EquipmentGrant("Lamp"),
+        EquipmentGrant("Oil", 10),
+        EquipmentGrant("Parchment", 10),
+        EquipmentGrant("Tinderbox"),
+    ),
+}
+
+
 CLASS_STARTING_EQUIPMENT: dict[str, StartingEquipmentRule] = {
     "Barbarian": StartingEquipmentRule(
         {

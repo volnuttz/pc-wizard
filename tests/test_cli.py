@@ -30,13 +30,12 @@ def test_help_lists_version_option() -> None:
 
 
 def test_commands_require_a_template() -> None:
-    for command in ("create", "render"):
-        result = runner.invoke(app, [command, "--help"])
+    result = runner.invoke(app, ["create", "--help"])
 
-        assert result.exit_code == 0
-        output = plain_output(result.stdout)
-        assert "--template" in output
-        assert "required" in output
+    assert result.exit_code == 0
+    output = plain_output(result.stdout)
+    assert "--template" in output
+    assert "required" in output
 
 
 def test_help_lists_phase_five_commands_and_options() -> None:
@@ -44,42 +43,26 @@ def test_help_lists_phase_five_commands_and_options() -> None:
     output = plain_output(result.stdout)
 
     assert result.exit_code == 0
-    assert "validate" in output
     assert "show" in output
+    assert "render" not in output
+    assert "validate" not in output
 
     create_help = plain_output(runner.invoke(app, ["create", "--help"]).stdout)
     assert "--from-json" in create_help
     assert "--draft" in create_help
     assert "--force" in create_help
-    assert "--force" in plain_output(runner.invoke(app, ["render", "--help"]).stdout)
 
 
-def test_validate_and_show_complete_character_fixture() -> None:
+def test_show_complete_character_fixture() -> None:
     fixture = Path(__file__).parent / "fixtures" / "character.json"
 
-    validated = runner.invoke(app, ["validate", str(fixture)])
     shown = runner.invoke(app, ["show", str(fixture)])
 
-    assert validated.exit_code == 0
-    assert "Valid character: Binary Smoke Test" in plain_output(validated.stdout)
     assert shown.exit_code == 0
     output = plain_output(shown.stdout)
     assert "Binary Smoke Test" in output
     assert "HP 9" in output
     assert "AC 14" in output
-
-
-def test_validate_reports_actionable_json_errors(tmp_path: Path) -> None:
-    invalid = tmp_path / "invalid.json"
-    invalid.write_text('{"name": "Incomplete"}\n', encoding="utf-8")
-
-    result = runner.invoke(app, ["validate", str(invalid)])
-
-    assert result.exit_code == 1
-    output = plain_output(result.stdout).replace("\n", "")
-    assert "invalid character JSON" in output
-    assert str(invalid) in output
-    assert "character_class: Field required" in output
 
 
 def test_missing_character_file_names_the_path(tmp_path: Path) -> None:

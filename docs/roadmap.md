@@ -21,8 +21,7 @@ Version: `0.2.0`
 The repository currently provides:
 
 - [x] Python 3.13 project managed with uv
-- [x] Typer CLI with interactive/non-interactive `create`, `render`, `validate`,
-  and `show` commands
+- [x] Typer CLI with interactive/non-interactive `create` and `show` commands
 - [x] Questionary interactive character-creation flow
 - [x] Contextual details for highlighted rule and equipment choices
 - [x] Rich terminal output
@@ -44,7 +43,7 @@ The repository currently provides:
 - [x] JSON save/reload, incomplete-session checkpoints, resume, and final review
 - [x] Wheel and source-distribution builds
 - [x] MIT license and complete package metadata
-- [x] Clean wheel installation and outside-repository `create`/`render` workflows
+- [x] Clean wheel installation and outside-repository `create` workflow
 - [x] Published v0.1.0 native executables and SHA-256 files for Linux x86-64,
   Windows x86-64, macOS Apple Silicon, and macOS Intel
 - [x] Ruff, Pyright strict mode, pytest, and repository-local Codex guidance
@@ -56,9 +55,9 @@ Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
 pytest: 140 passed
-CLI help smoke tests (`create`, `render`, `validate`, and `show`): passed
+CLI help smoke tests (`create` and `show`): passed
 uv wheel and sdist builds: passed
-Clean wheel create/render smoke tests: passed
+Clean wheel create smoke test: passed
 Cross-platform native binary builds and smoke tests: passed
 GitHub Release v0.1.0 with SHA-256 files: published
 ```
@@ -97,7 +96,7 @@ Goal: make the Python package installable and usable outside the repository.
 Status: complete and verified on 2026-07-13.
 
 - [x] Keep the official character sheet out of package distributions.
-- [x] Require an explicit `--template` path for `create` and `render`.
+- [x] Require an explicit `--template` path for `create`.
 - [x] Validate the template before starting character creation or rendering.
 - [x] Document the official download page and a changeable direct-download URL.
 - [x] Exclude `assets/SRD_CC_v5.2.1.pdf` and `assets/character-sheet.pdf` from
@@ -107,7 +106,7 @@ Status: complete and verified on 2026-07-13.
 - [x] Add package metadata: MIT license, authors, classifiers, URLs, and keywords.
 - [x] Add an SRD attribution and third-party notices document.
 - [x] Test wheel installation in a clean isolated environment.
-- [x] Test `create` and `render` from a directory outside the repository.
+- [x] Test `create` from a directory outside the repository.
 - [x] Document `uv tool` install, upgrade, and uninstall instructions.
 
 Exit criteria:
@@ -128,7 +127,7 @@ Status: complete and verified on 2026-07-13 with the published v0.1.0 release.
 - [x] Build and smoke-test a Linux x86-64 one-file executable that accepts the
   required external template.
 - [x] Verify output paths and template validation in frozen and normal modes.
-- [x] Add reusable binary smoke tests for `--help`, `--version`, and `render`.
+- [x] Add reusable binary smoke tests for `--help`, `--version`, and `create`.
 - [x] Add GitHub Actions quality checks on Linux, Windows, and macOS.
 - [x] Add native executable builds for:
   - [x] Linux x86-64
@@ -256,7 +255,7 @@ Goal: make current-schema character files reliable and the wizard pleasant to us
 - [x] Add a final review screen before writing files.
 - [x] Add back navigation or confirmation for destructive choice changes.
 - [x] Add non-interactive creation from a complete JSON input.
-- [x] Add `validate` and `show` commands.
+- [x] Add `show` command.
 - [x] Improve actionable error messages for missing or invalid templates and JSON.
 - [x] Avoid overwriting existing outputs without confirmation or `--force`.
 - [x] Show contextual SRD details while highlighting classes, backgrounds,
@@ -267,7 +266,7 @@ Status: complete and verified on 2026-07-13.
 Exit criteria:
 
 - Current-schema character files validate consistently, and users can review,
-  resume, validate, and safely render them.
+  resume, and create PDFs from them.
 
 ## Phase 6: Engineering and release practices
 

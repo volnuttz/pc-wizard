@@ -158,9 +158,12 @@ def test_starting_packages_create_structured_inventory_and_coins(character: Char
     assert ("Dagger", 2, "Weapon") in inventory
     assert ("Arcane Focus (Quarterstaff)", 1, "Weapon") in inventory
     assert ("Spellbook", 1, "Gear") in inventory
-    assert ("Parchment", 8, "Gear") in inventory
+    assert ("Parchment", 18, "Gear") in inventory
     assert character.coins.gold == 13
     assert character.equipment_summary.endswith("Coins: 13 GP")
+    assert not any(item.name.endswith("Pack") for item in character.inventory)
+    assert ("Backpack", 1, "Gear") in inventory
+    assert ("Oil", 10, "Gear") in inventory
 
 
 def test_starting_gold_options_preserve_coins_without_package_items(

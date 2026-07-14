@@ -26,7 +26,7 @@ def main() -> None:
 
     help_result = completed(arguments.binary, "--help")
     assert help_result.returncode == 0, help_result.stderr
-    assert "create" in help_result.stdout and "render" in help_result.stdout
+    assert "create" in help_result.stdout and "show" in help_result.stdout
 
     version_result = completed(arguments.binary, "--version")
     assert version_result.returncode == 0, version_result.stderr
@@ -38,7 +38,8 @@ def main() -> None:
         rejected_output = temporary_directory / "rejected.pdf"
         invalid_result = completed(
             arguments.binary,
-            "render",
+            "create",
+            "--from-json",
             str(arguments.character_json),
             "--template",
             str(missing_template),
@@ -52,12 +53,16 @@ def main() -> None:
         rendered_output = temporary_directory / "rendered.pdf"
         render_result = completed(
             arguments.binary,
-            "render",
+            "create",
+            "--from-json",
             str(arguments.character_json),
             "--template",
             str(arguments.template),
             "--output",
             str(rendered_output),
+            "--json",
+            str(temporary_directory / "character.json"),
+            "--force",
         )
         assert render_result.returncode == 0, render_result.stdout + render_result.stderr
         reader = PdfReader(rendered_output)

@@ -12,7 +12,7 @@ live under `assets/` and remain excluded from distributions.
 
 ## Install and run
 
-Download the official fillable character sheet before creating or rendering a
+Download the official fillable character sheet before creating a
 character:
 
 - [Official character-sheet downloads](https://www.dndbeyond.com/resources/1779-d-d-character-sheets)
@@ -31,8 +31,6 @@ The template must be supplied explicitly each time. Output paths can be changed:
 
 ```console
 uv run pc-wizard create --template assets/character-sheet.pdf --output my-hero.pdf --json my-hero.json
-uv run pc-wizard render my-hero.json --template assets/character-sheet.pdf --output another-copy.pdf
-uv run pc-wizard validate my-hero.json
 uv run pc-wizard show my-hero.json
 uv run pc-wizard create --template assets/character-sheet.pdf --from-json my-hero.json --force
 ```

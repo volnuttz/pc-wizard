@@ -142,42 +142,6 @@ def create(
 
 
 @app.command()
-def render(
-    character_file: Annotated[Path, typer.Argument(help="Character JSON created by pc-wizard.")],
-    template: Annotated[
-        Path, typer.Option("--template", help="Official fillable character-sheet PDF.")
-    ],
-    output: Annotated[Path, typer.Option("--output", "-o")] = Path("character-sheet-filled.pdf"),
-    force: Annotated[
-        bool, typer.Option("--force", help="Overwrite an existing output without confirmation.")
-    ] = False,
-) -> None:
-    """Render a saved character JSON into the PDF template."""
-    try:
-        validate_template(template)
-        confirm_overwrite([output], force)
-        character = load_character(character_file)
-        render_character_sheet(character, template, output)
-    except (OSError, ValueError, ValidationError) as error:
-        console.print(f"[red]Error:[/red] {error}")
-        raise typer.Exit(1) from error
-    console.print(f"[green]Created {output}[/green]")
-
-
-@app.command("validate")
-def validate_character(
-    character_file: Annotated[Path, typer.Argument(help="Complete current-schema character JSON.")],
-) -> None:
-    """Validate a complete character JSON file."""
-    try:
-        character = load_character(character_file)
-    except (OSError, ValueError) as error:
-        console.print(f"[red]Error:[/red] {error}")
-        raise typer.Exit(1) from error
-    console.print(f"[green]Valid character:[/green] {character.name} ({character_file})")
-
-
-@app.command()
 def show(
     character_file: Annotated[Path, typer.Argument(help="Complete current-schema character JSON.")],
 ) -> None:

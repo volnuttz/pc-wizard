@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 from pypdf import PdfReader, PdfWriter
 from pypdf.errors import PdfReadError
@@ -344,6 +345,26 @@ def _enable_text_autosizing(writer: PdfWriter) -> None:
                 annotation[NameObject("/DA")] = TextStringObject("/Helv 0 Tf 0 g")
 
 
+def _synchronize_button_widgets(writer: PdfWriter, values: dict[str, str]) -> None:
+    for page in writer.pages:
+        for annotation_reference in page.get("/Annots", ()):
+            annotation = annotation_reference.get_object()
+            parent_reference = annotation.get("/Parent")
+            parent = parent_reference.get_object() if parent_reference is not None else annotation
+            field_name = str(parent.get("/T") or annotation.get("/T") or "")
+            value = values.get(field_name)
+            if value is None or (annotation.get("/FT") != "/Btn" and parent.get("/FT") != "/Btn"):
+                continue
+            appearance = cast(dict[str, object], annotation.get("/AP") or {})
+            appearance_states = cast(dict[str, object], appearance.get("/N") or {})
+            on_state = next(
+                (str(state) for state in appearance_states if str(state) != "/Off"), "/Yes"
+            )
+            state = on_state if value != "/Off" else "/Off"
+            annotation[NameObject("/AS")] = NameObject(state)
+            parent[NameObject("/V")] = NameObject(state)
+
+
 def render_character_sheet(character: Character, template: Path, output: Path) -> None:
     validate_template(template)
     reader = PdfReader(template)
@@ -352,6 +373,7 @@ def render_character_sheet(character: Character, template: Path, output: Path) -
     values = field_values(character)
     for page in writer.pages:
         writer.update_page_form_field_values(page, values, auto_regenerate=False)
+    _synchronize_button_widgets(writer, values)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("wb") as stream:
         writer.write(stream)

@@ -393,6 +393,27 @@ def test_render_reads_back_skill_expertise_and_armor_indicators(tmp_path: Path) 
     assert fields["Check Box14"]["/V"] == "/Off"
 
 
+def test_render_synchronizes_skill_checkbox_widget_state(tmp_path: Path) -> None:
+    template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
+    output = tmp_path / "skill-checkboxes.pdf"
+
+    render_character_sheet(wizard_spellcaster(), template, output)
+
+    reader = PdfReader(output)
+    widget_states = {}
+    for annotation_reference in reader.pages[0].get("/Annots", ()):
+        annotation = annotation_reference.get_object()
+        parent_reference = annotation.get("/Parent")
+        parent = parent_reference.get_object() if parent_reference is not None else annotation
+        name = str(parent.get("/T") or annotation.get("/T") or "")
+        if name in {"Check Box16", "Check Box19", "Check Box20"}:
+            widget_states[name] = annotation.get("/AS")
+
+    assert widget_states["Check Box16"] == "/Yes"
+    assert widget_states["Check Box19"] == "/Yes"
+    assert widget_states["Check Box20"] == "/Yes"
+
+
 def test_render_reads_back_origin_feat_subchoices(tmp_path: Path) -> None:
     template = Path(__file__).parents[1] / "assets" / "character-sheet.pdf"
     output = tmp_path / "origin-feats.pdf"
