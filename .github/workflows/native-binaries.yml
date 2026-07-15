@@ -77,7 +77,7 @@ jobs:
       contents: write
     steps:
       - name: Download packaged executables
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           path: release-assets
           merge-multiple: true
