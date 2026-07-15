@@ -89,6 +89,10 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 - Native executables are unsigned, so Windows SmartScreen and macOS Gatekeeper may
   warn or block first launch.
+- CLI startup and character/PDF generation performance do not yet have a measured
+  baseline. The standalone executables remove the end-user Python dependency, but
+  they do not remove Python runtime startup or the size and extraction costs of the
+  frozen application.
 
 ## Phase 1: Reliable packaging and runtime assets
 
@@ -294,6 +298,124 @@ Exit criteria:
 - Pull requests receive automated quality feedback.
 - A version tag produces reviewed, reproducible release artifacts.
 
+## Phase 7: Rust migration foundation
+
+Goal: establish the compatibility contract, architecture, tooling, and performance
+targets required to migrate the application from Python 3.13 to Rust safely.
+
+Status: planned. Rust is the selected implementation language; the Python
+application remains the behavioral reference until cutover.
+
+### Baseline and acceptance targets
+
+- [ ] Define representative scenarios for `--help`, `--version`, `show`,
+  non-interactive `create`, interactive prompt transitions, template validation,
+  and PDF rendering.
+- [ ] Benchmark warm and cold execution for uv installs and one-file/one-directory
+  release artifacts on every supported operating system.
+- [ ] Record startup latency, scenario wall time, peak memory, executable/download
+  size, and one-file extraction overhead using reproducible fixtures.
+- [ ] Profile imports, Pydantic validation and derivation, wizard rendering, PDF
+  parsing, AcroForm updates, and file I/O separately.
+- [ ] Set explicit Rust acceptance targets for startup latency, scenario wall time,
+  peak memory, executable size, and release artifact size.
+- [ ] Preserve benchmark fixtures and scripts so Python and Rust results can be
+  compared throughout the migration.
+
+### Freeze the compatibility contract
+
+- [ ] Document and version the canonical character JSON schema, including optional
+  fields, defaults, enum values, validation errors, and compatibility expectations.
+- [ ] Capture the CLI contract for commands, arguments, options, exit codes,
+  overwrite behavior, cancellation, stdout/stderr, and user-visible errors.
+- [ ] Create golden fixtures for complete characters, drafts, invalid inputs,
+  derived values, supported PDF field values, and rendered-page output.
+- [ ] Add black-box contract tests that can run unchanged against both the Python
+  executable and the future Rust executable.
+- [ ] Inventory every rule table, validation rule, derived calculation, wizard
+  branch, PDF field mapping, fixture, and release platform that must be ported.
+
+### Prove the Rust architecture
+
+- [ ] Create a Rust workspace with separate crates or modules for SRD data, domain
+  models, character creation, PDF rendering, CLI presentation, and integration
+  tests.
+- [ ] Select and document libraries for argument parsing, interactive prompts,
+  Serde JSON handling, error reporting, terminal output, PDF manipulation, and
+  cross-platform packaging.
+- [ ] Assess Rust libraries for interactive prompts, JSON/Serde schema validation,
+  terminal output, AcroForm editing, checkbox appearance streams, font sizing, and
+  cross-platform packaging. Treat PDF output parity as the highest technical risk.
+- [ ] Build a Rust proof of concept that parses and validates complete character
+  JSON, calculates representative derived values, and fills text and checkbox
+  fields in the supported official PDF template.
+- [ ] Verify proof-of-concept PDF field read-back and rendered appearance on the
+  development fixture before committing to a PDF library.
+- [ ] Define Rust formatting, Clippy, test, coverage, dependency audit, license
+  review, and minimum-supported-Rust-version policies.
+- [ ] Record the chosen architecture, crate boundaries, dependency rationale,
+  compatibility strategy, staged cutover plan, and rollback criteria.
+
+Exit criteria:
+
+- Benchmarks make the slow paths reproducible on supported platforms.
+- JSON, CLI, rule, and PDF compatibility contracts are executable as shared tests.
+- The Rust architecture and PDF stack are validated by a working proof of concept.
+
+## Phase 8: Rust implementation, parity, and cutover
+
+Goal: replace the Python application with a native Rust CLI without changing the
+canonical character format, SRD behavior, supported PDF output, or release reach.
+
+Status: planned after the Phase 7 foundation is complete.
+
+### Compatibility foundation
+
+- [ ] Promote the Phase 7 prototype workspace into the production implementation
+  with formatting, linting, tests, dependency auditing, license review, and
+  reproducible cross-platform builds.
+- [ ] Preserve JSON as the canonical character record and define explicit schema
+  versioning/migration behavior for files from existing releases.
+- [ ] Run the shared black-box compatibility suite against Python and Rust in CI,
+  comparing accepted inputs, derived values, output JSON, exit codes, and
+  user-visible errors.
+
+### Vertical migration slices
+
+- [ ] Port SRD data and identifiers with provenance checks against the supplied SRD
+  rather than translating rules from memory or other sources.
+- [ ] Port validation and derived values class-by-class, keeping parity fixtures for
+  every class, background, species, feat, spell, and equipment route.
+- [ ] Port `show` and non-interactive `create` before the interactive wizard so the
+  model and renderer can be tested independently.
+- [ ] Port PDF template validation and rendering with field-level read-back and
+  rendered-page regression coverage matching the Python suite.
+- [ ] Port the interactive wizard, checkpoints, resume, review, back navigation,
+  contextual details, overwrite protection, and cancellation behavior.
+- [ ] Keep the Python implementation available as the behavioral oracle until each
+  vertical slice passes parity and performance checks.
+
+### Release and retirement
+
+- [ ] Run Python and Rust artifacts side by side in CI on Linux x86-64, Windows
+  x86-64, macOS Apple Silicon, and macOS Intel.
+- [ ] Publish a prerelease Rust artifact and collect real startup, PDF compatibility,
+  and migration feedback before changing the default download.
+- [ ] Verify that the Rust release meets Phase 7 targets and passes JSON, CLI, SRD,
+  PDF read-back, visual regression, and binary smoke tests on every platform.
+- [ ] Cut over only in a SemVer-appropriate release with release notes, rollback
+  artifacts, and clear compatibility guidance.
+- [ ] Remove Python build and release infrastructure only after at least one stable
+  Rust release is verified and the rollback window has closed.
+
+Exit criteria:
+
+- Existing current-schema character JSON files behave compatibly or receive an
+  explicit migration path.
+- Rust artifacts meet the agreed performance targets and reproduce all supported
+  level-1 behavior and readable PDF output on every release platform.
+- Users can upgrade or roll back without losing canonical character data.
+
 ## Suggested milestone order
 
 1. [x] Require a separately downloaded template and prove a clean wheel
@@ -303,6 +425,10 @@ Exit criteria:
 4. Complete level-1 choices and calculations in small vertical slices.
 5. Expand PDF coverage alongside each completed rule slice.
 6. Add validation, review, and resume support for the current character schema.
+7. Establish performance targets, freeze compatibility contracts, and prove the
+   Rust architecture and PDF stack.
+8. Migrate to Rust in compatibility-tested vertical slices and cut over only after
+   a stable prerelease.
 
 Prefer vertical slices after packaging. For example, complete Fighter choices,
 equipment, calculations, PDF fields, and tests together rather than adding every
