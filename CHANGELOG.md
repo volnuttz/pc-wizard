@@ -5,9 +5,23 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
-There are no user-facing behavior or output changes beyond the v0.2.0 release at
-this time. Unreleased engineering work adds broader validation coverage,
-automated dependency updates, and scheduled vulnerability auditing.
+## [0.2.1] - 2026-07-15
+
+This release contains no user-facing character-creation or PDF-output changes.
+
+### Added
+
+- Broader parameterized and property-based validation coverage for classes,
+  backgrounds, species, ability scores, and point-buy constraints.
+- Automated weekly dependency updates and scheduled vulnerability auditing.
+- Contributor guidance, a code of conduct, issue templates, and a pull-request
+  checklist.
+- CI coverage reporting with an enforced 85% line-coverage minimum.
+
+### Changed
+
+- Development distributions now include the contributor documentation while
+  continuing to exclude repository-only PDF assets.
 
 ## [0.2.0] - 2026-07-13
 
@@ -139,6 +153,7 @@ automated dependency updates, and scheduled vulnerability auditing.
   executables with SHA-256 files.
 - Cross-platform quality, native-binary, and tag-triggered GitHub Release jobs.
 
-[Unreleased]: https://github.com/volnuttz/pc-wizard/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/volnuttz/pc-wizard/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/volnuttz/pc-wizard/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/volnuttz/pc-wizard/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/volnuttz/pc-wizard/releases/tag/v0.1.0

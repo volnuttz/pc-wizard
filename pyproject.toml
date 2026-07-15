@@ -1,6 +1,6 @@
 [project]
 name = "pc-wizard"
-version = "0.2.0"
+version = "0.2.1"
 description = "An interactive D&D 5.5e character creation wizard"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
