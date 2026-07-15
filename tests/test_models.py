@@ -15,9 +15,12 @@ from pc_wizard.models import (
     MagicInitiateChoice,
 )
 from pc_wizard.rules import (
+    BACKGROUND_ORIGIN_FEATS,
+    BACKGROUNDS,
     CLASS_ALWAYS_PREPARED_SPELLS,
     CLASS_SPELL_LISTS,
     MAGIC_INITIATE_SPELL_LISTS,
+    SPECIES,
     SPELL_RULES,
 )
 
@@ -530,6 +533,74 @@ def test_validates_level_one_choices_for_every_class(
         if result.class_resources
         else None
     ) == expected_resource
+
+
+@pytest.mark.parametrize("background", sorted(BACKGROUNDS))
+def test_validates_character_for_every_background(character: Character, background: str) -> None:
+    values = character.model_dump()
+    values.update(background=background)
+    values["magic_initiate_choices"] = {
+        "Acolyte": [
+            MagicInitiateChoice(
+                spell_list="Cleric",
+                spellcasting_ability="wisdom",
+                cantrips=("Guidance", "Light"),
+                level_one_spell="Bless",
+            )
+        ],
+        "Criminal": [],
+        "Sage": character.magic_initiate_choices,
+        "Soldier": [],
+    }[background]
+
+    result = Character.model_validate(values)
+
+    assert BACKGROUND_ORIGIN_FEATS[background] in result.origin_feats
+    assert set(BACKGROUNDS[background].skills).issubset(result.skills)
+
+
+@pytest.mark.parametrize("species", sorted(SPECIES))
+def test_validates_character_for_every_species(character: Character, species: str) -> None:
+    values = character.model_dump()
+    values.update(species=species, size=SPECIES[species].sizes[0])
+    values.update(
+        dragonborn_ancestry=None,
+        elf_lineage=None,
+        elf_spellcasting_ability=None,
+        elf_keen_senses_skill=None,
+        gnome_lineage=None,
+        gnome_spellcasting_ability=None,
+        goliath_ancestry=None,
+        human_skill=None,
+        human_origin_feat=None,
+        tiefling_legacy=None,
+        tiefling_spellcasting_ability=None,
+    )
+    species_choices = {
+        "Dragonborn": {"dragonborn_ancestry": "Gold"},
+        "Elf": {
+            "elf_lineage": "High Elf",
+            "elf_spellcasting_ability": "intelligence",
+            "elf_keen_senses_skill": "Perception",
+        },
+        "Gnome": {
+            "gnome_lineage": "Forest Gnome",
+            "gnome_spellcasting_ability": "intelligence",
+        },
+        "Goliath": {"goliath_ancestry": "Stone Giant"},
+        "Human": {"human_skill": "Perception", "human_origin_feat": "Alert"},
+        "Tiefling": {
+            "tiefling_legacy": "Infernal",
+            "tiefling_spellcasting_ability": "charisma",
+        },
+    }.get(species, {})
+    values.update(species_choices)
+
+    result = Character.model_validate(values)
+
+    assert result.character_size in SPECIES[species].sizes
+    assert result.speed == SPECIES[species].speed
+    assert set(SPECIES[species].traits).issubset(result.species_traits)
 
 
 def test_class_choices_enforce_eligibility_and_derived_benefits(character: Character) -> None:

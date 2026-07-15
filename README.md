@@ -140,6 +140,9 @@ class-suggested and standard arrays, random generation, and 27-point point-buy.
 
 Release history is maintained in [`CHANGELOG.md`](CHANGELOG.md).
 
+Contributors should read [`CONTRIBUTING.md`](CONTRIBUTING.md) and the
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) before participating.
+
 SRD attribution, template copyright information, and current licensing limitations
 are recorded in
 [`THIRD_PARTY_NOTICES.md`](src/pc_wizard/THIRD_PARTY_NOTICES.md).

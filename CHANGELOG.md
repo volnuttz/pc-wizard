@@ -5,6 +5,10 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+There are no user-facing behavior or output changes beyond the v0.2.0 release at
+this time. Unreleased engineering work adds broader validation coverage,
+automated dependency updates, and scheduled vulnerability auditing.
+
 ## [0.2.0] - 2026-07-13
 
 ### Fixed

@@ -1,6 +1,6 @@
 # pc-wizard project roadmap
 
-Last reviewed: 2026-07-13
+Last reviewed: 2026-07-15
 
 This document records the current project state, known gaps, planned phases, and
 completion criteria. Update it when a task is completed, reprioritized, added, or
@@ -48,13 +48,14 @@ The repository currently provides:
   Windows x86-64, macOS Apple Silicon, and macOS Intel
 - [x] Ruff, Pyright strict mode, pytest, and repository-local Codex guidance
 
-Verified on 2026-07-13:
+Verified on 2026-07-15:
 
 ```text
 Ruff format: passed
 Ruff lint: passed
 Pyright strict: 0 errors
-pytest: 140 passed
+pytest: 157 passed
+Coverage: 89.02% line coverage (85% minimum)
 CLI help smoke tests (`create` and `show`): passed
 uv wheel and sdist builds: passed
 Clean wheel create smoke test: passed
@@ -274,19 +275,19 @@ Goal: make changes and releases repeatable, reviewable, and safe.
 
 - [~] Continuous integration runs Ruff, Pyright, pytest, and package builds on
   Linux, Windows, and macOS; automate the existing clean-install test procedure.
-- [ ] Add a test-coverage report and agree on a minimum threshold.
+- [x] Add a test-coverage report and agree on a minimum threshold (85% line
+  coverage, reported and enforced in the quality workflow).
 - [~] A reusable character JSON fixture supports model and binary smoke tests;
   extract broader fixtures as character coverage grows.
-- [ ] Add parameterized tests for every class, background, and species.
-- [ ] Add property-based tests for scores, modifiers, and point-buy constraints.
-- [ ] Add dependency update automation.
-- [ ] Add dependency vulnerability review or audit automation.
+- [x] Add parameterized tests for every class, background, and species.
+- [x] Add property-based tests for scores, modifiers, and point-buy constraints.
+- [x] Add dependency update automation for uv and GitHub Actions.
+- [x] Add dependency vulnerability review or audit automation with pip-audit.
 - [x] Add a changelog and release checklist.
 - [x] Adopt semantic versioning and tagged releases.
-- [ ] Add contributor and code-of-conduct documents if outside contributors are
-  expected.
-- [ ] Add issue and pull-request templates.
-- [ ] Add release notes describing user-visible behavior and output changes.
+- [x] Add contributor and code-of-conduct documents for outside contributors.
+- [x] Add issue and pull-request templates.
+- [x] Add release notes describing user-visible behavior and output changes.
 
 Exit criteria:
 
