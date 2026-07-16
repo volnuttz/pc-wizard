@@ -2,7 +2,6 @@
 
 use std::{collections::BTreeSet, fs, path::Path};
 
-use inquire::{MultiSelect, Select, Text};
 use pc_wizard_domain::{
     AbilityGenerationMethod, AbilityScoreGeneration, AbilityScores, BackgroundAbilityAdjustment,
     Character, ClassChoices, MagicInitiateChoice,
@@ -10,8 +9,13 @@ use pc_wizard_domain::{
 use rand::RngExt as _;
 use serde::{Deserialize, Serialize};
 
-type Result<T> = std::result::Result<T, String>;
-const BACK_COMMAND: &str = "back";
+mod error;
+mod prompts;
+
+pub use error::WizardError;
+use prompts::{choose, choose_set, choose_set_with_descriptions, optional_prompt, prompt};
+
+type Result<T> = std::result::Result<T, WizardError>;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
@@ -90,8 +94,8 @@ impl CharacterDraft {
         let path = path.as_ref();
         let source = fs::read_to_string(path)
             .map_err(|error| format!("unable to read draft {}: {error}", path.display()))?;
-        serde_json::from_str(&source)
-            .map_err(|error| format!("invalid draft {}: {error}", path.display()))
+        Ok(serde_json::from_str(&source)
+            .map_err(|error| format!("invalid draft {}: {error}", path.display()))?)
     }
 
     /// Save a current-format checkpoint atomically enough for an interrupted CLI session.
@@ -110,8 +114,8 @@ impl CharacterDraft {
         }
         let mut source = serde_json::to_string_pretty(self).map_err(|error| error.to_string())?;
         source.push('\n');
-        fs::write(path, source)
-            .map_err(|error| format!("unable to write draft {}: {error}", path.display()))
+        Ok(fs::write(path, source)
+            .map_err(|error| format!("unable to write draft {}: {error}", path.display()))?)
     }
 
     /// Convert a complete checkpoint into the canonical validated record.
@@ -170,7 +174,7 @@ impl CharacterDraft {
             xp: 0,
         };
         let json = character.to_json()?;
-        Character::from_json(&json)
+        Ok(Character::from_json(&json)?)
     }
 }
 
@@ -195,7 +199,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
                     draft.origin = Some(origin);
                     draft.save(draft_path)?;
                 }
-                Err(error) if error == BACK_COMMAND => {
+                Err(WizardError::Back) => {
                     println!("Origin is the first stage; there is nothing to go back to.");
                     continue;
                 }
@@ -213,7 +217,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
                     draft.abilities = Some(abilities);
                     draft.save(draft_path)?;
                 }
-                Err(error) if error == BACK_COMMAND => {
+                Err(WizardError::Back) => {
                     draft.origin = None;
                     draft.save(draft_path)?;
                     continue;
@@ -232,7 +236,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
                     draft.build = Some(build);
                     draft.save(draft_path)?;
                 }
-                Err(error) if error == BACK_COMMAND => {
+                Err(WizardError::Back) => {
                     draft.abilities = None;
                     draft.save(draft_path)?;
                     continue;
@@ -247,7 +251,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
                     draft.details = Some(details);
                     draft.save(draft_path)?;
                 }
-                Err(error) if error == BACK_COMMAND => {
+                Err(WizardError::Back) => {
                     draft.build = None;
                     draft.save(draft_path)?;
                     continue;
@@ -273,7 +277,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
             ],
         ) {
             Ok(action) => action,
-            Err(error) if error == BACK_COMMAND => {
+            Err(WizardError::Back) => {
                 draft.details = None;
                 draft.save(draft_path)?;
                 continue;
@@ -294,7 +298,7 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
             }
             "Edit build" => draft.build = None,
             "Edit details" => draft.details = None,
-            _ => return Err("creation saved for later review".to_owned()),
+            _ => return Err(WizardError::SaveAndExit),
         }
         draft.save(draft_path)?;
     }
@@ -646,7 +650,9 @@ fn apply_background_increases(scores: &AbilityScores, background: &str) -> Resul
         methods.push("+1 to all three");
     }
     if methods.is_empty() {
-        return Err("no legal background ability increases remain".to_owned());
+        return Err(WizardError::Message(
+            "no legal background ability increases remain".to_owned(),
+        ));
     }
     let method = choose("Apply background ability increases", &methods)?;
     let increases = if method.starts_with("+2") {
@@ -671,6 +677,7 @@ fn apply_background_increases(scores: &AbilityScores, background: &str) -> Resul
         increases,
     }
     .adjusted_scores()
+    .map_err(Into::into)
 }
 
 fn title(value: &str) -> String {
@@ -681,7 +688,7 @@ fn title(value: &str) -> String {
     value
 }
 
-fn choice_description(choice: &str) -> Option<String> {
+pub(crate) fn choice_description(choice: &str) -> Option<String> {
     if let Some(rule) = pc_wizard_srd_data::class_rule(choice) {
         return Some(format!(
             "d{} Hit Die; saves {}; choose {} skills; armor {}; weapons {}; features {}",
@@ -993,85 +1000,6 @@ fn collect_details() -> Result<DetailsDraft> {
     })
 }
 
-fn prompt(label: &str) -> Result<String> {
-    Text::new(label)
-        .with_help_message("Press Esc to return to the previous step.")
-        .prompt()
-        .map_err(|_| BACK_COMMAND.to_owned())
-}
-
-fn optional_prompt(label: &str) -> Result<Option<String>> {
-    Text::new(&format!("{label} (optional)"))
-        .with_help_message("Leave blank to skip; press Esc to return to the previous step.")
-        .prompt()
-        .map(|value| (!value.is_empty()).then_some(value))
-        .map_err(|_| BACK_COMMAND.to_owned())
-}
-
-fn choose(label: &str, choices: &[&str]) -> Result<String> {
-    Select::new(label, prompt_options(choices, true))
-        .with_help_message("Type to filter; Enter selects; Esc goes back.")
-        .prompt()
-        .map(|choice| choice.value)
-        .map_err(|_| BACK_COMMAND.to_owned())
-}
-
-fn choose_set(label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<String>> {
-    choose_set_with_descriptions(label, choices, count, true)
-}
-
-fn choose_set_with_descriptions(
-    label: &str,
-    choices: &[&str],
-    count: usize,
-    descriptions: bool,
-) -> Result<BTreeSet<String>> {
-    loop {
-        let selected = MultiSelect::new(label, prompt_options(choices, descriptions))
-            .with_help_message(&format!(
-                "Type to filter; Space toggles; Enter confirms exactly {count}; Esc goes back."
-            ))
-            .prompt()
-            .map_err(|_| BACK_COMMAND.to_owned())?;
-        if selected.len() == count {
-            return Ok(selected.into_iter().map(|choice| choice.value).collect());
-        }
-        println!(
-            "Select exactly {count} option(s); you selected {}.",
-            selected.len()
-        );
-    }
-}
-
-#[derive(Clone)]
-struct PromptOption {
-    value: String,
-    label: String,
-}
-
-impl std::fmt::Display for PromptOption {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.label.fmt(formatter)
-    }
-}
-
-fn prompt_options(choices: &[&str], descriptions: bool) -> Vec<PromptOption> {
-    choices
-        .iter()
-        .map(|choice| PromptOption {
-            value: (*choice).to_owned(),
-            label: if descriptions {
-                choice_description(choice).map_or_else(
-                    || (*choice).to_owned(),
-                    |description| format!("{choice} — {description}"),
-                )
-            } else {
-                (*choice).to_owned()
-            },
-        })
-        .collect()
-}
-
 fn choose_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
     let values = choose_set(label, choices, 2)?
         .into_iter()
@@ -1088,7 +1016,7 @@ fn choose_plain_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
 
 #[cfg(test)]
 mod tests {
-    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, prompt_options};
+    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft};
     use pc_wizard_domain::Character;
 
     #[test]
@@ -1115,16 +1043,6 @@ mod tests {
         .expect("draft is valid");
         assert_eq!(draft.origin.expect("origin").name, "Checkpoint");
         assert!(draft.abilities.is_none());
-    }
-
-    #[test]
-    fn prompt_options_preserve_values_and_optional_descriptions() {
-        let plain = prompt_options(&["Halfling"], false);
-        let described = prompt_options(&["Halfling"], true);
-
-        assert_eq!(plain[0].value, "Halfling");
-        assert_eq!(plain[0].label, "Halfling");
-        assert!(described[0].label.contains("Naturally Stealthy"));
     }
 
     #[test]

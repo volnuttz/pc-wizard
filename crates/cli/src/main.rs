@@ -1,7 +1,6 @@
 //! Native pc-wizard command-line entry point.
 
 use std::{
-    collections::BTreeMap,
     env, fs,
     io::{self, Write as _},
     path::{Path, PathBuf},
@@ -41,35 +40,9 @@ struct CreateArgs {
     force: bool,
 }
 
-const HELP: &str = "Create D&D characters using SRD 5.2.1.
-
-Usage: pc-wizard [OPTIONS] <COMMAND>
-
-Commands:
-  create  Create a character interactively or from complete JSON
-  validate  Validate a canonical character JSON file
-  show    Show selected and derived character values
-  help    Print this message or the help of a command
-
-Options:
-      --version  Show the version and exit
-  -h, --help     Print help
-";
-
 fn main() -> ExitCode {
-    let arguments = match Cli::try_parse_from(env::args_os()) {
-        Ok(Cli {
-            command: Command::Create(options),
-        }) => create_arguments(options),
-        Ok(Cli {
-            command: Command::Validate { character_json },
-        }) => vec!["validate".to_owned(), character_json.display().to_string()],
-        Ok(Cli {
-            command: Command::Show { character_json },
-        }) => vec!["show".to_owned(), character_json.display().to_string()],
-        Err(error) => error.exit(),
-    };
-    match run(&arguments) {
+    let cli = Cli::parse_from(env::args_os());
+    match run(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err((code, message)) => {
             println!("Error: {message}");
@@ -78,72 +51,24 @@ fn main() -> ExitCode {
     }
 }
 
-fn create_arguments(options: CreateArgs) -> Vec<String> {
-    let mut arguments = vec![
-        "create".to_owned(),
-        "--template".to_owned(),
-        options.template.display().to_string(),
-        "--json".to_owned(),
-        options.json.display().to_string(),
-        "--output".to_owned(),
-        options.output.display().to_string(),
-        "--draft".to_owned(),
-        options.draft.display().to_string(),
-    ];
-    if let Some(source) = options.from_json {
-        arguments.extend(["--from-json".to_owned(), source.display().to_string()]);
-    }
-    if options.force {
-        arguments.push("--force".to_owned());
-    }
-    arguments
-}
-
 type CliResult = Result<(), (u8, String)>;
 
-fn run(arguments: &[String]) -> CliResult {
-    match arguments.first().map(String::as_str) {
-        None | Some("--help" | "-h" | "help") => {
-            print!("{HELP}");
-            Ok(())
-        }
-        Some("--version") => {
-            println!("pc-wizard {}", env!("CARGO_PKG_VERSION"));
-            Ok(())
-        }
-        Some("validate") => validate(&arguments[1..]),
-        Some("show") => show(&arguments[1..]),
-        Some("create") => create(&arguments[1..]),
-        Some(command) => Err((2, format!("unknown command: {command}\n\n{HELP}"))),
+fn run(cli: Cli) -> CliResult {
+    match cli.command {
+        Command::Create(options) => create(options),
+        Command::Validate { character_json } => validate(&character_json),
+        Command::Show { character_json } => show(&character_json),
     }
 }
 
-fn validate(arguments: &[String]) -> CliResult {
-    if arguments == ["--help"] || arguments == ["-h"] {
-        println!(
-            "Validate a canonical character JSON file.\n\nUsage: pc-wizard validate CHARACTER_JSON"
-        );
-        return Ok(());
-    }
-    let [path] = arguments else {
-        return Err((2, "Usage: pc-wizard validate CHARACTER_JSON".to_owned()));
-    };
-    let character = load_character(Path::new(path))?;
+fn validate(path: &Path) -> CliResult {
+    let character = load_character(path)?;
     println!("{} is valid.", character.name);
     Ok(())
 }
 
-fn show(arguments: &[String]) -> CliResult {
-    if arguments == ["--help"] || arguments == ["-h"] {
-        println!(
-            "Show selected and derived character values.\n\nUsage: pc-wizard show CHARACTER_JSON"
-        );
-        return Ok(());
-    }
-    let [path] = arguments else {
-        return Err((2, "Usage: pc-wizard show CHARACTER_JSON".to_owned()));
-    };
-    let character = load_character(Path::new(path))?;
+fn show(path: &Path) -> CliResult {
+    let character = load_character(path)?;
     println!("{}", character.name);
     println!(
         "Identity      Level {} {} {}",
@@ -169,38 +94,17 @@ fn show(arguments: &[String]) -> CliResult {
     Ok(())
 }
 
-fn create(arguments: &[String]) -> CliResult {
-    if arguments == ["--help"] || arguments == ["-h"] {
-        println!(
-            "Create a character interactively or from complete JSON.\n\nUsage: pc-wizard create --template TEMPLATE [--from-json INPUT] [--json JSON] [--output PDF] [--draft DRAFT] [--force]"
-        );
-        return Ok(());
-    }
-    let (options, force) = parse_options(arguments)?;
-    let template = required_option(&options, "--template")?;
-    pc_wizard_pdf_renderer::validate_template(template).map_err(|error| (1, error))?;
-
-    let json_output = PathBuf::from(
-        options
-            .get("--json")
-            .map_or("character.json", String::as_str),
-    );
-    let pdf_output = PathBuf::from(
-        options
-            .get("--output")
-            .map_or("character-sheet-filled.pdf", String::as_str),
-    );
-    confirm_overwrite(&[&json_output, &pdf_output], force)?;
+fn create(options: CreateArgs) -> CliResult {
+    pc_wizard_pdf_renderer::validate_template(&options.template).map_err(|error| (1, error))?;
+    let json_output = options.json;
+    let pdf_output = options.output;
+    confirm_overwrite(&[&json_output, &pdf_output], options.force)?;
 
     let mut completed_draft = None;
-    let character = if let Some(source) = options.get("--from-json") {
-        load_character(Path::new(source))?
+    let character = if let Some(source) = options.from_json {
+        load_character(&source)?
     } else {
-        let draft = PathBuf::from(
-            options
-                .get("--draft")
-                .map_or("character-draft.json", String::as_str),
-        );
+        let draft = options.draft;
         println!(
             "Progress is checkpointed in {}; Ctrl-C keeps the latest completed stage.",
             draft.display()
@@ -210,11 +114,11 @@ fn create(arguments: &[String]) -> CliResult {
                 completed_draft = Some(draft);
                 character
             }
-            Err(error) if error == "creation saved for later review" => {
+            Err(pc_wizard_creation::WizardError::SaveAndExit) => {
                 println!("Creation saved in {}.", draft.display());
                 return Ok(());
             }
-            Err(error) => return Err((1, error)),
+            Err(error) => return Err((1, error.to_string())),
         }
     };
     create_parent(&json_output)?;
@@ -229,7 +133,8 @@ fn create(arguments: &[String]) -> CliResult {
             format!("unable to write {}: {error}", json_output.display()),
         )
     })?;
-    if let Err(error) = pc_wizard_pdf_renderer::render_character(&character, template, &pdf_output)
+    if let Err(error) =
+        pc_wizard_pdf_renderer::render_character(&character, &options.template, &pdf_output)
     {
         let _ = fs::remove_file(&json_output);
         return Err((1, error));
@@ -241,41 +146,6 @@ fn create(arguments: &[String]) -> CliResult {
         let _ = fs::remove_file(draft);
     }
     Ok(())
-}
-
-fn parse_options(arguments: &[String]) -> Result<(BTreeMap<String, String>, bool), (u8, String)> {
-    let mut options = BTreeMap::new();
-    let mut force = false;
-    let mut index = 0;
-    while index < arguments.len() {
-        let option = arguments[index].as_str();
-        if option == "--force" {
-            force = true;
-            index += 1;
-            continue;
-        }
-        let canonical = match option {
-            "-o" => "--output",
-            "--template" | "--output" | "--json" | "--from-json" | "--draft" => option,
-            _ => return Err((2, format!("unknown option: {option}"))),
-        };
-        let value = arguments
-            .get(index + 1)
-            .ok_or_else(|| (2, format!("missing value for {option}")))?;
-        options.insert(canonical.to_owned(), value.clone());
-        index += 2;
-    }
-    Ok((options, force))
-}
-
-fn required_option<'a>(
-    options: &'a BTreeMap<String, String>,
-    name: &str,
-) -> Result<&'a Path, (u8, String)> {
-    options
-        .get(name)
-        .map(Path::new)
-        .ok_or_else(|| (2, format!("missing required option {name}")))
 }
 
 fn load_character(path: &Path) -> Result<Character, (u8, String)> {
@@ -345,11 +215,13 @@ fn languages(character: &Character) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::run;
+    use clap::Parser as _;
+
+    use super::Cli;
 
     #[test]
-    fn help_and_version_succeed() {
-        assert_eq!(run(&["--help".to_owned()]), Ok(()));
-        assert_eq!(run(&["--version".to_owned()]), Ok(()));
+    fn clap_accepts_the_version_flag() {
+        let result = Cli::try_parse_from(["pc-wizard", "--version"]);
+        assert!(result.is_err());
     }
 }
