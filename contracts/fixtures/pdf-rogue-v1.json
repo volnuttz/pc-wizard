@@ -1,0 +1,21 @@
+{
+  "fixture": "complete-rogue-v1.json",
+  "field_count": 375,
+  "projection_sha256": "ee68fe66c412a582f9b70f690bde04d9f87446bb5247a73c0c1903d6ad1fad25",
+  "required_values": {
+    "Text1": "Binary Smoke Test",
+    "Text7": "Rogue",
+    "Text13": "14",
+    "Text14": "9",
+    "Text26": "+5",
+    "Text30": "Dagger",
+    "Text35": "+5",
+    "Text54": "Expertise\nSneak Attack\nThieves' Cant\nWeapon Mastery\nWeapon Mastery: Dagger (Nick), Shortsword (Vex)\nExpertise: Sleight of Hand, Stealth\nThieves' Cant: additional language (Draconic)",
+    "Text57": "Otherworldly Presence\nFiendish Legacy: Infernal\nDarkvision: 60 ft.\nDamage Resistance: Fire\nFiendish Legacy (Infernal): Charisma (mod -1, save DC 9, attack +1); grants no spell slots\nCantrips: Fire Bolt, Thaumaturgy",
+    "Text99": "Leather Armor\n4 x Dagger\nShortsword\nShortbow\n20 x Arrow\nQuiver\n2 x Thieves' Tools\nBurglar's Pack\nCrowbar\n2 x Pouch\nTraveler's Clothes",
+    "Check Box19": "/Yes",
+    "Check Box33": "/Yes",
+    "Check Box35": "/Yes",
+    "Check Box36": "/Yes"
+  }
+}

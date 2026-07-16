@@ -1,0 +1,24 @@
+[workspace]
+members = [
+  "crates/srd-data",
+  "crates/domain",
+  "crates/creation",
+  "crates/pdf-renderer",
+  "crates/cli",
+  "crates/integration-tests",
+]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/volnuttz/pc-wizard"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+

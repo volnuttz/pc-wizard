@@ -10,3 +10,5 @@ build/
 /character.json
 /character-draft.json
 *.pdf
+/benchmark-results/
+/target/

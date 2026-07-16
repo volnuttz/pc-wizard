@@ -1,6 +1,6 @@
 # pc-wizard project roadmap
 
-Last reviewed: 2026-07-15
+Last reviewed: 2026-07-16
 
 This document records the current project state, known gaps, planned phases, and
 completion criteria. Update it when a task is completed, reprioritized, added, or
@@ -303,12 +303,12 @@ Exit criteria:
 Goal: establish the compatibility contract, architecture, tooling, and performance
 targets required to migrate the application from Python 3.13 to Rust safely.
 
-Status: planned. Rust is the selected implementation language; the Python
+Status: in progress. Rust is the selected implementation language; the Python
 application remains the behavioral reference until cutover.
 
 ### Baseline and acceptance targets
 
-- [ ] Define representative scenarios for `--help`, `--version`, `show`,
+- [x] Define representative scenarios for `--help`, `--version`, `show`,
   non-interactive `create`, interactive prompt transitions, template validation,
   and PDF rendering.
 - [ ] Benchmark warm and cold execution for uv installs and one-file/one-directory
@@ -319,25 +319,25 @@ application remains the behavioral reference until cutover.
   parsing, AcroForm updates, and file I/O separately.
 - [ ] Set explicit Rust acceptance targets for startup latency, scenario wall time,
   peak memory, executable size, and release artifact size.
-- [ ] Preserve benchmark fixtures and scripts so Python and Rust results can be
+- [x] Preserve benchmark fixtures and scripts so Python and Rust results can be
   compared throughout the migration.
 
 ### Freeze the compatibility contract
 
-- [ ] Document and version the canonical character JSON schema, including optional
+- [x] Document and version the canonical character JSON schema, including optional
   fields, defaults, enum values, validation errors, and compatibility expectations.
-- [ ] Capture the CLI contract for commands, arguments, options, exit codes,
+- [x] Capture the CLI contract for commands, arguments, options, exit codes,
   overwrite behavior, cancellation, stdout/stderr, and user-visible errors.
-- [ ] Create golden fixtures for complete characters, drafts, invalid inputs,
+- [x] Create golden fixtures for complete characters, drafts, invalid inputs,
   derived values, supported PDF field values, and rendered-page output.
-- [ ] Add black-box contract tests that can run unchanged against both the Python
+- [x] Add black-box contract tests that can run unchanged against both the Python
   executable and the future Rust executable.
 - [ ] Inventory every rule table, validation rule, derived calculation, wizard
   branch, PDF field mapping, fixture, and release platform that must be ported.
 
 ### Prove the Rust architecture
 
-- [ ] Create a Rust workspace with separate crates or modules for SRD data, domain
+- [x] Create a Rust workspace with separate crates or modules for SRD data, domain
   models, character creation, PDF rendering, CLI presentation, and integration
   tests.
 - [ ] Select and document libraries for argument parsing, interactive prompts,
@@ -351,9 +351,9 @@ application remains the behavioral reference until cutover.
   fields in the supported official PDF template.
 - [ ] Verify proof-of-concept PDF field read-back and rendered appearance on the
   development fixture before committing to a PDF library.
-- [ ] Define Rust formatting, Clippy, test, coverage, dependency audit, license
+- [x] Define Rust formatting, Clippy, test, coverage, dependency audit, license
   review, and minimum-supported-Rust-version policies.
-- [ ] Record the chosen architecture, crate boundaries, dependency rationale,
+- [x] Record the architecture, crate boundaries, dependency rationale,
   compatibility strategy, staged cutover plan, and rollback criteria.
 
 Exit criteria:

@@ -1,0 +1,26 @@
+{
+  "origin": {
+    "name": "Checkpoint",
+    "character_class": "Rogue",
+    "background": "Criminal",
+    "species": "Tiefling",
+    "size": "Medium",
+    "dragonborn_ancestry": null,
+    "elf_lineage": null,
+    "elf_spellcasting_ability": null,
+    "elf_keen_senses_skill": null,
+    "gnome_lineage": null,
+    "gnome_spellcasting_ability": null,
+    "goliath_ancestry": null,
+    "human_skill": null,
+    "human_origin_feat": null,
+    "tiefling_legacy": "Infernal",
+    "tiefling_spellcasting_ability": "charisma",
+    "magic_initiate_choices": [],
+    "skilled_proficiencies": [],
+    "selected_languages": ["Elvish", "Halfling"]
+  },
+  "abilities": null,
+  "build": null,
+  "details": null
+}
