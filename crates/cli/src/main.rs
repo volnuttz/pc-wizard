@@ -11,7 +11,7 @@ use clap::{Args, Parser, Subcommand};
 use pc_wizard_domain::Character;
 
 #[derive(Parser)]
-#[command(about = "Create D&D characters using SRD 5.2.1.")]
+#[command(about = "Create D&D characters using SRD 5.2.1.", version)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -221,7 +221,11 @@ mod tests {
 
     #[test]
     fn clap_accepts_the_version_flag() {
-        let result = Cli::try_parse_from(["pc-wizard", "--version"]);
-        assert!(result.is_err());
+        let error = match Cli::try_parse_from(["pc-wizard", "--version"]) {
+            Ok(_) => panic!("--version should display the package version"),
+            Err(error) => error,
+        };
+        assert_eq!(error.kind(), clap::error::ErrorKind::DisplayVersion);
+        assert!(error.to_string().contains(env!("CARGO_PKG_VERSION")));
     }
 }
