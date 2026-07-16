@@ -5,19 +5,32 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-16
+
 ### Added
 
 - `create` now resolves the official character sheet from `--template`, the
   current directory, or a validated user-cache copy, and visibly downloads,
   validates, and caches it when no supported copy exists.
+- Scripted end-to-end wizard scenarios now cover complete creation and backward
+  stage navigation in addition to prompt-port injection.
 
 ### Fixed
 
 - Standard-language prompts no longer attach species descriptions to the
   `Halfling` and `Orc` language names.
+- Exact-count selections now state the required number directly for skills,
+  spells, cantrips, masteries, tools, and languages.
+- Wizard navigation now consistently uses Escape for Back and no longer
+  advertises an unsupported typed `back` command.
 
 ### Changed
 
+- Equipment package contents now appear directly in selectable rows, and the
+  final review uses a structured character summary instead of raw JSON.
+- Domain validation and derived calculations, SRD catalogs, PDF rendering, and
+  creation workflow code were split into focused modules without changing the
+  canonical character schema.
 - Retired the legacy Python implementation, Python packaging and test
   configuration, migration-only contracts, and stored benchmark artifacts after
   the verified `v0.3.0` native release.
@@ -202,7 +215,8 @@ This release contains no user-facing character-creation or PDF-output changes.
   executables with SHA-256 files.
 - Cross-platform quality, native-binary, and tag-triggered GitHub Release jobs.
 
-[Unreleased]: https://github.com/volnuttz/pc-wizard/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/volnuttz/pc-wizard/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/volnuttz/pc-wizard/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/volnuttz/pc-wizard/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/volnuttz/pc-wizard/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/volnuttz/pc-wizard/compare/v0.1.0...v0.2.0

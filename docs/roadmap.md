@@ -16,7 +16,7 @@ implementation disagree.
 
 ## Current baseline
 
-Version: `0.3.0`
+Version: `0.4.0`
 
 The production repository now provides:
 
@@ -28,8 +28,8 @@ The production repository now provides:
 - [x] Contextual details for highlighted rule and equipment choices
 - [x] Serde character and creation-workflow validation with canonical JSON
   serialization
-- [x] lopdf AcroForm rendering into the separately downloaded official two-page
-  character sheet
+- [x] lopdf AcroForm rendering into the external official two-page character
+  sheet, with validated explicit, local, cached, and download resolution
 - [x] All 12 SRD classes represented at a basic level
 - [x] All 4 SRD backgrounds represented
 - [x] All 9 SRD species represented at a basic level
@@ -45,7 +45,7 @@ The production repository now provides:
 - [x] Optimized native executable builds and platform archives
 - [x] MIT license and complete package metadata
 - [x] Standalone native operation without Python, uv, or extraction overhead
-- [x] Published v0.1.0 standalone executables and SHA-256 files for Linux x86-64,
+- [x] Published v0.3.0 standalone executables and SHA-256 files for Linux x86-64,
   Windows x86-64, macOS Apple Silicon, and macOS Intel
 - [x] rustfmt, Clippy, Cargo tests/audit/deny, coverage, and repository guidance
 

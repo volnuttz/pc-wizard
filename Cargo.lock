@@ -629,7 +629,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-cli"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "clap",
  "pc-wizard-creation",
@@ -640,7 +640,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-creation"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "inquire",
  "pc-wizard-domain",
@@ -652,7 +652,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-domain"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "pc-wizard-srd-data",
  "serde",
@@ -661,7 +661,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-integration-tests"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "lopdf",
  "pc-wizard-domain",
@@ -672,7 +672,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-pdf-renderer"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "lopdf",
  "pc-wizard-domain",
@@ -681,7 +681,7 @@ dependencies = [
 
 [[package]]
 name = "pc-wizard-srd-data"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "serde",
  "serde_json",
