@@ -17,8 +17,8 @@ fn executable() -> &'static str {
 }
 
 #[test]
-fn validates_and_shows_the_shared_character() {
-    let fixture = repository_root().join("contracts/fixtures/complete-rogue-v1.json");
+fn validates_and_shows_the_smoke_character() {
+    let fixture = repository_root().join("fixtures/complete-character.json");
     for (command, expected) in [("validate", "is valid"), ("show", "HP 9 · AC 14")] {
         let output = Command::new(executable())
             .arg(command)

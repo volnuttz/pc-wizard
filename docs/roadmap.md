@@ -57,7 +57,7 @@ Final Python 0.2.1 oracle gate: 163 passed before production cutover
 Native interactive and non-interactive CLI smoke tests: passed
 Optimized Linux x86-64 build and create smoke: passed
 cargo audit and cargo deny: passed with one documented transitive advisory allowance
-Native four-platform quality/build/package/benchmark workflows: configured
+Native four-platform quality/build/package workflows: configured
 ```
 
 ## Known limitations
@@ -314,8 +314,8 @@ local cutover gate were verified on 2026-07-16.
   scenarios so startup and PDF/file-I/O costs are distinguishable.
 - [x] Set explicit Rust acceptance targets for latency, peak memory, executable
   size, release archive size, and extraction overhead.
-- [x] Preserve benchmark fixtures and scripts so Python and Rust results can be
-  compared throughout the migration.
+- [x] Preserve benchmark fixtures and scripts through migration, then record the
+  accepted results in `docs/rust-migration.md` before retiring generated artifacts.
 
 ### Freeze the compatibility contract
 
@@ -354,7 +354,8 @@ local cutover gate were verified on 2026-07-16.
 Exit criteria:
 
 - Benchmarks make the slow paths reproducible on supported platforms.
-- JSON, CLI, rule, and PDF compatibility contracts are executable as shared tests.
+- JSON, CLI, rule, and PDF compatibility contracts were executable throughout
+  migration; their verified results are recorded in `docs/rust-migration.md`.
 - The Rust architecture and PDF stack are validated by a working proof of concept.
 
 ## Phase 8: Rust implementation, parity, and cutover
@@ -403,9 +404,9 @@ Status: complete and verified for the `0.3.0` native release on 2026-07-16.
   PDF read-back, visual regression, and binary smoke tests on every platform.
 - [x] Cut over only in a SemVer-appropriate release with release notes, rollback
   artifacts, and clear compatibility guidance.
-- [x] Remove Python build and release infrastructure after the final parity gate;
-  retain the frozen Python oracle sources and `v0.2.1` release during the rollback
-  window.
+- [x] Remove Python build and release infrastructure after the final parity gate,
+  then retire the legacy sources and migration-only artifacts after verifying
+  `v0.3.0`; retain the immutable `v0.2.1` release for rollback.
 
 Exit criteria:
 
@@ -427,7 +428,7 @@ Exit criteria:
 7. [x] Establish performance targets, freeze compatibility contracts, and prove the
    Rust architecture and PDF stack.
 8. [x] Migrate production to Rust in compatibility-tested vertical slices; retain
-   the frozen rollback oracle through the first stable native release.
+   the rollback oracle through the first stable native release, then retire it.
 
 Prefer vertical slices after packaging. For example, complete Fighter choices,
 equipment, calculations, PDF fields, and tests together rather than adding every

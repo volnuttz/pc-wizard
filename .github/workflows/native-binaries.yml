@@ -58,9 +58,9 @@ jobs:
         run: |
           "${{ matrix.binary }}" --help
           "${{ matrix.binary }}" --version
-          "${{ matrix.binary }}" validate contracts/fixtures/complete-rogue-v1.json
-          "${{ matrix.binary }}" show contracts/fixtures/complete-rogue-v1.json
-          "${{ matrix.binary }}" create --template assets/character-sheet.pdf --from-json contracts/fixtures/complete-rogue-v1.json --json "${RUNNER_TEMP}/character.json" --output "${RUNNER_TEMP}/character.pdf" --force
+          "${{ matrix.binary }}" validate fixtures/complete-character.json
+          "${{ matrix.binary }}" show fixtures/complete-character.json
+          "${{ matrix.binary }}" create --template assets/character-sheet.pdf --from-json fixtures/complete-character.json --json "${RUNNER_TEMP}/character.json" --output "${RUNNER_TEMP}/character.pdf" --force
           test -s "${RUNNER_TEMP}/character.json"
           test -s "${RUNNER_TEMP}/character.pdf"
       - name: Smoke-test executable (Windows)
@@ -69,9 +69,9 @@ jobs:
         run: |
           & "${{ matrix.binary }}" --help
           & "${{ matrix.binary }}" --version
-          & "${{ matrix.binary }}" validate contracts/fixtures/complete-rogue-v1.json
-          & "${{ matrix.binary }}" show contracts/fixtures/complete-rogue-v1.json
-          & "${{ matrix.binary }}" create --template assets/character-sheet.pdf --from-json contracts/fixtures/complete-rogue-v1.json --json "$env:RUNNER_TEMP/character.json" --output "$env:RUNNER_TEMP/character.pdf" --force
+          & "${{ matrix.binary }}" validate fixtures/complete-character.json
+          & "${{ matrix.binary }}" show fixtures/complete-character.json
+          & "${{ matrix.binary }}" create --template assets/character-sheet.pdf --from-json fixtures/complete-character.json --json "$env:RUNNER_TEMP/character.json" --output "$env:RUNNER_TEMP/character.pdf" --force
           if (-not (Test-Path "$env:RUNNER_TEMP/character.json" -PathType Leaf)) { throw "JSON output missing" }
           if (-not (Test-Path "$env:RUNNER_TEMP/character.pdf" -PathType Leaf)) { throw "PDF output missing" }
       - name: Package executable and checksum (Unix)
@@ -93,25 +93,11 @@ jobs:
           Compress-Archive -Path "${{ matrix.binary }}" -DestinationPath "dist/packages/${{ matrix.archive }}"
           $hash = (Get-FileHash "dist/packages/${{ matrix.archive }}" -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  ${{ matrix.archive }}" | Set-Content "dist/packages/${{ matrix.archive }}.sha256" -Encoding ascii
-      - name: Benchmark native executable
-        shell: pwsh
-        run: >-
-          ./scripts/benchmark_cli.ps1
-          -Executable "${{ matrix.binary }}"
-          -Fixture contracts/fixtures/complete-rogue-v1.json
-          -Template assets/character-sheet.pdf
-          -Output "dist/benchmarks/${{ matrix.artifact }}.json"
       - name: Upload packaged executable
         uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.artifact }}
           path: dist/packages/${{ matrix.artifact }}*
-          if-no-files-found: error
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-${{ matrix.artifact }}
-          path: dist/benchmarks/${{ matrix.artifact }}.json
           if-no-files-found: error
 
   release:

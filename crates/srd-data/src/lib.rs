@@ -1,7 +1,6 @@
 //! SRD 5.2.1-derived identifiers and level-1 rule metadata.
 //!
-//! The values in this crate were checked against the frozen migration oracle;
-//! `assets/SRD_CC_v5.2.1.pdf` remains the normative source.
+//! `assets/SRD_CC_v5.2.1.pdf` is the normative source.
 
 use std::{collections::BTreeMap, sync::OnceLock};
 
@@ -106,15 +105,13 @@ pub struct SpellRule {
 ///
 /// # Panics
 ///
-/// Panics only if the checked-in generated SRD spell fixture is malformed.
+/// Panics only if the checked-in SRD spell data is malformed.
 pub fn spell_rule(name: &str) -> Option<&'static SpellRule> {
     static RULES: OnceLock<BTreeMap<String, SpellRule>> = OnceLock::new();
     RULES
         .get_or_init(|| {
-            serde_json::from_str(include_str!(
-                "../../../contracts/fixtures/srd-spells-v1.json"
-            ))
-            .expect("checked SRD spell fixture is valid")
+            serde_json::from_str(include_str!("../data/spells.json"))
+                .expect("checked SRD spell data is valid")
         })
         .get(name)
 }

@@ -1040,18 +1040,34 @@ mod tests {
     use pc_wizard_domain::Character;
 
     #[test]
-    fn reads_the_shared_origin_checkpoint() {
-        let draft: CharacterDraft = serde_json::from_str(include_str!(
-            "../../../contracts/fixtures/draft-origin-v1.json"
-        ))
-        .expect("shared draft is valid");
+    fn reads_an_origin_checkpoint() {
+        let draft: CharacterDraft = serde_json::from_str(
+            r#"{
+              "origin": {
+                "name": "Checkpoint",
+                "character_class": "Rogue",
+                "background": "Criminal",
+                "species": "Tiefling",
+                "size": "Medium",
+                "tiefling_legacy": "Infernal",
+                "tiefling_spellcasting_ability": "charisma",
+                "magic_initiate_choices": [],
+                "skilled_proficiencies": [],
+                "selected_languages": ["Elvish", "Halfling"]
+              },
+              "abilities": null,
+              "build": null,
+              "details": null
+            }"#,
+        )
+        .expect("draft is valid");
         assert_eq!(draft.origin.expect("origin").name, "Checkpoint");
         assert!(draft.abilities.is_none());
     }
 
     #[test]
     fn complete_checkpoint_builds_the_canonical_character() {
-        let source = include_str!("../../../contracts/fixtures/complete-rogue-v1.json");
+        let source = include_str!("../../../fixtures/complete-character.json");
         let character = Character::from_json(source).expect("character fixture");
         let draft = CharacterDraft {
             origin: Some(OriginDraft {

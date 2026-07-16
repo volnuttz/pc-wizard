@@ -84,10 +84,10 @@ level 1, including suggested/standard arrays, rolled scores, 27-point point buy,
 background increases, class and origin choices, equipment, combat values,
 spellcasting, checkpoint/resume, and the full supported character-sheet mapping.
 
-Frozen contracts under `contracts/fixtures/` preserve the final Python-oracle
-parity results. The old Python implementation remains in the repository only as
-a rollback oracle through the first stable native release; it is not built,
-tested, packaged, or shipped by the production workflows.
+The completed Python-to-Rust parity and performance results are summarized in
+[`docs/rust-migration.md`](docs/rust-migration.md). The legacy Python
+implementation and migration-only generated artifacts were retired after the
+verified `v0.3.0` native release.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md), and the
 [roadmap](docs/roadmap.md). SRD attribution and template terms are in

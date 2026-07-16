@@ -1,1 +1,1 @@
-//! Rust-side integration tests will consume the shared `contracts/` fixtures.
+//! Production PDF integration tests for the native workspace.

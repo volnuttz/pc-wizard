@@ -5,6 +5,14 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Changed
+
+- Retired the legacy Python implementation, Python packaging and test
+  configuration, migration-only contracts, and stored benchmark artifacts after
+  the verified `v0.3.0` native release.
+- Native release smoke tests now use a Rust-owned canonical character fixture;
+  historical parity and performance results remain documented.
+
 ## [0.3.0] - 2026-07-16
 
 ### Added

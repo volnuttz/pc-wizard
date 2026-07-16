@@ -32,9 +32,8 @@ Git tag, executable version, changelog heading, and release title must agree.
    ```
 
 The tag-triggered Native binaries workflow rebuilds and smoke-tests Linux x86-64,
-Windows x86-64, macOS ARM64, and macOS x86-64 binaries; records benchmark data;
-creates archives and SHA-256 files; and publishes the existing tag through a
-GitHub Release.
+Windows x86-64, macOS ARM64, and macOS x86-64 binaries, creates archives and
+SHA-256 files, and publishes the existing tag through a GitHub Release.
 
 If publication fails after a successful tag build, recover without moving the tag:
 

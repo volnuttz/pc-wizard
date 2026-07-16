@@ -37,7 +37,7 @@ change without rewriting unrelated user work.
    ```console
    cargo +1.88.0 build --release --locked -p pc-wizard-cli
    target/release/pc-wizard create --template assets/character-sheet.pdf \
-     --from-json contracts/fixtures/complete-rogue-v1.json \
+     --from-json fixtures/complete-character.json \
      --json /tmp/character.json --output /tmp/character.pdf --force
    ```
 

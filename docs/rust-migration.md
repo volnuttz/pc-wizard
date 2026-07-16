@@ -1,8 +1,8 @@
 # Rust migration
 
 The production application is a Rust 1.88.0 workspace. Python 0.2.1 served as the
-behavioral oracle; its final outputs are frozen under `contracts/fixtures/` and no
-Python process is required by Rust tests, builds, packages, or releases.
+behavioral oracle during migration. After the fully verified `v0.3.0` release, the
+legacy implementation and migration-only generated artifacts were removed.
 
 ## Architecture
 
@@ -13,25 +13,27 @@ Python process is required by Rust tests, builds, packages, or releases.
 | `pc-wizard-creation` | native wizard stages, drafts, review, and resume |
 | `pc-wizard-pdf-renderer` | template validation, projection, AcroForm writing, and read-back |
 | `pc-wizard-cli` | arguments, exit codes, terminal presentation, and file coordination |
-| `pc-wizard-integration-tests` | frozen contracts and production PDF tests |
+| `pc-wizard-integration-tests` | production PDF inventory, read-back, and appearance tests |
 
 Dependencies point inward: CLI depends on creation/domain/PDF; creation and PDF
 depend on domain; domain depends on SRD data. JSON remains the canonical record.
 
-## Compatibility evidence
+## Recorded compatibility evidence
 
 - The complete current-schema Rogue fixture round-trips through Serde, while
   unknown fields and invalid closed/cross-field choices are rejected.
 - Class parity covers all 12 SRD level-1 classes, including derived inventory,
   attacks, defenses, skills, spells, profiles, slots, and class resources.
-- Origin parity covers all 4 backgrounds and 9 species. A checked spell contract
-  preserves the metadata for every spell exposed during level-1 creation.
+- Origin parity covered all 4 backgrounds and 9 species. Every spell exposed
+  during level-1 creation was checked before its SRD data moved into the native
+  data crate.
 - Native CLI tests cover help/version, validate, show, non-interactive creation,
   template failures, complete interactive creation, checkpoint removal, and
   cancellation without partial final outputs.
-- The supported PDF contract verifies two pages, 244 named widgets, the complete
-  425-entry AcroForm tree, and all 375 projected values. Production matrix renders
-  cover every class, background, and species fixture.
+- The migration gate verified two pages, 244 named widgets, the complete 425-entry
+  AcroForm tree, and all 375 projected values. Production matrix renders covered
+  every class, background, and species. Native tests retain template fingerprints,
+  representative value read-back, and generated-appearance checks.
 
 The official template is always external and supplied through `--template`.
 
@@ -58,13 +60,12 @@ at the migration baseline.
 The local gate is formatting, Clippy with warnings denied, full workspace tests,
 `cargo audit`, and `cargo deny`. GitHub Actions repeats quality and native release
 smokes on Linux x86-64, Windows x86-64, macOS ARM64, and macOS x86-64, generates
-coverage, packages archives and SHA-256 files, and records per-platform native
-benchmarks. Release binaries contain neither source PDF.
+coverage, and packages archives and SHA-256 files. Release binaries contain
+neither source PDF.
 
-The former Python implementation and its uv lock remain temporarily as a rollback
-oracle through the first stable native release. Production workflows do not build,
-test, audit, package, or publish it. Remove that oracle only after the documented
-stable-release rollback window closes.
+The `v0.2.1` GitHub Release remains the immutable rollback artifact. Keeping a
+second buildable Python codebase in the production repository is no longer part
+of the rollback strategy.
 
 ## Acceptance targets and baseline
 
@@ -76,9 +77,9 @@ Native release targets are:
 - executable below 10 MiB and compressed platform archive below 6 MiB;
 - zero one-file extraction overhead because releases are direct native binaries.
 
-The checked Linux x86-64 baseline passes the latency and executable-size targets:
-the 1,688,352-byte (1.61 MiB) optimized binary measured approximately 2.1–2.4 ms for warm
-help/version/show and 43.7 ms for warm creation. The earlier Python artifact
-measured approximately 437–608 ms and 1.34 s respectively. The Native binaries
-workflow records the same protocol, cold first run, warm samples, peak working
-set, artifact size, and zero extraction overhead on every release platform.
+The checked Linux x86-64 baseline passed the latency and executable-size targets:
+the 1,688,352-byte (1.61 MiB) optimized binary measured approximately 2.1–2.4 ms
+for warm help/version/show and 43.7 ms for warm creation. The earlier Python
+artifact measured approximately 437–608 ms and 1.34 s respectively. These
+migration measurements are historical evidence rather than a recurring release
+artifact.

@@ -69,11 +69,11 @@ cargo +1.88.0 audit
 cargo +1.88.0 deny check
 ```
 
-Release tooling lives in `Cargo.toml`, `scripts/benchmark_cli.ps1`, and
-`.github/workflows/`. The official character-sheet PDF is a development fixture
-only: distributions and releases must require the user's separately downloaded
-copy through `--template`. See [`releasing.md`](releasing.md) for version tags,
-release recovery, checksums, and the unsigned-binary policy.
+Release tooling lives in `Cargo.toml` and `.github/workflows/`. The official
+character-sheet PDF is a development fixture only: distributions and releases
+must require the user's separately downloaded copy through `--template`. See
+[`releasing.md`](releasing.md) for version tags, release recovery, checksums, and
+the unsigned-binary policy.
 
 Codex's official documentation explains the discovery and precedence rules for
 [`AGENTS.md`](https://developers.openai.com/codex/guides/agents-md) and the

@@ -18,13 +18,12 @@
 - `crates/creation/`: interactive workflow, drafts, resume, and review.
 - `crates/pdf-renderer/`: character-sheet AcroForm mapping and rendering.
 - `crates/cli/`: native command-line entry point and presentation.
-- `crates/integration-tests/`: shared contract and PDF integration tests.
-- `contracts/fixtures/`: frozen compatibility and Python-oracle parity evidence.
+- `crates/integration-tests/`: native PDF integration tests.
+- `fixtures/`: Rust-native CLI and rendering smoke inputs.
 - `CHANGELOG.md`: versioned user-visible release history.
 - `docs/codex.md`: Codex usage and repository skills.
 - `docs/releasing.md`: versioning, release recovery, and signing policy.
 - `docs/roadmap.md`: current baseline, known gaps, phases, and pending tasks.
-- `scripts/benchmark_cli.ps1`: portable native-binary benchmark collection.
 - `.github/workflows/`: cross-platform quality, binary, checksum, and release jobs.
 - `.agents/skills/`: reusable Codex workflows for this repository.
 
