@@ -37,7 +37,8 @@
   and render from a completed `Character`.
 - Preserve user changes and avoid modifying the source PDFs.
 - Keep the official character-sheet template out of crates, executables, archives,
-  and release assets. Require it through `--template`.
+  and release assets. Resolve it from `--template`, the current directory, or the
+  validated user cache; download and cache it only when none of those are usable.
 - Keep `docs/roadmap.md` current when completing, adding, blocking, or
   reprioritizing roadmap work. Mark tasks complete only after verification.
 - Add or update tests for every behavior change. PDF mapping changes require a

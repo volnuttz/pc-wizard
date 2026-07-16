@@ -35,7 +35,9 @@ depend on domain; domain depends on SRD data. JSON remains the canonical record.
   every class, background, and species. Native tests retain template fingerprints,
   representative value read-back, and generated-appearance checks.
 
-The official template is always external and supplied through `--template`.
+The official template is always external. The CLI resolves an explicit
+`--template`, a current-directory copy, or a validated user-cache copy before
+downloading, validating, and caching the supported official sheet.
 
 ## Dependency decisions
 
@@ -47,8 +49,12 @@ The official template is always external and supplied through `--template`.
 - `rand` supplies operating-system-seeded 4d6 generation; the standard library
   has no random-number generator.
 - `sha2` fingerprints the supported field catalogs.
+- `ureq` provides synchronous HTTPS downloads with Rustls for the optional
+  official-template bootstrap; the standard library has no HTTPS client, and
+  invoking a platform-specific external downloader would make native releases
+  less portable.
 - The CLI and prompt surface intentionally use the standard library to keep the
-  optimized binary and startup path small.
+  rest of the optimized binary and startup path small.
 
 `lopdf` requires Rust 1.88, which therefore defines the MSRV. `cargo-deny` records
 the accepted licenses and the narrow temporary allowance for the unmaintained

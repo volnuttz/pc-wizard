@@ -5,6 +5,12 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Added
+
+- `create` now resolves the official character sheet from `--template`, the
+  current directory, or a validated user-cache copy, and visibly downloads,
+  validates, and caches it when no supported copy exists.
+
 ### Fixed
 
 - Standard-language prompts no longer attach species descriptions to the

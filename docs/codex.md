@@ -71,7 +71,8 @@ cargo +1.88.0 deny check
 
 Release tooling lives in `Cargo.toml` and `.github/workflows/`. The official
 character-sheet PDF is a development fixture only: distributions and releases
-must require the user's separately downloaded copy through `--template`. See
+must not embed it. At runtime the CLI accepts `--template`, discovers a local or
+cached copy, or downloads and validates the supported official sheet. See
 [`releasing.md`](releasing.md) for version tags, release recovery, checksums, and
 the unsigned-binary policy.
 

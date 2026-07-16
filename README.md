@@ -1,8 +1,8 @@
 # pc-wizard
 
 A native interactive command-line wizard for creating level-1 D&D characters
-from SRD 5.2.1. It saves a validated canonical JSON record and fills a separately
-downloaded official `character-sheet.pdf` AcroForm.
+from SRD 5.2.1. It saves a validated canonical JSON record and fills the official
+`character-sheet.pdf` AcroForm.
 
 ## Install and run
 
@@ -35,7 +35,8 @@ Extract the archive and place `pc-wizard` (or `pc-wizard.exe`) on `PATH`. No
 Python runtime or package manager is required. The binaries are unsigned, so
 Windows SmartScreen or macOS Gatekeeper may warn on first launch.
 
-Download the official fillable character sheet before creating a character:
+pc-wizard downloads and validates the supported official fillable character
+sheet when needed. For manual or offline use, it is available from:
 
 - [Official character-sheet downloads](https://www.dndbeyond.com/resources/1779-d-d-character-sheets)
 - [Direct PDF download](https://media.dndbeyond.com/compendium-images/free-rules/ph/character-sheet.pdf)
@@ -44,6 +45,7 @@ The direct URL may change. The native renderer validates the exact supported
 two-page AcroForm before prompting or writing outputs.
 
 ```console
+pc-wizard create
 pc-wizard create --template character-sheet.pdf
 pc-wizard validate character.json
 pc-wizard show character.json
@@ -55,6 +57,12 @@ Use `--json`, `--output`, and `--draft` to choose other paths. Existing outputs
 require confirmation unless `--force` is supplied. Interactive creation saves a
 checkpoint after every completed stage, supports final review and editing, and
 resumes from the same draft path.
+
+The template is resolved in this order: an explicit `--template`, a
+`character-sheet.pdf` in the current directory, or the application cache. When
+none is available, pc-wizard visibly downloads the supported official sheet,
+validates it, and saves it to the user cache. Set `PC_WIZARD_CACHE_DIR` to choose
+a different cache location. Use `--template` for offline or reproducible runs.
 
 Character JSON is the canonical current-schema record. The PDF is a rendered
 view; older or unknown JSON shapes are rejected rather than silently migrated.

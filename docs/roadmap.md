@@ -81,8 +81,8 @@ Native four-platform quality/build/package workflows: configured
 
 - Death-save and magic-item-attunement trackers remain blank because character
   creation does not record active adventuring-state values for them.
-- The official character-sheet template must be downloaded separately and supplied
-  with `--template`; direct download URLs may change.
+- The official character-sheet template remains external to releases. The CLI can
+  download and cache the supported copy, but its official direct URL may change.
 
 ### Distribution
 
@@ -98,7 +98,8 @@ Goal: make the Python package installable and usable outside the repository.
 Status: complete and verified on 2026-07-13.
 
 - [x] Keep the official character sheet out of package distributions.
-- [x] Require an explicit `--template` path for `create`.
+- [x] Initially require an explicit `--template` path for `create`; this was later
+  superseded by the validated local/cache/download resolver.
 - [x] Validate the template before starting character creation or rendering.
 - [x] Document the official download page and a changeable direct-download URL.
 - [x] Exclude `assets/SRD_CC_v5.2.1.pdf` and `assets/character-sheet.pdf` from
@@ -126,8 +127,8 @@ Status: complete and verified on 2026-07-13 with the published v0.1.0 release.
 - [x] Add PyInstaller as a development/build dependency.
 - [x] Add a deterministic PyInstaller spec file.
 - [x] Build and smoke-test a Linux x86-64 one-directory bundle first.
-- [x] Build and smoke-test a Linux x86-64 one-file executable that accepts the
-  required external template.
+- [x] Build and smoke-test a Linux x86-64 one-file executable that accepts an
+  external template.
 - [x] Verify output paths and template validation in frozen and normal modes.
 - [x] Add reusable binary smoke tests for `--help`, `--version`, and `create`.
 - [x] Add GitHub Actions quality checks on Linux, Windows, and macOS.
@@ -269,8 +270,11 @@ Goal: make current-schema character files reliable and the wizard pleasant to us
   unsupported typed `back` command.
 - [x] Present equipment package contents directly in their selectable rows and
   replace raw JSON review output with a structured character summary.
+- [x] Make `--template` optional by resolving an explicit path, current-directory
+  sheet, or validated user-cache copy before visibly downloading and atomically
+  caching the supported official sheet.
 
-Status: complete and verified on 2026-07-13.
+Status: complete and verified on 2026-07-16.
 
 Exit criteria:
 

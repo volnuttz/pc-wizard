@@ -10,6 +10,10 @@ use std::{
 use clap::{Args, Parser, Subcommand};
 use pc_wizard_domain::Character;
 
+mod template;
+
+use template::resolve_template;
+
 #[derive(Parser)]
 #[command(about = "Create D&D characters using SRD 5.2.1.", version)]
 struct Cli {
@@ -27,7 +31,7 @@ enum Command {
 #[derive(Args)]
 struct CreateArgs {
     #[arg(long)]
-    template: PathBuf,
+    template: Option<PathBuf>,
     #[arg(long)]
     from_json: Option<PathBuf>,
     #[arg(long, default_value = "character.json")]
@@ -95,7 +99,7 @@ fn show(path: &Path) -> CliResult {
 }
 
 fn create(options: CreateArgs) -> CliResult {
-    pc_wizard_pdf_renderer::validate_template(&options.template).map_err(|error| (1, error))?;
+    let template = resolve_template(options.template.as_deref()).map_err(|error| (1, error))?;
     let json_output = options.json;
     let pdf_output = options.output;
     confirm_overwrite(&[&json_output, &pdf_output], options.force)?;
@@ -133,8 +137,7 @@ fn create(options: CreateArgs) -> CliResult {
             format!("unable to write {}: {error}", json_output.display()),
         )
     })?;
-    if let Err(error) =
-        pc_wizard_pdf_renderer::render_character(&character, &options.template, &pdf_output)
+    if let Err(error) = pc_wizard_pdf_renderer::render_character(&character, &template, &pdf_output)
     {
         let _ = fs::remove_file(&json_output);
         return Err((1, error));
@@ -217,7 +220,7 @@ fn languages(character: &Character) -> Vec<String> {
 mod tests {
     use clap::Parser as _;
 
-    use super::Cli;
+    use super::{Cli, Command};
 
     #[test]
     fn clap_accepts_the_version_flag() {
@@ -227,5 +230,14 @@ mod tests {
         };
         assert_eq!(error.kind(), clap::error::ErrorKind::DisplayVersion);
         assert!(error.to_string().contains(env!("CARGO_PKG_VERSION")));
+    }
+
+    #[test]
+    fn create_does_not_require_a_template_argument() {
+        let cli = Cli::try_parse_from(["pc-wizard", "create"]).expect("parse create");
+        let Command::Create(options) = cli.command else {
+            panic!("expected create command");
+        };
+        assert!(options.template.is_none());
     }
 }
