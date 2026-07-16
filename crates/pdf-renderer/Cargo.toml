@@ -14,6 +14,5 @@ workspace = true
 
 [dependencies]
 pc-wizard-domain = { path = "../domain" }
-pc-wizard-srd-data = { path = "../srd-data" }
 lopdf.workspace = true
 sha2.workspace = true

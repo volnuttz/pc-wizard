@@ -289,6 +289,16 @@ Goal: make changes and releases repeatable, reviewable, and safe.
 - [x] Add contributor and code-of-conduct documents for outside contributors.
 - [x] Add issue and pull-request templates.
 - [x] Add release notes describing user-visible behavior and output changes.
+- [x] Keep renderer adapters independent of SRD catalog lookups by exposing
+  domain-owned character-sheet projections; organize PDF projection code by
+  responsibility.
+- [x] Use thin crate façades and internal model, workflow, catalog, typed-record,
+  and PDF-projection modules while preserving the current canonical JSON contract.
+- [x] Represent canonical class, background, species, and size values with closed
+  Rust identifiers while retaining their readable JSON spellings.
+- [x] Route the creation workflow through a terminal-independent prompt contract,
+  retain the `inquire` adapter as the default, and cover adapter injection with a
+  scripted workflow test.
 
 Exit criteria:
 

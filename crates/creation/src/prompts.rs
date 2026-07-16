@@ -2,7 +2,87 @@ use std::collections::BTreeSet;
 
 use inquire::{MultiSelect, Select, Text};
 
-use crate::{Result, WizardError, choice_description};
+use crate::{Result, WizardError, workflow::choice_description};
+
+/// Terminal-independent prompt operations required by the creation workflow.
+///
+/// The current terminal adapter is [`TerminalPromptPort`]. Keeping this contract
+/// separate lets a scripted or graphical adapter be introduced without changing
+/// the workflow's choice semantics.
+pub trait PromptPort {
+    /// Collect required text input.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when input is cancelled.
+    fn prompt(&self, label: &str) -> Result<String>;
+
+    /// Collect optional text input.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when input is cancelled.
+    fn optional_prompt(&self, label: &str) -> Result<Option<String>>;
+
+    /// Select one value from a closed list.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when selection is cancelled.
+    fn choose(&self, label: &str, choices: &[&str]) -> Result<String>;
+
+    /// Select an exact number of values from a closed list.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when selection is cancelled or incomplete.
+    fn choose_set(&self, label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<String>>;
+
+    /// Select an exact number of values, optionally with SRD descriptions.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when selection is cancelled or incomplete.
+    fn choose_set_with_descriptions(
+        &self,
+        label: &str,
+        choices: &[&str],
+        count: usize,
+        descriptions: bool,
+    ) -> Result<BTreeSet<String>>;
+}
+
+/// `inquire`-backed terminal implementation of [`PromptPort`].
+#[derive(Debug, Default, Clone, Copy)]
+pub struct TerminalPromptPort;
+
+impl PromptPort for TerminalPromptPort {
+    fn prompt(&self, label: &str) -> Result<String> {
+        prompt(label)
+    }
+
+    fn optional_prompt(&self, label: &str) -> Result<Option<String>> {
+        optional_prompt(label)
+    }
+
+    fn choose(&self, label: &str, choices: &[&str]) -> Result<String> {
+        choose(label, choices)
+    }
+
+    fn choose_set(&self, label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<String>> {
+        choose_set(label, choices, count)
+    }
+
+    fn choose_set_with_descriptions(
+        &self,
+        label: &str,
+        choices: &[&str],
+        count: usize,
+        descriptions: bool,
+    ) -> Result<BTreeSet<String>> {
+        choose_set_with_descriptions(label, choices, count, descriptions)
+    }
+}
 
 pub(crate) fn prompt(label: &str) -> Result<String> {
     Text::new(label)

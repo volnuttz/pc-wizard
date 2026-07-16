@@ -614,7 +614,6 @@ version = "0.3.0"
 dependencies = [
  "lopdf",
  "pc-wizard-domain",
- "pc-wizard-srd-data",
  "sha2",
 ]
 
