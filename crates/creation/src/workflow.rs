@@ -1052,13 +1052,45 @@ fn choose_plain_pair(
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeSet;
+    use std::{
+        cell::Cell,
+        collections::BTreeSet,
+        sync::atomic::{AtomicUsize, Ordering},
+    };
 
-    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, collect_details};
+    use super::{
+        BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, collect_details,
+        run_interactive_with,
+    };
     use crate::{PromptPort, Result, WizardError};
     use pc_wizard_domain::Character;
 
     struct ScriptedPrompts;
+
+    struct AcceptingPrompts;
+
+    struct FullRoguePrompts {
+        back_from_abilities_once: Cell<bool>,
+        name_prompts: Cell<usize>,
+    }
+
+    impl FullRoguePrompts {
+        const fn new(back_from_abilities_once: bool) -> Self {
+            Self {
+                back_from_abilities_once: Cell::new(back_from_abilities_once),
+                name_prompts: Cell::new(0),
+            }
+        }
+    }
+
+    fn temporary_draft(label: &str) -> std::path::PathBuf {
+        static NEXT: AtomicUsize = AtomicUsize::new(0);
+        std::env::temp_dir().join(format!(
+            "pc-wizard-{label}-{}-{}.json",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ))
+    }
 
     impl PromptPort for ScriptedPrompts {
         fn prompt(&self, _label: &str) -> Result<String> {
@@ -1099,12 +1131,170 @@ mod tests {
         }
     }
 
+    impl PromptPort for AcceptingPrompts {
+        fn prompt(&self, _label: &str) -> Result<String> {
+            Err(WizardError::Message(
+                "unexpected required text prompt".to_owned(),
+            ))
+        }
+
+        fn optional_prompt(&self, _label: &str) -> Result<Option<String>> {
+            Err(WizardError::Message(
+                "unexpected optional text prompt".to_owned(),
+            ))
+        }
+
+        fn choose(&self, label: &str, _choices: &[&str]) -> Result<String> {
+            if label == "Review action" {
+                Ok("Accept".to_owned())
+            } else {
+                Err(WizardError::Message(format!(
+                    "unexpected choice prompt: {label}"
+                )))
+            }
+        }
+
+        fn choose_set(
+            &self,
+            _label: &str,
+            _choices: &[&str],
+            _count: usize,
+        ) -> Result<BTreeSet<String>> {
+            Err(WizardError::Message(
+                "unexpected multi-select prompt".to_owned(),
+            ))
+        }
+
+        fn choose_set_with_descriptions(
+            &self,
+            _label: &str,
+            _choices: &[&str],
+            _count: usize,
+            _descriptions: bool,
+        ) -> Result<BTreeSet<String>> {
+            Err(WizardError::Message(
+                "unexpected described multi-select prompt".to_owned(),
+            ))
+        }
+    }
+
+    impl PromptPort for FullRoguePrompts {
+        fn prompt(&self, label: &str) -> Result<String> {
+            if label == "Character name" {
+                self.name_prompts.set(self.name_prompts.get() + 1);
+                Ok("Scripted Rogue".to_owned())
+            } else {
+                Err(WizardError::Message(format!(
+                    "unexpected required text prompt: {label}"
+                )))
+            }
+        }
+
+        fn optional_prompt(&self, _label: &str) -> Result<Option<String>> {
+            Ok(None)
+        }
+
+        fn choose(&self, label: &str, _choices: &[&str]) -> Result<String> {
+            let value = match label {
+                "Class" => "Rogue",
+                "Background" => "Criminal",
+                "Species" => "Dwarf",
+                "Generate ability scores" => {
+                    if self.back_from_abilities_once.replace(false) {
+                        return Err(WizardError::Back);
+                    }
+                    "Use the class suggested array"
+                }
+                "Apply background ability increases" => "+2 to one and +1 to another",
+                "Ability to increase by 2" => "dexterity",
+                "Different ability to increase by 1" => "constitution",
+                "Additional Rogue language" => "Dwarvish",
+                "Class equipment" | "Background equipment" => "A",
+                "Alignment" => "Neutral",
+                "Review action" => "Accept",
+                _ => {
+                    return Err(WizardError::Message(format!(
+                        "unexpected choice prompt: {label}"
+                    )));
+                }
+            };
+            Ok(value.to_owned())
+        }
+
+        fn choose_set(
+            &self,
+            label: &str,
+            _choices: &[&str],
+            _count: usize,
+        ) -> Result<BTreeSet<String>> {
+            let values = match label {
+                "Class skills" => ["Athletics", "Deception", "Insight", "Investigation"].as_slice(),
+                "Weapon masteries" => ["Dagger", "Shortsword"].as_slice(),
+                "Two existing skills for Expertise" => ["Investigation", "Stealth"].as_slice(),
+                _ => {
+                    return Err(WizardError::Message(format!(
+                        "unexpected multi-select prompt: {label}"
+                    )));
+                }
+            };
+            Ok(values.iter().map(|value| (*value).to_owned()).collect())
+        }
+
+        fn choose_set_with_descriptions(
+            &self,
+            label: &str,
+            _choices: &[&str],
+            _count: usize,
+            descriptions: bool,
+        ) -> Result<BTreeSet<String>> {
+            if label == "Choose two standard languages" && !descriptions {
+                Ok(["Elvish", "Halfling"]
+                    .into_iter()
+                    .map(str::to_owned)
+                    .collect())
+            } else {
+                Err(WizardError::Message(format!(
+                    "unexpected described multi-select prompt: {label}"
+                )))
+            }
+        }
+    }
+
     #[test]
     fn workflow_uses_the_supplied_prompt_port() {
         let details = collect_details(&ScriptedPrompts).expect("scripted details");
         assert_eq!(details.backstory.as_deref(), Some("scripted Backstory"));
         assert_eq!(details.appearance.as_deref(), Some("scripted Appearance"));
         assert_eq!(details.personality.as_deref(), Some("scripted Personality"));
+    }
+
+    #[test]
+    fn scripted_port_completes_every_wizard_stage() {
+        let path = temporary_draft("full-workflow");
+        let prompts = FullRoguePrompts::new(false);
+        let character = run_interactive_with(&path, &prompts).expect("scripted workflow completes");
+        std::fs::remove_file(path).expect("remove scripted draft");
+
+        assert_eq!(character.name, "Scripted Rogue");
+        assert_eq!(character.character_class, "Rogue");
+        assert_eq!(character.abilities.dexterity, 17);
+        assert_eq!(character.abilities.constitution, 14);
+        assert_eq!(character.class_skills.len(), 4);
+        assert_eq!(character.class_choices.weapon_masteries.len(), 2);
+        assert_eq!(character.class_choices.expertise.len(), 2);
+        assert_eq!(prompts.name_prompts.get(), 1);
+    }
+
+    #[test]
+    fn scripted_back_navigation_replays_the_origin_stage() {
+        let path = temporary_draft("back-navigation");
+        let prompts = FullRoguePrompts::new(true);
+        let character =
+            run_interactive_with(&path, &prompts).expect("workflow recovers after Back");
+        std::fs::remove_file(path).expect("remove scripted draft");
+
+        assert_eq!(character.name, "Scripted Rogue");
+        assert_eq!(prompts.name_prompts.get(), 2);
     }
 
     #[test]
@@ -1174,6 +1364,13 @@ mod tests {
                 personality: character.personality.clone(),
             }),
         };
-        assert_eq!(draft.into_character(), Ok(character));
+        assert_eq!(draft.clone().into_character(), Ok(character.clone()));
+
+        let path = temporary_draft("complete-draft");
+        draft.save(&path).expect("save completed draft");
+        let completed = run_interactive_with(&path, &AcceptingPrompts)
+            .expect("scripted review accepts completed draft");
+        std::fs::remove_file(path).expect("remove completed draft");
+        assert_eq!(completed, character);
     }
 }

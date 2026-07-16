@@ -299,6 +299,23 @@ Goal: make changes and releases repeatable, reviewable, and safe.
 - [x] Route the creation workflow through a terminal-independent prompt contract,
   retain the `inquire` adapter as the default, and cover adapter injection with a
   scripted workflow test.
+- [x] Exercise scripted acceptance of a complete saved draft through the review
+  stage without terminal I/O.
+
+### Pending module extractions
+
+These are behavior-preserving internal refactors. Complete each item only after
+its focused tests and the full workspace quality gate pass.
+
+- [x] Split `domain/model.rs` into record types, validation, and derived-value
+  modules; keep `Character` as the stable public API and add focused tests for
+  each extracted rule family.
+- [x] Split `srd-data/catalog.rs` into class/background, species, equipment, and
+  spell catalogs with a stable top-level lookup API and catalog coverage tests.
+- [x] Split `pdf-renderer/renderer.rs` into template inventory, field mutation,
+  and appearance-generation modules; retain PDF read-back proof coverage.
+- [x] Expand scripted prompt-port tests to cover origin, ability, build, review,
+  and back-navigation paths without terminal I/O.
 
 Exit criteria:
 
