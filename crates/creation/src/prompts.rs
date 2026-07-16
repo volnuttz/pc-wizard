@@ -117,8 +117,13 @@ pub(crate) fn choose_set_with_descriptions(
     count: usize,
     descriptions: bool,
 ) -> Result<BTreeSet<String>> {
+    let prompt_label = exact_selection_label(label, count);
+    let help_message = format!(
+        "Select exactly {count}; Space toggles, Enter confirms, type filters, Esc goes back."
+    );
     loop {
-        let selected = MultiSelect::new(label, options(choices, descriptions))
+        let selected = MultiSelect::new(&prompt_label, options(choices, descriptions))
+            .with_help_message(&help_message)
             .prompt()
             .map_err(|_| WizardError::Back)?;
         if selected.len() == count {
@@ -129,6 +134,11 @@ pub(crate) fn choose_set_with_descriptions(
             selected.len()
         );
     }
+}
+
+fn exact_selection_label(label: &str, count: usize) -> String {
+    let noun = if count == 1 { "option" } else { "options" };
+    format!("{label} (select exactly {count} {noun})")
 }
 
 #[derive(Clone)]
@@ -156,4 +166,21 @@ fn options(choices: &[&str], descriptions: bool) -> Vec<OptionLabel> {
             },
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::exact_selection_label;
+
+    #[test]
+    fn exact_count_is_visible_in_multi_select_labels() {
+        assert_eq!(
+            exact_selection_label("Class skills", 2),
+            "Class skills (select exactly 2 options)"
+        );
+        assert_eq!(
+            exact_selection_label("Tool proficiency", 1),
+            "Tool proficiency (select exactly 1 option)"
+        );
+    }
 }

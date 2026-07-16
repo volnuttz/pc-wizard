@@ -262,6 +262,9 @@ Goal: make current-schema character files reliable and the wizard pleasant to us
 - [x] Avoid overwriting existing outputs without confirmation or `--force`.
 - [x] Show contextual SRD details while highlighting classes, backgrounds,
   species choices, feats, spells, weapons, and equipment.
+- [x] Show the required selection count directly in every exact-count
+  multi-select prompt, including skills, spells, cantrips, masteries, tools, and
+  languages.
 
 Status: complete and verified on 2026-07-13.
 
