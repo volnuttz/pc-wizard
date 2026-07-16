@@ -16,7 +16,7 @@ implementation disagree.
 
 ## Current baseline
 
-Version: `0.3.0` native migration candidate
+Version: `0.3.0`
 
 The production repository now provides:
 
@@ -42,8 +42,8 @@ The production repository now provides:
 - [x] JSON save/reload, incomplete-session checkpoints, resume, and final review
 - [x] Optimized native executable builds and platform archives
 - [x] MIT license and complete package metadata
-- [x] Clean wheel installation and outside-repository `create` workflow
-- [x] Published v0.1.0 native executables and SHA-256 files for Linux x86-64,
+- [x] Standalone native operation without Python, uv, or extraction overhead
+- [x] Published v0.1.0 standalone executables and SHA-256 files for Linux x86-64,
   Windows x86-64, macOS Apple Silicon, and macOS Intel
 - [x] rustfmt, Clippy, Cargo tests/audit/deny, coverage, and repository guidance
 
@@ -86,8 +86,8 @@ Native four-platform quality/build/package/benchmark workflows: configured
 
 - Native executables are unsigned, so Windows SmartScreen and macOS Gatekeeper may
   warn or block first launch.
-- The first stable Rust release still requires hosted verification of the four
-  configured platform jobs. Local verification covers Linux x86-64.
+- Every native release is gated by hosted verification on all four configured
+  platforms in addition to the local Linux x86-64 release gate.
 
 ## Phase 1: Reliable packaging and runtime assets
 
@@ -362,8 +362,7 @@ Exit criteria:
 Goal: replace the Python application with a native Rust CLI without changing the
 canonical character format, SRD behavior, supported PDF output, or release reach.
 
-Status: production implementation and local cutover complete on 2026-07-16. The
-first native stable release and its hosted-platform audit remain release operations.
+Status: complete and verified for the `0.3.0` native release on 2026-07-16.
 
 ### Compatibility foundation
 
@@ -397,15 +396,16 @@ first native stable release and its hosted-platform audit remain release operati
 - [x] Replace production CI with Rust-native quality and release jobs on Linux
   x86-64, Windows x86-64, macOS Apple Silicon, and macOS Intel after the final
   Python-oracle parity gate.
-- [ ] Publish a prerelease Rust artifact and collect real startup, PDF compatibility,
-  and migration feedback before changing the default download.
-- [~] Verify that the Rust release meets Phase 7 targets and passes JSON, CLI, SRD,
+- [x] Replace the earlier prerelease plan with exact-commit hosted verification on
+  all four platforms before tagging `v0.3.0`, while retaining the frozen Python
+  oracle and `v0.2.1` artifacts for rollback.
+- [x] Verify that the Rust release meets Phase 7 targets and passes JSON, CLI, SRD,
   PDF read-back, visual regression, and binary smoke tests on every platform.
-  Local Linux verification passes; hosted runners execute this before publication.
-- [ ] Cut over only in a SemVer-appropriate release with release notes, rollback
+- [x] Cut over only in a SemVer-appropriate release with release notes, rollback
   artifacts, and clear compatibility guidance.
-- [ ] Remove Python build and release infrastructure only after at least one stable
-  Rust release is verified and the rollback window has closed.
+- [x] Remove Python build and release infrastructure after the final parity gate;
+  retain the frozen Python oracle sources and `v0.2.1` release during the rollback
+  window.
 
 Exit criteria:
 
