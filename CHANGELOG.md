@@ -5,6 +5,11 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Standard-language prompts no longer attach species descriptions to the
+  `Halfling` and `Orc` language names.
+
 ### Changed
 
 - Retired the legacy Python implementation, Python packaging and test

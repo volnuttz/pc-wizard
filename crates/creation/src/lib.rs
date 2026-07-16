@@ -279,7 +279,7 @@ fn collect_origin() -> Result<OriginDraft> {
         tiefling_spellcasting_ability: None,
         magic_initiate_choices: Vec::new(),
         skilled_proficiencies: BTreeSet::new(),
-        selected_languages: choose_pair(
+        selected_languages: choose_plain_pair(
             "Choose two standard languages",
             &pc_wizard_srd_data::STANDARD_LANGUAGES,
         )?,
@@ -975,11 +975,7 @@ fn choose(label: &str, choices: &[&str]) -> Result<String> {
     loop {
         println!("\n{label}:");
         for (index, choice) in choices.iter().enumerate() {
-            if let Some(description) = choice_description(choice) {
-                println!("  {}. {choice} — {description}", index + 1);
-            } else {
-                println!("  {}. {choice}", index + 1);
-            }
+            println!("{}", choice_line(choice, Some(index + 1), true));
         }
         let value = prompt("Choice")?;
         if let Ok(index) = value.parse::<usize>()
@@ -995,13 +991,18 @@ fn choose(label: &str, choices: &[&str]) -> Result<String> {
 }
 
 fn choose_set(label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<String>> {
+    choose_set_with_descriptions(label, choices, count, true)
+}
+
+fn choose_set_with_descriptions(
+    label: &str,
+    choices: &[&str],
+    count: usize,
+    descriptions: bool,
+) -> Result<BTreeSet<String>> {
     println!("\n{label} (choose exactly {count}; comma-separated names):");
     for choice in choices {
-        if let Some(description) = choice_description(choice) {
-            println!("  {choice} — {description}");
-        } else {
-            println!("  {choice}");
-        }
+        println!("{}", choice_line(choice, None, descriptions));
     }
     loop {
         let values = prompt_set("Selections", count)?;
@@ -1010,6 +1011,14 @@ fn choose_set(label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<St
         }
         println!("Every selection must be one of the listed values.");
     }
+}
+
+fn choice_line(choice: &str, index: Option<usize>, descriptions: bool) -> String {
+    let prefix = index.map_or_else(|| "  ".to_owned(), |value| format!("  {value}. "));
+    if descriptions && let Some(description) = choice_description(choice) {
+        return format!("{prefix}{choice} — {description}");
+    }
+    format!("{prefix}{choice}")
 }
 
 fn prompt_set(label: &str, count: usize) -> Result<BTreeSet<String>> {
@@ -1034,9 +1043,16 @@ fn choose_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
     Ok([values[0].clone(), values[1].clone()])
 }
 
+fn choose_plain_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
+    let values = choose_set_with_descriptions(label, choices, 2, false)?
+        .into_iter()
+        .collect::<Vec<_>>();
+    Ok([values[0].clone(), values[1].clone()])
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft};
+    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, choice_line};
     use pc_wizard_domain::Character;
 
     #[test]
@@ -1063,6 +1079,13 @@ mod tests {
         .expect("draft is valid");
         assert_eq!(draft.origin.expect("origin").name, "Checkpoint");
         assert!(draft.abilities.is_none());
+    }
+
+    #[test]
+    fn language_choice_lines_do_not_use_species_descriptions() {
+        assert_eq!(choice_line("Halfling", None, false), "  Halfling");
+        assert_eq!(choice_line("Orc", None, false), "  Orc");
+        assert!(choice_line("Halfling", None, true).contains("Naturally Stealthy"));
     }
 
     #[test]
