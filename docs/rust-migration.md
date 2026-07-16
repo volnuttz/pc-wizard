@@ -1,83 +1,84 @@
-# Rust migration foundation
+# Rust migration
 
-Python 3.13 is the behavioral reference until a native implementation passes the
-shared compatibility scenarios in [`../contracts`](../contracts). This migration
-does not change the level-1 SRD scope, canonical JSON status, or requirement for
-an externally supplied official character-sheet PDF.
+The production application is a Rust 1.88.0 workspace. Python 0.2.1 served as the
+behavioral oracle; its final outputs are frozen under `contracts/fixtures/` and no
+Python process is required by Rust tests, builds, packages, or releases.
 
-## Workspace boundaries
-
-The Cargo workspace is intentionally dependency-free while compatibility cases
-are frozen:
+## Architecture
 
 | Crate | Responsibility |
 | --- | --- |
-| `pc-wizard-srd-data` | SRD-derived tables and stable identifiers, with source provenance |
-| `pc-wizard-domain` | canonical models, validation, and derived values |
-| `pc-wizard-creation` | wizard state machine, drafts, review, and cancellation |
-| `pc-wizard-pdf-renderer` | template validation, AcroForm writing, read-back, visual parity |
+| `pc-wizard-srd-data` | SRD-derived tables and stable identifiers |
+| `pc-wizard-domain` | canonical Serde models, validation, and derived values |
+| `pc-wizard-creation` | native wizard stages, drafts, review, and resume |
+| `pc-wizard-pdf-renderer` | template validation, projection, AcroForm writing, and read-back |
 | `pc-wizard-cli` | arguments, exit codes, terminal presentation, and file coordination |
-| `pc-wizard-integration-tests` | Rust tests that consume shared contract fixtures |
+| `pc-wizard-integration-tests` | frozen contracts and production PDF tests |
 
-Dependencies point inward only: CLI depends on creation/domain/PDF; creation and
-PDF depend on domain; domain depends on SRD data. This prevents terminal or PDF
-types from entering rule and validation code.
+Dependencies point inward: CLI depends on creation/domain/PDF; creation and PDF
+depend on domain; domain depends on SRD data. JSON remains the canonical record.
 
-## Library evaluation and decision gates
+## Compatibility evidence
 
-Candidates to evaluate in the proof of concept are `clap` (arguments),
-`dialoguer` plus `console` (prompts and terminal output), `serde` plus
-`serde_json` (canonical JSON), `miette` (diagnostic errors), and `lopdf` (PDF).
-These are candidates, not approved dependencies. The standard library cannot
-provide robust JSON serialization, interactive terminal controls, or AcroForm
-editing; each selected dependency will be pinned in `Cargo.lock` and justified in
-its implementation change.
+- The complete current-schema Rogue fixture round-trips through Serde, while
+  unknown fields and invalid closed/cross-field choices are rejected.
+- Class parity covers all 12 SRD level-1 classes, including derived inventory,
+  attacks, defenses, skills, spells, profiles, slots, and class resources.
+- Origin parity covers all 4 backgrounds and 9 species. A checked spell contract
+  preserves the metadata for every spell exposed during level-1 creation.
+- Native CLI tests cover help/version, validate, show, non-interactive creation,
+  template failures, complete interactive creation, checkpoint removal, and
+  cancellation without partial final outputs.
+- The supported PDF contract verifies two pages, 244 named widgets, the complete
+  425-entry AcroForm tree, and all 375 projected values. Production matrix renders
+  cover every class, background, and species fixture.
 
-PDF output is the highest-risk decision. Before selecting a PDF crate, a spike
-must use `assets/character-sheet.pdf` to prove all of the following:
+The official template is always external and supplied through `--template`.
 
-1. enumerate and validate the two-page field set;
-2. write a text field and an on/off checkbox with correct appearance streams;
-3. preserve the filled values in a PDF read-back; and
-4. produce a visually readable rendered page, including long-text sizing.
+## Dependency decisions
 
-Failure on any item means evaluate another library or retain a narrowly scoped
-compatibility bridge; it is not acceptable to declare a library selected from API
-documentation alone.
+- `serde` and `serde_json` provide stable canonical JSON modeling unavailable in
+  the standard library.
+- `lopdf` 0.43 performs direct AcroForm object updates, recursive field indexing,
+  dynamic checkbox appearance-state selection, and read-back. Optional features
+  are disabled because date conversion is unnecessary.
+- `rand` supplies operating-system-seeded 4d6 generation; the standard library
+  has no random-number generator.
+- `sha2` fingerprints the supported field catalogs.
+- The CLI and prompt surface intentionally use the standard library to keep the
+  optimized binary and startup path small.
 
-## Quality and release policy
+`lopdf` requires Rust 1.88, which therefore defines the MSRV. `cargo-deny` records
+the accepted licenses and the narrow temporary allowance for the unmaintained
+`ttf-parser` advisory inherited through lopdf; there is no safe compatible upgrade
+at the migration baseline.
 
-- Minimum supported Rust is 1.85.0 (edition 2024); `rust-toolchain.toml` pins it.
-- Before Rust code lands: `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`.
-- Before publishing: add `cargo audit`, a license review (`cargo deny` or an
-  equivalent locked policy), locked cross-platform builds, and the shared
-  executable contract suite to CI.
-- A Python and Rust artifact run side-by-side until the Rust artifact meets the
-  accepted performance and PDF-parity targets on Linux x86-64, Windows x86-64,
-  macOS ARM64, and macOS x86-64.
+## Quality, release, and rollback
 
-## Staged cutover and rollback
+The local gate is formatting, Clippy with warnings denied, full workspace tests,
+`cargo audit`, and `cargo deny`. GitHub Actions repeats quality and native release
+smokes on Linux x86-64, Windows x86-64, macOS ARM64, and macOS x86-64, generates
+coverage, packages archives and SHA-256 files, and records per-platform native
+benchmarks. Release binaries contain neither source PDF.
 
-Port and prove `show`, non-interactive `create`, and template/PDF rendering
-before the interactive wizard. Each slice must pass its shared scenarios against
-both executables. Publish a prerelease native binary only after PDF parity; keep
-the Python artifact available throughout the prerelease and one stable release
-after cutover. Roll back the default download if a current-schema JSON fixture,
-PDF field/read-back/visual fixture, or supported platform fails parity.
+The former Python implementation and its uv lock remain temporarily as a rollback
+oracle through the first stable native release. Production workflows do not build,
+test, audit, package, or publish it. Remove that oracle only after the documented
+stable-release rollback window closes.
 
-## Benchmark protocol
+## Acceptance targets and baseline
 
-`scripts/benchmark_cli.py` records reproducible scenario timings for either
-executable. It makes no performance claim by itself: run it on each supported OS,
-first with the Python `uv run pc-wizard` command and then with one-file and
-one-directory release artifacts. Preserve emitted JSON under an approved
-benchmark-results location when CI storage is selected.
+Native release targets are:
 
-Required metrics are cold and warm latency, scenario wall time, peak memory,
-artifact/download size, and one-file extraction overhead. Cold runs must clear
-the one-file extraction cache according to the release packager's documented
-platform behavior; warm runs must use the same executable after that first run.
-Profile separately: Python imports, validation/derivation, prompt rendering, PDF
-parsing, AcroForm updates, and file I/O. Acceptance targets will be set only after
-representative baselines exist on all four platforms.
+- warm help/version/show median below 25 ms;
+- warm JSON plus PDF creation median below 500 ms;
+- peak working set below 64 MiB for representative scenarios;
+- executable below 10 MiB and compressed platform archive below 6 MiB;
+- zero one-file extraction overhead because releases are direct native binaries.
 
+The checked Linux x86-64 baseline passes the latency and executable-size targets:
+the 1,688,352-byte (1.61 MiB) optimized binary measured approximately 2.1–2.4 ms for warm
+help/version/show and 43.7 ms for warm creation. The earlier Python artifact
+measured approximately 437–608 ms and 1.34 s respectively. The Native binaries
+workflow records the same protocol, cold first run, warm samples, peak working
+set, artifact size, and zero extraction overhead on every release platform.

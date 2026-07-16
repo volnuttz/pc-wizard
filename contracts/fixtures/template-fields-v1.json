@@ -1,0 +1,10 @@
+{
+  "page_count": 2,
+  "field_count": 244,
+  "field_type_counts": {
+    "/Btn": 74,
+    "/Tx": 170,
+    "None": 0
+  },
+  "inventory_sha256": "85549528e2df28eeff96a6e447a5ce19ae6b9bd0c836446cf09bdd63476b194d"
+}

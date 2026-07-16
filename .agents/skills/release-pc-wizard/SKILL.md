@@ -25,9 +25,8 @@ tag.
 ## Prepare the release commit
 
 1. Update every version surface to the same `X.Y.Z`:
-   - `pyproject.toml` project version;
-   - `src/pc_wizard/__init__.py` `__version__`;
-   - `uv.lock` via `uv lock`;
+   - workspace package version in `Cargo.toml`;
+   - `Cargo.lock` via `cargo +1.88.0 update --workspace` when required;
    - `docs/roadmap.md` current baseline;
    - `CHANGELOG.md` dated release heading and comparison links.
 2. Keep an empty `Unreleased` heading above the new changelog release.
@@ -40,16 +39,17 @@ tag.
 Run the complete release gate from the repository root:
 
 ```console
-uv run ruff format --check .
-uv run ruff check .
-uv run pyright
-uv run pytest
-uv build --clear
-uv run pc-wizard --version
+cargo +1.88.0 fmt --check
+cargo +1.88.0 clippy --workspace --all-targets -- -D warnings
+cargo +1.88.0 test --workspace --locked
+cargo +1.88.0 audit
+cargo +1.88.0 deny check
+cargo +1.88.0 build --release --locked -p pc-wizard-cli
+target/release/pc-wizard --version
 ```
 
-Inspect the wheel and sdist contents. Confirm that the SRD PDF and official
-character-sheet template are absent from both. If release, packaging, CLI, PDF, or
+Inspect every native archive. Confirm that the SRD PDF and official
+character-sheet template are absent. If release, packaging, CLI, PDF, or
 workflow code changed, also run the additional checks required by `AGENTS.md`,
 `docs/releasing.md`, and `$verify-pc-wizard`.
 

@@ -32,7 +32,7 @@ Use $maintain-pdf-mapping to fill the saving-throw proficiency checkboxes.
 
 Use $verify-pc-wizard to validate my current branch and fix any failures.
 
-Use $verify-pc-wizard to rebuild the one-file executable and run its binary smoke tests.
+Use $verify-pc-wizard to rebuild the optimized native executable and run its smoke tests.
 
 Use $release-pc-wizard to suggest the next version and publish the release.
 ```
@@ -62,14 +62,15 @@ appear in `/skills`.
 The project quality gate is:
 
 ```console
-uv run ruff format --check .
-uv run ruff check .
-uv run pyright
-uv run pytest
+cargo +1.88.0 fmt --check
+cargo +1.88.0 clippy --workspace --all-targets -- -D warnings
+cargo +1.88.0 test --workspace --locked
+cargo +1.88.0 audit
+cargo +1.88.0 deny check
 ```
 
-Release tooling lives in `pc-wizard.spec`, `pc-wizard-onefile.spec`, `scripts/`,
-and `.github/workflows/`. The official character-sheet PDF is a development fixture
+Release tooling lives in `Cargo.toml`, `scripts/benchmark_cli.ps1`, and
+`.github/workflows/`. The official character-sheet PDF is a development fixture
 only: distributions and releases must require the user's separately downloaded
 copy through `--template`. See [`releasing.md`](releasing.md) for version tags,
 release recovery, checksums, and the unsigned-binary policy.

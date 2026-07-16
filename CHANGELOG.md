@@ -5,6 +5,34 @@ All notable changes to pc-wizard are documented here. The project follows
 
 ## [Unreleased]
 
+### Added
+
+- A production Rust 1.88 native CLI with separate SRD data, domain, interactive
+  creation, PDF rendering, CLI, and integration-test crates.
+- Frozen Python-oracle parity matrices for every class, background, species,
+  creation spell, derived value, and all 375 supported PDF projections.
+- Native interactive suggested-array, standard-array, 4d6-drop-lowest, and
+  27-point-buy workflows with background boosts, checkpoints, resume, editing,
+  review, and cancellation-safe output behavior.
+- Rust-native cross-platform quality, coverage, dependency/license auditing,
+  binary smoke testing, archive/checksum packaging, and benchmark artifacts.
+
+### Changed
+
+- Production builds and releases now ship the optimized Rust executable directly;
+  Python, uv, PyInstaller, wheels, and source distributions are no longer part of
+  the shipping path.
+- The native renderer validates the complete 425-entry AcroForm catalog and
+  reproduces the frozen 375-value projection with dynamic checkbox on-states and
+  auto-sized text appearances.
+- Minimum supported Rust is 1.88.0. The official sheet remains external.
+
+### Performance
+
+- On the Linux x86-64 migration baseline, the 1.61 MiB optimized binary measured
+  roughly 2.1–2.4 ms warm for help/version/show and 43.7 ms for JSON plus PDF
+  creation, compared with roughly 437–608 ms and 1.34 s for the Python oracle.
+
 ## [0.2.1] - 2026-07-15
 
 This release contains no user-facing character-creation or PDF-output changes.

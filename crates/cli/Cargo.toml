@@ -1,10 +1,13 @@
 [package]
 name = "pc-wizard-cli"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "Native level-1 SRD character creation CLI"
 
 [lints]
 workspace = true
@@ -14,3 +17,6 @@ pc-wizard-creation = { path = "../creation" }
 pc-wizard-domain = { path = "../domain" }
 pc-wizard-pdf-renderer = { path = "../pdf-renderer" }
 
+[[bin]]
+name = "pc-wizard"
+path = "src/main.rs"

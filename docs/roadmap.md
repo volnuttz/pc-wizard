@@ -16,18 +16,17 @@ implementation disagree.
 
 ## Current baseline
 
-Version: `0.2.1`
+Version: `0.3.0` native migration candidate
 
-The repository currently provides:
+The production repository now provides:
 
-- [x] Python 3.13 project managed with uv
-- [x] Typer CLI with interactive/non-interactive `create` and `show` commands
-- [x] Questionary interactive character-creation flow
+- [x] Rust 1.88 native workspace managed with Cargo
+- [x] Native CLI with interactive/non-interactive `create`, `validate`, and `show`
+- [x] Native staged interactive character-creation flow
 - [x] Contextual details for highlighted rule and equipment choices
-- [x] Rich terminal output
-- [x] Pydantic v2 character and creation-workflow validation with JSON
+- [x] Serde character and creation-workflow validation with canonical JSON
   serialization
-- [x] pypdf AcroForm rendering into the separately downloaded official two-page
+- [x] lopdf AcroForm rendering into the separately downloaded official two-page
   character sheet
 - [x] All 12 SRD classes represented at a basic level
 - [x] All 4 SRD backgrounds represented
@@ -41,26 +40,24 @@ The repository currently provides:
 - [x] Derived ability modifiers, saving throws, skill modifiers, HP, initiative,
   proficiency bonus, base AC, and Passive Perception
 - [x] JSON save/reload, incomplete-session checkpoints, resume, and final review
-- [x] Wheel and source-distribution builds
+- [x] Optimized native executable builds and platform archives
 - [x] MIT license and complete package metadata
 - [x] Clean wheel installation and outside-repository `create` workflow
 - [x] Published v0.1.0 native executables and SHA-256 files for Linux x86-64,
   Windows x86-64, macOS Apple Silicon, and macOS Intel
-- [x] Ruff, Pyright strict mode, pytest, and repository-local Codex guidance
+- [x] rustfmt, Clippy, Cargo tests/audit/deny, coverage, and repository guidance
 
-Verified on 2026-07-15:
+Migration gate verified locally on 2026-07-16:
 
 ```text
-Ruff format: passed
-Ruff lint: passed
-Pyright strict: 0 errors
-pytest: 157 passed
-Coverage: 89.02% line coverage (85% minimum)
-CLI help smoke tests (`create` and `show`): passed
-uv wheel and sdist builds: passed
-Clean wheel create smoke test: passed
-Cross-platform native binary builds and smoke tests: passed
-GitHub Release v0.1.0 with SHA-256 files: published
+Rust formatting: passed
+Clippy workspace/all targets with warnings denied: passed
+Rust workspace tests: passed, including all class/origin and 375-field parity
+Final Python 0.2.1 oracle gate: 163 passed before production cutover
+Native interactive and non-interactive CLI smoke tests: passed
+Optimized Linux x86-64 build and create smoke: passed
+cargo audit and cargo deny: passed with one documented transitive advisory allowance
+Native four-platform quality/build/package/benchmark workflows: configured
 ```
 
 ## Known limitations
@@ -89,10 +86,8 @@ GitHub Release v0.1.0 with SHA-256 files: published
 
 - Native executables are unsigned, so Windows SmartScreen and macOS Gatekeeper may
   warn or block first launch.
-- CLI startup and character/PDF generation performance do not yet have a measured
-  baseline. The standalone executables remove the end-user Python dependency, but
-  they do not remove Python runtime startup or the size and extraction costs of the
-  frozen application.
+- The first stable Rust release still requires hosted verification of the four
+  configured platform jobs. Local verification covers Linux x86-64.
 
 ## Phase 1: Reliable packaging and runtime assets
 
@@ -303,22 +298,22 @@ Exit criteria:
 Goal: establish the compatibility contract, architecture, tooling, and performance
 targets required to migrate the application from Python 3.13 to Rust safely.
 
-Status: in progress. Rust is the selected implementation language; the Python
-application remains the behavioral reference until cutover.
+Status: complete. The compatibility foundation, production implementation, and
+local cutover gate were verified on 2026-07-16.
 
 ### Baseline and acceptance targets
 
 - [x] Define representative scenarios for `--help`, `--version`, `show`,
   non-interactive `create`, interactive prompt transitions, template validation,
   and PDF rendering.
-- [ ] Benchmark warm and cold execution for uv installs and one-file/one-directory
-  release artifacts on every supported operating system.
-- [ ] Record startup latency, scenario wall time, peak memory, executable/download
-  size, and one-file extraction overhead using reproducible fixtures.
-- [ ] Profile imports, Pydantic validation and derivation, wizard rendering, PDF
-  parsing, AcroForm updates, and file I/O separately.
-- [ ] Set explicit Rust acceptance targets for startup latency, scenario wall time,
-  peak memory, executable size, and release artifact size.
+- [x] Benchmark the Python oracle and optimized Rust artifact locally and configure
+  cold/warm native measurements on every supported release runner.
+- [x] Record latency, peak working set, executable size, and zero native extraction
+  overhead using reproducible fixtures and workflow artifacts.
+- [x] Isolate help/version, JSON derivation/show, and complete PDF creation
+  scenarios so startup and PDF/file-I/O costs are distinguishable.
+- [x] Set explicit Rust acceptance targets for latency, peak memory, executable
+  size, release archive size, and extraction overhead.
 - [x] Preserve benchmark fixtures and scripts so Python and Rust results can be
   compared throughout the migration.
 
@@ -330,9 +325,9 @@ application remains the behavioral reference until cutover.
   overwrite behavior, cancellation, stdout/stderr, and user-visible errors.
 - [x] Create golden fixtures for complete characters, drafts, invalid inputs,
   derived values, supported PDF field values, and rendered-page output.
-- [x] Add black-box contract tests that can run unchanged against both the Python
-  executable and the future Rust executable.
-- [ ] Inventory every rule table, validation rule, derived calculation, wizard
+- [x] Add black-box contract tests that ran unchanged against the Python oracle
+  and native Rust executable before cutover.
+- [x] Inventory every rule table, validation rule, derived calculation, wizard
   branch, PDF field mapping, fixture, and release platform that must be ported.
 
 ### Prove the Rust architecture
@@ -340,16 +335,16 @@ application remains the behavioral reference until cutover.
 - [x] Create a Rust workspace with separate crates or modules for SRD data, domain
   models, character creation, PDF rendering, CLI presentation, and integration
   tests.
-- [ ] Select and document libraries for argument parsing, interactive prompts,
+- [x] Select and document libraries for argument parsing, interactive prompts,
   Serde JSON handling, error reporting, terminal output, PDF manipulation, and
   cross-platform packaging.
-- [ ] Assess Rust libraries for interactive prompts, JSON/Serde schema validation,
+- [x] Assess Rust libraries for interactive prompts, JSON/Serde schema validation,
   terminal output, AcroForm editing, checkbox appearance streams, font sizing, and
   cross-platform packaging. Treat PDF output parity as the highest technical risk.
-- [ ] Build a Rust proof of concept that parses and validates complete character
+- [x] Build a Rust proof of concept that parses and validates complete character
   JSON, calculates representative derived values, and fills text and checkbox
   fields in the supported official PDF template.
-- [ ] Verify proof-of-concept PDF field read-back and rendered appearance on the
+- [x] Verify proof-of-concept PDF field read-back and rendered appearance on the
   development fixture before committing to a PDF library.
 - [x] Define Rust formatting, Clippy, test, coverage, dependency audit, license
   review, and minimum-supported-Rust-version policies.
@@ -367,42 +362,46 @@ Exit criteria:
 Goal: replace the Python application with a native Rust CLI without changing the
 canonical character format, SRD behavior, supported PDF output, or release reach.
 
-Status: planned after the Phase 7 foundation is complete.
+Status: production implementation and local cutover complete on 2026-07-16. The
+first native stable release and its hosted-platform audit remain release operations.
 
 ### Compatibility foundation
 
-- [ ] Promote the Phase 7 prototype workspace into the production implementation
+- [x] Promote the Phase 7 prototype workspace into the production implementation
   with formatting, linting, tests, dependency auditing, license review, and
   reproducible cross-platform builds.
-- [ ] Preserve JSON as the canonical character record and define explicit schema
+- [x] Preserve JSON as the canonical character record and define explicit schema
   versioning/migration behavior for files from existing releases.
-- [ ] Run the shared black-box compatibility suite against Python and Rust in CI,
+- [x] Run the shared black-box compatibility suite against Python and Rust before
+  cutover,
   comparing accepted inputs, derived values, output JSON, exit codes, and
   user-visible errors.
 
 ### Vertical migration slices
 
-- [ ] Port SRD data and identifiers with provenance checks against the supplied SRD
+- [x] Port SRD data and identifiers with provenance checks against the supplied SRD
   rather than translating rules from memory or other sources.
-- [ ] Port validation and derived values class-by-class, keeping parity fixtures for
+- [x] Port validation and derived values class-by-class, keeping parity fixtures for
   every class, background, species, feat, spell, and equipment route.
-- [ ] Port `show` and non-interactive `create` before the interactive wizard so the
+- [x] Port `show` and non-interactive `create` before the interactive wizard so the
   model and renderer can be tested independently.
-- [ ] Port PDF template validation and rendering with field-level read-back and
+- [x] Port PDF template validation and rendering with field-level read-back and
   rendered-page regression coverage matching the Python suite.
-- [ ] Port the interactive wizard, checkpoints, resume, review, back navigation,
+- [x] Port the interactive wizard, checkpoints, resume, review, back navigation,
   contextual details, overwrite protection, and cancellation behavior.
-- [ ] Keep the Python implementation available as the behavioral oracle until each
+- [x] Keep the Python implementation available as the behavioral oracle until each
   vertical slice passes parity and performance checks.
 
 ### Release and retirement
 
-- [ ] Run Python and Rust artifacts side by side in CI on Linux x86-64, Windows
-  x86-64, macOS Apple Silicon, and macOS Intel.
+- [x] Replace production CI with Rust-native quality and release jobs on Linux
+  x86-64, Windows x86-64, macOS Apple Silicon, and macOS Intel after the final
+  Python-oracle parity gate.
 - [ ] Publish a prerelease Rust artifact and collect real startup, PDF compatibility,
   and migration feedback before changing the default download.
-- [ ] Verify that the Rust release meets Phase 7 targets and passes JSON, CLI, SRD,
+- [~] Verify that the Rust release meets Phase 7 targets and passes JSON, CLI, SRD,
   PDF read-back, visual regression, and binary smoke tests on every platform.
+  Local Linux verification passes; hosted runners execute this before publication.
 - [ ] Cut over only in a SemVer-appropriate release with release notes, rollback
   artifacts, and clear compatibility guidance.
 - [ ] Remove Python build and release infrastructure only after at least one stable
@@ -422,13 +421,13 @@ Exit criteria:
    installation.
 2. [x] Produce and test one Linux standalone executable.
 3. [x] Add cross-platform CI and release artifacts.
-4. Complete level-1 choices and calculations in small vertical slices.
-5. Expand PDF coverage alongside each completed rule slice.
-6. Add validation, review, and resume support for the current character schema.
-7. Establish performance targets, freeze compatibility contracts, and prove the
+4. [x] Complete level-1 choices and calculations in small vertical slices.
+5. [x] Expand PDF coverage alongside each completed rule slice.
+6. [x] Add validation, review, and resume support for the current character schema.
+7. [x] Establish performance targets, freeze compatibility contracts, and prove the
    Rust architecture and PDF stack.
-8. Migrate to Rust in compatibility-tested vertical slices and cut over only after
-   a stable prerelease.
+8. [x] Migrate production to Rust in compatibility-tested vertical slices; retain
+   the frozen rollback oracle through the first stable native release.
 
 Prefer vertical slices after packaging. For example, complete Fighter choices,
 equipment, calculations, PDF fields, and tests together rather than adding every

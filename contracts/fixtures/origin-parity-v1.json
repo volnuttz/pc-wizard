@@ -1,0 +1,4635 @@
+{
+  "backgrounds": [
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Acolyte",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Guidance",
+              "Light"
+            ],
+            "level_one_spell": "Bless",
+            "spell_list": "Cleric",
+            "spellcasting_ability": "wisdom"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dwarf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 20,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (Prayers)",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Holy Symbol",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 9,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Insight",
+          "Investigation",
+          "Nature",
+          "Religion"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "wisdom",
+            "attack_bonus": 4,
+            "free_casts": [
+              "Bless: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 2,
+            "save_dc": 12,
+            "source": "Magic Initiate (Cleric)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 0,
+            "name": "Guidance",
+            "notes": "Duration: up to 1 minute",
+            "range": "Touch",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Light",
+            "notes": "Duration: 1 hour",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Bless",
+            "notes": "Duration: up to 1 minute",
+            "range": "30 feet",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Criminal",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dwarf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 4,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Thieves' Tools",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Crowbar",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Pouch",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Traveler's Clothes",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 9,
+        "initiative_modifier": 3,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Investigation",
+          "Nature",
+          "Sleight of Hand",
+          "Stealth"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 4"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dwarf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 9,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Soldier",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dwarf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Spear",
+            "quantity": 1,
+            "weapon": "Spear"
+          },
+          {
+            "category": "Weapon",
+            "name": "Shortbow",
+            "quantity": 1,
+            "weapon": "Shortbow"
+          },
+          {
+            "category": "Ammunition",
+            "name": "Arrow",
+            "quantity": 20,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Gaming Set",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Healer's Kit",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Quiver",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Traveler's Clothes",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 9,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Athletics",
+          "Intimidation",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Piercing",
+            "name": "Spear",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Thrown",
+              "Versatile"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 3,
+            "damage": "1d6+1",
+            "damage_type": "Piercing",
+            "name": "Shortbow",
+            "notes": [],
+            "properties": [
+              "Ammunition",
+              "Two-Handed"
+            ],
+            "range": "80/320 ft."
+          }
+        ]
+      }
+    }
+  ],
+  "species": [
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": "Gold",
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dragonborn",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Dwarf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 9,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": "Perception",
+        "elf_lineage": "High Elf",
+        "elf_spellcasting_ability": "intelligence",
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Elf",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 14,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature",
+          "Perception"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Elven Lineage (High Elf)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": "Forest Gnome",
+        "gnome_spellcasting_ability": "intelligence",
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Small",
+        "skilled_proficiencies": [],
+        "species": "Gnome",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Speak with Animals: 2/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Gnomish Lineage (Forest Gnome)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Minor Illusion",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Speak with Animals",
+            "notes": "Duration: 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": "Stone Giant",
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Goliath",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 35,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Small",
+        "skilled_proficiencies": [],
+        "species": "Halfling",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": "Alert",
+        "human_skill": "Perception",
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Human",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 3,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 14,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature",
+          "Perception"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Orc",
+        "tiefling_legacy": null,
+        "tiefling_spellcasting_ability": null,
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    },
+    {
+      "character": {
+        "abilities": {
+          "charisma": 10,
+          "constitution": 14,
+          "dexterity": 12,
+          "intelligence": 17,
+          "strength": 8,
+          "wisdom": 15
+        },
+        "alignment": "Neutral Good",
+        "appearance": "Ink-stained fingers and silver braids.",
+        "background": "Sage",
+        "background_equipment_option": "A",
+        "backstory": "Raised in a mountain archive.",
+        "bard_starting_instrument": null,
+        "character_class": "Wizard",
+        "class_choices": {
+          "additional_language": null,
+          "cantrips": [
+            "Fire Bolt",
+            "Mage Hand",
+            "Prestidigitation"
+          ],
+          "divine_order": null,
+          "eldritch_invocation": null,
+          "expertise": [],
+          "fighting_style": null,
+          "prepared_spells": [
+            "Detect Magic",
+            "Shield",
+            "Magic Missile",
+            "Mage Armor"
+          ],
+          "primal_order": null,
+          "spellbook_spells": [
+            "Detect Magic",
+            "Sleep",
+            "Mage Armor",
+            "Find Familiar",
+            "Shield",
+            "Magic Missile"
+          ],
+          "tools": [],
+          "weapon_masteries": []
+        },
+        "class_equipment_option": "A",
+        "class_skills": [
+          "Nature",
+          "Investigation"
+        ],
+        "dragonborn_ancestry": null,
+        "elf_keen_senses_skill": null,
+        "elf_lineage": null,
+        "elf_spellcasting_ability": null,
+        "gnome_lineage": null,
+        "gnome_spellcasting_ability": null,
+        "goliath_ancestry": null,
+        "human_origin_feat": null,
+        "human_skill": null,
+        "level": 1,
+        "magic_initiate_choices": [
+          {
+            "cantrips": [
+              "Mage Hand",
+              "Prestidigitation"
+            ],
+            "level_one_spell": "Mage Armor",
+            "spell_list": "Wizard",
+            "spellcasting_ability": "intelligence"
+          }
+        ],
+        "name": "Ada",
+        "personality": "Patient, curious, and direct.",
+        "selected_languages": [
+          "Dwarvish",
+          "Elvish"
+        ],
+        "size": "Medium",
+        "skilled_proficiencies": [],
+        "species": "Tiefling",
+        "tiefling_legacy": "Infernal",
+        "tiefling_spellcasting_ability": "charisma",
+        "tool_proficiencies": [],
+        "xp": 0
+      },
+      "derived": {
+        "armor_class": 11,
+        "equipment": [
+          {
+            "category": "Weapon",
+            "name": "Dagger",
+            "quantity": 2,
+            "weapon": "Dagger"
+          },
+          {
+            "category": "Weapon",
+            "name": "Arcane Focus (Quarterstaff)",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Robe",
+            "quantity": 2,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Spellbook",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Backpack",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Ink Pen",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Lamp",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Oil",
+            "quantity": 10,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Parchment",
+            "quantity": 18,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Tinderbox",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Weapon",
+            "name": "Quarterstaff",
+            "quantity": 1,
+            "weapon": "Quarterstaff"
+          },
+          {
+            "category": "Gear",
+            "name": "Calligrapher's Supplies",
+            "quantity": 1,
+            "weapon": null
+          },
+          {
+            "category": "Gear",
+            "name": "Book (History)",
+            "quantity": 1,
+            "weapon": null
+          }
+        ],
+        "hit_points": 8,
+        "initiative_modifier": 1,
+        "languages": [
+          "Common",
+          "Dwarvish",
+          "Elvish"
+        ],
+        "passive_perception": 12,
+        "proficiency_bonus": 2,
+        "skills": [
+          "Arcana",
+          "History",
+          "Investigation",
+          "Nature"
+        ],
+        "speed": 30,
+        "spell_attack_bonus": 5,
+        "spell_save_dc": 13,
+        "spell_slots": [
+          {
+            "level": 1,
+            "recovery": "Long Rest",
+            "total": 2
+          }
+        ],
+        "spellcasting_ability": "intelligence",
+        "spellcasting_profiles": [
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [],
+            "granted_spell_slots": [
+              {
+                "level": 1,
+                "recovery": "Long Rest",
+                "total": 2
+              }
+            ],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Wizard Spellcasting"
+          },
+          {
+            "ability": "intelligence",
+            "attack_bonus": 5,
+            "free_casts": [
+              "Mage Armor: 1/Long Rest without a spell slot"
+            ],
+            "granted_spell_slots": [],
+            "modifier": 3,
+            "save_dc": 13,
+            "source": "Magic Initiate (Wizard)"
+          },
+          {
+            "ability": "charisma",
+            "attack_bonus": 2,
+            "free_casts": [],
+            "granted_spell_slots": [],
+            "modifier": 0,
+            "save_dc": 10,
+            "source": "Fiendish Legacy (Infernal)"
+          }
+        ],
+        "spells": [
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Fire Bolt",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Thaumaturgy",
+            "notes": "Duration: Up to 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Mage Hand",
+            "notes": "Duration: 1 minute",
+            "range": "30 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 0,
+            "name": "Prestidigitation",
+            "notes": "Duration: Up to 1 hour",
+            "range": "10 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Mage Armor",
+            "notes": "Duration: 8 hours",
+            "range": "Touch",
+            "required_material": true,
+            "ritual": false
+          },
+          {
+            "casting_time": "Action",
+            "concentration": true,
+            "level": 1,
+            "name": "Detect Magic",
+            "notes": "Duration: up to 10 minutes",
+            "range": "Self",
+            "required_material": false,
+            "ritual": true
+          },
+          {
+            "casting_time": "Action",
+            "concentration": false,
+            "level": 1,
+            "name": "Magic Missile",
+            "notes": "Duration: Instantaneous",
+            "range": "120 feet",
+            "required_material": false,
+            "ritual": false
+          },
+          {
+            "casting_time": "Reaction",
+            "concentration": false,
+            "level": 1,
+            "name": "Shield",
+            "notes": "Duration: 1 round",
+            "range": "Self",
+            "required_material": false,
+            "ritual": false
+          }
+        ],
+        "weapon_attacks": [
+          {
+            "attack_bonus": 3,
+            "damage": "1d4+1",
+            "damage_type": "Piercing",
+            "name": "Dagger",
+            "notes": [
+              "Quantity 2"
+            ],
+            "properties": [
+              "Finesse",
+              "Light",
+              "Thrown"
+            ],
+            "range": "20/60 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Arcane Focus (Quarterstaff)",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          },
+          {
+            "attack_bonus": 1,
+            "damage": "1d6-1",
+            "damage_type": "Bludgeoning",
+            "name": "Quarterstaff",
+            "notes": [
+              "Versatile 1d8-1"
+            ],
+            "properties": [
+              "Versatile"
+            ],
+            "range": "5 ft."
+          }
+        ]
+      }
+    }
+  ]
+}

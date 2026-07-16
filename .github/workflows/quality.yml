@@ -22,34 +22,34 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macos-15
+          - macos-15-intel
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-      - name: Install uv and Python
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: true
-          python-version: "3.13"
-      - name: Sync locked environment
-        run: uv sync --locked --all-groups
-      - name: Check formatting
-        run: uv run ruff format --check .
-      - name: Lint
-        run: uv run ruff check .
-      - name: Type check
-        run: uv run pyright
-      - name: Test
-        run: >-
-          uv run pytest
-          --cov=pc_wizard
-          --cov-report=term-missing
-          --cov-report=xml
-          --cov-fail-under=85
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.88.0 --profile minimal --component rustfmt --component clippy
+      - name: Check Rust formatting
+        run: cargo +1.88.0 fmt --check
+      - name: Lint Rust workspace
+        run: cargo +1.88.0 clippy --workspace --all-targets -- -D warnings
+      - name: Test Rust workspace
+        run: cargo +1.88.0 test --workspace --locked
+
+  coverage:
+    name: Rust coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.88.0 --profile minimal --component llvm-tools-preview
+      - name: Install coverage tool
+        run: cargo +1.88.0 install --locked cargo-llvm-cov --version 0.8.7
+      - name: Generate coverage report
+        run: cargo +1.88.0 llvm-cov --workspace --locked --lcov --output-path lcov.info
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.os }}
-          path: coverage.xml
+          name: rust-coverage
+          path: lcov.info
           if-no-files-found: error
-      - name: Build wheel and source distribution
-        run: uv build

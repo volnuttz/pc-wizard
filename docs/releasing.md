@@ -1,58 +1,53 @@
 # Releasing pc-wizard
 
-pc-wizard follows Semantic Versioning. The package version, Git tag, executable
-version output, changelog heading, and release title must agree.
+pc-wizard follows Semantic Versioning. The Cargo workspace version, lockfile,
+Git tag, executable version, changelog heading, and release title must agree.
 
 ## Release checklist
 
-1. Confirm the quality and native-binary workflows pass on the release commit.
-2. Update `version` in `pyproject.toml` and `__version__` in
-   `src/pc_wizard/__init__.py`, then run `uv lock`.
-3. Update `docs/roadmap.md` and user-facing documentation for the release.
-   Add the release summary to `CHANGELOG.md`.
-4. Run the complete local gate:
+1. Confirm the Quality, Dependency Audit, and Native binaries workflows pass on
+   the exact release commit.
+2. Update `[workspace.package].version` in `Cargo.toml`, refresh `Cargo.lock` if
+   needed, and update `docs/roadmap.md` plus `CHANGELOG.md`.
+3. Run the complete local gate:
 
    ```console
-   uv run ruff format --check .
-   uv run ruff check .
-   uv run pyright
-   uv run pytest
-   uv build --clear
+   cargo +1.88.0 fmt --check
+   cargo +1.88.0 clippy --workspace --all-targets -- -D warnings
+   cargo +1.88.0 test --workspace --locked
+   cargo +1.88.0 audit
+   cargo +1.88.0 deny check
+   cargo +1.88.0 build --release --locked -p pc-wizard-cli
+   target/release/pc-wizard --version
    ```
 
-5. Commit the release changes and push an annotated tag matching the version:
+4. Smoke-test `validate`, `show`, and `create --from-json` with the supported
+   development template. Confirm the optimized executable contains no PDF fixture.
+5. Commit and push the release changes. After all commit workflows pass, create
+   and push an annotated tag:
 
    ```console
    git tag -a vX.Y.Z -m "pc-wizard X.Y.Z"
    git push origin vX.Y.Z
    ```
 
-The `Native binaries` workflow rebuilds and smoke-tests all platforms, creates
-platform archives and SHA-256 files, and publishes them through a GitHub Release.
-The release job verifies that the tag already exists and uses GitHub-generated
-release notes.
+The tag-triggered Native binaries workflow rebuilds and smoke-tests Linux x86-64,
+Windows x86-64, macOS ARM64, and macOS x86-64 binaries; records benchmark data;
+creates archives and SHA-256 files; and publishes the existing tag through a
+GitHub Release.
 
-If a tag build succeeds but its release job fails, fix the workflow on the default
-branch and recover without moving the tag:
+If publication fails after a successful tag build, recover without moving the tag:
 
 ```console
 gh workflow run "Native binaries" --ref main -f release_tag=vX.Y.Z
 ```
 
-The manual run rebuilds and smoke-tests every artifact before publishing the
-existing tag. Leave `release_tag` empty for ordinary non-release manual builds.
-If `gh workflow run` returns `HTTP 403: Resource not accessible by integration`,
-open **Actions → Native binaries → Run workflow** on GitHub, select `main`, enter
-the existing tag in `release_tag`, and start the workflow there.
+Audit every release for four archives and four matching checksum files, correct
+version output, and absence of the SRD and character-sheet PDFs.
 
 ## Signing and notarization
 
-Native binaries are currently unsigned. Windows SmartScreen and macOS Gatekeeper may
-therefore warn users or block first launch. Do not tell users that an unsigned
-artifact is trusted merely because it was downloaded from GitHub; they should
-verify its SHA-256 file before running it.
-
-Code signing is deferred until the project has access to a Windows code-signing
-certificate and an Apple Developer ID. Before a broader public release, add
-Authenticode signing for Windows and Developer ID signing plus notarization for
-macOS, then verify signatures in the native workflow before publication.
+Native binaries remain unsigned. Do not describe them as trusted merely because
+they came from GitHub; users should verify SHA-256 first. Authenticode and Apple
+Developer ID signing/notarization remain deferred until project credentials are
+available.

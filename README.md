@@ -1,55 +1,10 @@
 # pc-wizard
 
-An interactive command-line wizard for creating level-1 D&D characters using the
-rules in `assets/SRD_CC_v5.2.1.pdf`. It saves validated JSON and fills a separately
-downloaded official `character-sheet.pdf` AcroForm. Repository development fixtures
-live under `assets/` and remain excluded from distributions.
-
-## Requirements
-
-- Python 3.13
-- [uv](https://docs.astral.sh/uv/)
+A native interactive command-line wizard for creating level-1 D&D characters
+from SRD 5.2.1. It saves a validated canonical JSON record and fills a separately
+downloaded official `character-sheet.pdf` AcroForm.
 
 ## Install and run
-
-Download the official fillable character sheet before creating a
-character:
-
-- [Official character-sheet downloads](https://www.dndbeyond.com/resources/1779-d-d-character-sheets)
-- [Direct PDF download](https://media.dndbeyond.com/compendium-images/free-rules/ph/character-sheet.pdf)
-
-The direct PDF URL is maintained by D&D Beyond and may change. If it stops working,
-use the official downloads page to find the current 2024 fillable sheet.
-
-```console
-uv sync
-uv run pc-wizard create --template assets/character-sheet.pdf
-```
-
-By default, creation writes `character.json` and `character-sheet-filled.pdf`.
-The template must be supplied explicitly each time. Output paths can be changed:
-
-```console
-uv run pc-wizard create --template assets/character-sheet.pdf --output my-hero.pdf --json my-hero.json
-uv run pc-wizard show my-hero.json
-uv run pc-wizard create --template assets/character-sheet.pdf --from-json my-hero.json --force
-```
-
-Interactive creation checkpoints completed sections in `character-draft.json` by
-default. Re-run the same command to resume, review the complete character before
-writing files, or use `--draft` to choose another checkpoint path. Existing PDF
-and JSON outputs require confirmation; use `--force` for intentional
-non-interactive replacement. Selection menus automatically show contextual rule
-details for the currently highlighted option, including spell casting metadata.
-
-Character JSON always uses the current application schema. The project does not
-add schema-version fields or migrate files created by older releases; recreate or
-manually update an older character file if a later release rejects it.
-
-Run `uv run pc-wizard --help` for all options. Ctrl-C retains the most recent
-completed checkpoint so the interactive session can be resumed.
-
-## Install a standalone executable
 
 Download the archive and matching `.sha256` file for your platform from the
 [latest GitHub Release](https://github.com/volnuttz/pc-wizard/releases/latest):
@@ -69,97 +24,75 @@ sha256sum --check pc-wizard-linux-x86_64.tar.gz.sha256
 shasum --algorithm 256 --check pc-wizard-macos-arm64.tar.gz.sha256
 ```
 
-On Windows PowerShell, compare the output of this command with the hash at the
-start of the downloaded `.sha256` file:
+On Windows PowerShell, compare `Get-FileHash` with the hash in the downloaded
+`.sha256` file:
 
 ```powershell
 Get-FileHash .\pc-wizard-windows-x86_64.zip -Algorithm SHA256
 ```
 
-Extract the archive and place `pc-wizard` (or `pc-wizard.exe`) in a directory on
-your `PATH`. Upgrade by replacing that file with the verified file from a newer
-release. Uninstall by deleting it. The binaries are currently unsigned, so Windows
-SmartScreen or macOS Gatekeeper may warn on first launch; see
-[`docs/releasing.md`](docs/releasing.md#signing-and-notarization).
+Extract the archive and place `pc-wizard` (or `pc-wizard.exe`) on `PATH`. No
+Python runtime or package manager is required. The binaries are unsigned, so
+Windows SmartScreen or macOS Gatekeeper may warn on first launch.
 
-## Install as a uv tool
+Download the official fillable character sheet before creating a character:
 
-Install the command globally from GitHub without cloning the repository:
+- [Official character-sheet downloads](https://www.dndbeyond.com/resources/1779-d-d-character-sheets)
+- [Direct PDF download](https://media.dndbeyond.com/compendium-images/free-rules/ph/character-sheet.pdf)
 
-```console
-uv tool install git+https://github.com/volnuttz/pc-wizard.git
-pc-wizard --version
-```
-
-From an existing checkout, install the current working tree instead:
+The direct URL may change. The native renderer validates the exact supported
+two-page AcroForm before prompting or writing outputs.
 
 ```console
-uv tool install .
+pc-wizard create --template character-sheet.pdf
+pc-wizard validate character.json
+pc-wizard show character.json
+pc-wizard create --template character-sheet.pdf --from-json character.json --force
 ```
 
-Upgrade a GitHub installation or remove the tool with:
+Creation writes `character.json` and `character-sheet-filled.pdf` by default.
+Use `--json`, `--output`, and `--draft` to choose other paths. Existing outputs
+require confirmation unless `--force` is supplied. Interactive creation saves a
+checkpoint after every completed stage, supports final review and editing, and
+resumes from the same draft path.
+
+Character JSON is the canonical current-schema record. The PDF is a rendered
+view; older or unknown JSON shapes are rejected rather than silently migrated.
+
+## Build from source
+
+The workspace pins Rust 1.88.0:
 
 ```console
-uv tool upgrade pc-wizard
-uv tool uninstall pc-wizard
+rustup toolchain install 1.88.0 --profile minimal --component rustfmt --component clippy
+cargo +1.88.0 build --release --locked -p pc-wizard-cli
+target/release/pc-wizard --version
 ```
 
-## Development
+The complete development gate is:
 
 ```console
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
-uv run pyright
+cargo +1.88.0 fmt --check
+cargo +1.88.0 clippy --workspace --all-targets -- -D warnings
+cargo +1.88.0 test --workspace --locked
+cargo +1.88.0 audit
+cargo +1.88.0 deny check
 ```
 
-Build the platform-native one-directory executable with PyInstaller:
+The current scope covers all 12 SRD classes, 4 backgrounds, and 9 species at
+level 1, including suggested/standard arrays, rolled scores, 27-point point buy,
+background increases, class and origin choices, equipment, combat values,
+spellcasting, checkpoint/resume, and the full supported character-sheet mapping.
 
-```console
-uv run pyinstaller --clean --noconfirm pc-wizard.spec
-dist/pc-wizard/pc-wizard --version
-uv run python scripts/smoke_binary.py \
-  dist/pc-wizard/pc-wizard tests/fixtures/character.json assets/character-sheet.pdf
-```
+Frozen contracts under `contracts/fixtures/` preserve the final Python-oracle
+parity results. The old Python implementation remains in the repository only as
+a rollback oracle through the first stable native release; it is not built,
+tested, packaged, or shipped by the production workflows.
 
-PyInstaller builds for the current operating system only. The generated `build/`
-and `dist/` directories are not source artifacts and are ignored by Git.
-
-Build and smoke-test the single-file executable with:
-
-```console
-uv run pyinstaller --clean --noconfirm pc-wizard-onefile.spec
-uv run python scripts/smoke_binary.py \
-  dist/pc-wizard-onefile tests/fixtures/character.json assets/character-sheet.pdf
-```
-
-The current wizard targets level-1 creation and the player options published in
-SRD 5.2.1: 12 classes, 4 backgrounds, and 9 species. The JSON file is the
-canonical character record; the PDF is a rendered output. Ability scores support
-class-suggested and standard arrays, random generation, and 27-point point-buy.
-
-Release history is maintained in [`CHANGELOG.md`](CHANGELOG.md).
-
-Contributors should read [`CONTRIBUTING.md`](CONTRIBUTING.md) and the
-[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) before participating.
-
-SRD attribution, template copyright information, and current licensing limitations
-are recorded in
-[`THIRD_PARTY_NOTICES.md`](src/pc_wizard/THIRD_PARTY_NOTICES.md).
-
-## Codex contributors
-
-Repository guidance lives in `AGENTS.md`, with task-specific workflows under
-`.agents/skills/`. See [`docs/codex.md`](docs/codex.md) for usage and example
-prompts.
-
-## Roadmap
-
-The verified project baseline, known limitations, planned phases, and task
-checklists are maintained in [`docs/roadmap.md`](docs/roadmap.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md), and the
+[roadmap](docs/roadmap.md). SRD attribution and template terms are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## License
 
 pc-wizard's original source code is available under the [MIT License](LICENSE).
-SRD attribution and character-sheet terms are documented separately in the
-[third-party notices](src/pc_wizard/THIRD_PARTY_NOTICES.md).

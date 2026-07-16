@@ -1,0 +1,26 @@
+[advisories]
+# lopdf 0.43 depends on ttf-parser 0.25.1. RustSec marks it unmaintained,
+# but reports no vulnerability and provides no safe upgrade. PDF parity is
+# pinned to this lopdf release; keep the exception narrow and visible.
+ignore = ["RUSTSEC-2026-0192"]
+
+[licenses]
+allow = [
+  "0BSD",
+  "Apache-2.0",
+  "BSD-3-Clause",
+  "MIT",
+  "Unicode-3.0",
+  "Zlib",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

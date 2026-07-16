@@ -14,10 +14,10 @@ Describe the change and its user-visible effect.
 
 ## Verification
 
-- [ ] `uv run ruff format --check .`
-- [ ] `uv run ruff check .`
-- [ ] `uv run pyright`
-- [ ] `uv run pytest`
+- [ ] `cargo +1.88.0 fmt --check`
+- [ ] `cargo +1.88.0 clippy --workspace --all-targets -- -D warnings`
+- [ ] `cargo +1.88.0 test --workspace --locked`
+- [ ] `cargo +1.88.0 audit` and `cargo +1.88.0 deny check`
 - [ ] Relevant CLI, PDF read-back, binary, packaging, or workflow checks run.
 
 ## Documentation

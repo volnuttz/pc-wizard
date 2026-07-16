@@ -1,17 +1,17 @@
 # Compatibility contracts
 
-These fixtures and the executable test runner are the migration boundary. They
-must run unchanged against the Python reference and the Rust executable. The
-JSON document is the canonical character record; rendered PDFs are views of it.
+These fixtures are the frozen migration boundary. They were generated from the
+Python 0.2.1 oracle and now run directly in the Rust domain, CLI, and PDF tests.
+The JSON document is canonical; rendered PDFs are views of it.
 
-Run the reference suite from the repository root:
+Run the native contract suite from the repository root:
 
 ```console
-uv run python scripts/contract_test.py --executable .venv/bin/pc-wizard
+cargo +1.88.0 test --workspace --locked
 ```
 
-On Windows, pass `.venv\\Scripts\\pc-wizard.exe`. The future Rust binary uses
-the same invocation. `--template` must always name a separately supplied copy of
+The release workflow repeats native binary scenarios on every supported platform.
+`--template` must always name a separately supplied copy of
 the supported official template; the checked-in file is a development fixture.
 
 `cli-v1.md` defines the stable externally visible behavior. Its scenario IDs are
@@ -23,3 +23,8 @@ directory contains complete, draft, invalid-input, derived-value, PDF-projection
 and rendered-page golden cases. Projection fingerprints cover every supported PDF
 field, including intentionally blank ones; the named required values make the
 opaque field contract reviewable.
+
+`pdf-projection-full-v1.json` is the complete 375-value oracle map used by the
+production renderer test. Class and origin matrices cover all 12 classes, all 4
+backgrounds, and all 9 species. Regenerate these fixtures only during an explicit
+compatibility-contract revision, never as part of ordinary test execution.
