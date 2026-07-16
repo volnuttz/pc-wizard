@@ -271,10 +271,7 @@ pub fn run_interactive_with(
         }
         let character = draft.clone().into_character()?;
         print_progress(5, "Review");
-        println!(
-            "\nReview — accept the character or choose a section to revise.\n{}",
-            character.to_json()?
-        );
+        print_character_review(&character);
         let action = match prompts.choose(
             "Review action",
             &[
@@ -315,7 +312,7 @@ pub fn run_interactive_with(
 }
 
 fn print_progress(stage: usize, label: &str) {
-    println!("\n== Step {stage}/5: {label} == (type `back` to return to the previous step)");
+    println!("\n== Step {stage}/5: {label} ==");
 }
 
 #[allow(clippy::too_many_lines)]
@@ -965,8 +962,8 @@ fn collect_build(origin: &OriginDraft, prompts: &dyn PromptPort) -> Result<Build
     } else {
         &["A", "Gold"]
     };
-    print_class_equipment_choices(&origin.character_class, class_options);
-    let class_equipment_option = choose("Class equipment", class_options)?;
+    let class_equipment_option =
+        choose_class_equipment(prompts, &origin.character_class, class_options)?;
     let bard_starting_instrument =
         if origin.character_class == "Bard" && class_equipment_option != "Gold" {
             let options: Vec<&str> = choices.tools.iter().map(String::as_str).collect();
@@ -974,38 +971,74 @@ fn collect_build(origin: &OriginDraft, prompts: &dyn PromptPort) -> Result<Build
         } else {
             None
         };
-    print_background_equipment_choices(&origin.background);
     Ok(BuildDraft {
         class_skills,
         class_choices: choices,
         class_equipment_option,
-        background_equipment_option: choose("Background equipment", &["A", "Gold"])?,
+        background_equipment_option: choose_background_equipment(prompts, &origin.background)?,
         bard_starting_instrument,
         alignment: choose("Alignment", &pc_wizard_srd_data::ALIGNMENTS)?,
     })
 }
 
-fn print_class_equipment_choices(character_class: &str, options: &[&str]) {
-    println!("\nClass equipment details:");
-    for option in options {
-        if *option == "Gold" {
-            if let Some(gold) = pc_wizard_srd_data::class_starting_gold(character_class) {
-                println!("  Gold — start with {gold} GP and no class package");
-            }
-        } else if let Some((items, gold)) =
-            pc_wizard_srd_data::class_equipment(character_class, option)
-        {
-            println!("  {option} — {}; plus {gold} GP", equipment_summary(items));
-        }
-    }
+fn choose_class_equipment(
+    prompts: &dyn PromptPort,
+    character_class: &str,
+    options: &[&str],
+) -> Result<String> {
+    let labels = class_equipment_labels(character_class, options);
+    choose_equipment_option(prompts, "Class equipment", options, &labels)
 }
 
-fn print_background_equipment_choices(background: &str) {
-    println!("\nBackground equipment details:");
+fn choose_background_equipment(prompts: &dyn PromptPort, background: &str) -> Result<String> {
+    let options = ["A", "Gold"];
+    let labels = background_equipment_labels(background);
+    choose_equipment_option(prompts, "Background equipment", &options, &labels)
+}
+
+fn choose_equipment_option(
+    prompts: &dyn PromptPort,
+    label: &str,
+    options: &[&str],
+    display_labels: &[String],
+) -> Result<String> {
+    let choices: Vec<&str> = display_labels.iter().map(String::as_str).collect();
+    let selected = prompts.choose(label, &choices)?;
+    options
+        .iter()
+        .find(|option| {
+            selected == **option
+                || selected
+                    .strip_prefix(**option)
+                    .is_some_and(|suffix| suffix.starts_with(" —"))
+        })
+        .map(|option| (*option).to_owned())
+        .ok_or_else(|| format!("invalid {label} choice: {selected}").into())
+}
+
+fn class_equipment_labels(character_class: &str, options: &[&str]) -> Vec<String> {
+    options
+        .iter()
+        .filter_map(|option| {
+            if *option == "Gold" {
+                pc_wizard_srd_data::class_starting_gold(character_class)
+                    .map(|gold| format!("Gold — start with {gold} GP and no class package"))
+            } else {
+                pc_wizard_srd_data::class_equipment(character_class, option).map(|(items, gold)| {
+                    format!("{option} — {}; plus {gold} GP", equipment_summary(items))
+                })
+            }
+        })
+        .collect()
+}
+
+fn background_equipment_labels(background: &str) -> Vec<String> {
+    let mut labels = Vec::new();
     if let Some((items, gold)) = pc_wizard_srd_data::background_equipment(background) {
-        println!("  A — {}; plus {gold} GP", equipment_summary(items));
+        labels.push(format!("A — {}; plus {gold} GP", equipment_summary(items)));
     }
-    println!("  Gold — start with 50 GP and no background package");
+    labels.push("Gold — start with 50 GP and no background package".to_owned());
+    labels
 }
 
 fn equipment_summary(items: &[pc_wizard_srd_data::EquipmentGrant]) -> String {
@@ -1020,6 +1053,102 @@ fn equipment_summary(items: &[pc_wizard_srd_data::EquipmentGrant]) -> String {
         })
         .collect::<Vec<_>>()
         .join(", ")
+}
+
+fn print_character_review(character: &Character) {
+    println!("\nCharacter review");
+    for (label, value) in character_review_rows(character) {
+        println!("{label:<18} {value}");
+    }
+    println!("\nAccept the character or choose a section to revise.");
+}
+
+fn character_review_rows(character: &Character) -> Vec<(&'static str, String)> {
+    let abilities = [
+        ("STR", "strength", character.abilities.strength),
+        ("DEX", "dexterity", character.abilities.dexterity),
+        ("CON", "constitution", character.abilities.constitution),
+        ("INT", "intelligence", character.abilities.intelligence),
+        ("WIS", "wisdom", character.abilities.wisdom),
+        ("CHA", "charisma", character.abilities.charisma),
+    ]
+    .into_iter()
+    .map(|(short_name, ability, score)| {
+        format!(
+            "{short_name} {score} ({:+})",
+            character.abilities.modifier(ability)
+        )
+    })
+    .collect::<Vec<_>>()
+    .join("  ");
+    let languages = std::iter::once("Common".to_owned())
+        .chain(character.selected_languages.iter().cloned())
+        .chain(character.class_choices.additional_language.iter().cloned())
+        .collect::<Vec<_>>()
+        .join(", ");
+    let equipment = format!(
+        "class {}, background {}",
+        character.class_equipment_option, character.background_equipment_option
+    );
+    let mut rows = vec![
+        ("Name", character.name.clone()),
+        (
+            "Character",
+            format!(
+                "Level {} {} {}",
+                character.level, character.species, character.character_class
+            ),
+        ),
+        ("Background", character.background.to_string()),
+        ("Alignment", character.alignment.clone()),
+        ("Size", character.size.to_string()),
+        ("Abilities", abilities),
+        (
+            "Combat",
+            format!(
+                "HP {}  AC {}  Initiative {:+}  Speed {} ft.",
+                character.hit_points(),
+                character.armor_class(),
+                character.initiative_modifier(),
+                character.speed()
+            ),
+        ),
+        (
+            "Skills",
+            character
+                .skills()
+                .into_iter()
+                .collect::<Vec<_>>()
+                .join(", "),
+        ),
+        ("Languages", languages),
+        ("Equipment", equipment),
+    ];
+    if !character.class_choices.cantrips.is_empty() {
+        rows.push((
+            "Cantrips",
+            character
+                .class_choices
+                .cantrips
+                .iter()
+                .cloned()
+                .collect::<Vec<_>>()
+                .join(", "),
+        ));
+    }
+    if !character.class_choices.prepared_spells.is_empty() {
+        rows.push((
+            "Prepared spells",
+            character
+                .class_choices
+                .prepared_spells
+                .iter()
+                .cloned()
+                .collect::<Vec<_>>()
+                .join(", "),
+        ));
+    }
+    rows
 }
 
 fn collect_details(prompts: &dyn PromptPort) -> Result<DetailsDraft> {
@@ -1059,8 +1188,8 @@ mod tests {
     };
 
     use super::{
-        BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, collect_details,
-        run_interactive_with,
+        BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, background_equipment_labels,
+        character_review_rows, class_equipment_labels, collect_details, run_interactive_with,
     };
     use crate::{PromptPort, Result, WizardError};
     use pc_wizard_domain::Character;
@@ -1266,6 +1395,36 @@ mod tests {
         assert_eq!(details.backstory.as_deref(), Some("scripted Backstory"));
         assert_eq!(details.appearance.as_deref(), Some("scripted Appearance"));
         assert_eq!(details.personality.as_deref(), Some("scripted Personality"));
+    }
+
+    #[test]
+    fn equipment_details_are_embedded_in_selectable_rows() {
+        assert_eq!(
+            class_equipment_labels("Wizard", &["A", "Gold"]),
+            [
+                "A — 2 x Dagger, Arcane Focus (Quarterstaff), Robe, Spellbook, Scholar's Pack; plus 5 GP",
+                "Gold — start with 55 GP and no class package"
+            ]
+        );
+        let background = background_equipment_labels("Criminal");
+        assert!(background[0].starts_with("A — 2 x Dagger, Thieves' Tools"));
+        assert_eq!(
+            background[1],
+            "Gold — start with 50 GP and no background package"
+        );
+    }
+
+    #[test]
+    fn review_rows_are_human_readable_instead_of_json() {
+        let character =
+            Character::from_json(include_str!("../../../fixtures/complete-character.json"))
+                .expect("valid fixture");
+        let rows = character_review_rows(&character);
+        assert_eq!(rows[0], ("Name", "Binary Smoke Test".to_owned()));
+        assert!(rows.iter().any(|(label, value)| {
+            *label == "Combat" && value.contains("HP 9") && value.contains("AC 14")
+        }));
+        assert!(rows.iter().all(|(_, value)| !value.contains('{')));
     }
 
     #[test]

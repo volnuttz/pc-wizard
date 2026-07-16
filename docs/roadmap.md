@@ -265,6 +265,10 @@ Goal: make current-schema character files reliable and the wizard pleasant to us
 - [x] Show the required selection count directly in every exact-count
   multi-select prompt, including skills, spells, cantrips, masteries, tools, and
   languages.
+- [x] Use Esc consistently for wizard back navigation without advertising an
+  unsupported typed `back` command.
+- [x] Present equipment package contents directly in their selectable rows and
+  replace raw JSON review output with a structured character summary.
 
 Status: complete and verified on 2026-07-13.
 
