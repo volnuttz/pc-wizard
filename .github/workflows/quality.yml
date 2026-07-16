@@ -48,7 +48,7 @@ jobs:
       - name: Generate coverage report
         run: cargo +1.88.0 llvm-cov --workspace --locked --lcov --output-path lcov.info
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rust-coverage
           path: lcov.info
