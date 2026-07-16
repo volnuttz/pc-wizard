@@ -1,12 +1,8 @@
 //! Interactive creation state, checkpoint persistence, and completion.
 
-use std::{
-    collections::BTreeSet,
-    fs,
-    io::{self, Write as _},
-    path::Path,
-};
+use std::{collections::BTreeSet, fs, path::Path};
 
+use inquire::{MultiSelect, Select, Text};
 use pc_wizard_domain::{
     AbilityGenerationMethod, AbilityScoreGeneration, AbilityScores, BackgroundAbilityAdjustment,
     Character, ClassChoices, MagicInitiateChoice,
@@ -15,6 +11,7 @@ use rand::RngExt as _;
 use serde::{Deserialize, Serialize};
 
 type Result<T> = std::result::Result<T, String>;
+const BACK_COMMAND: &str = "back";
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
@@ -182,6 +179,7 @@ impl CharacterDraft {
 /// # Errors
 ///
 /// Returns an error for input cancellation, checkpoint I/O, or invalid choices.
+#[allow(clippy::too_many_lines)]
 pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
     let draft_path = draft_path.as_ref();
     let mut draft = if draft_path.is_file() {
@@ -191,32 +189,79 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
     };
     loop {
         if draft.origin.is_none() {
-            draft.origin = Some(collect_origin()?);
-            draft.save(draft_path)?;
+            print_progress(1, "Origin");
+            match collect_origin() {
+                Ok(origin) => {
+                    draft.origin = Some(origin);
+                    draft.save(draft_path)?;
+                }
+                Err(error) if error == BACK_COMMAND => {
+                    println!("Origin is the first stage; there is nothing to go back to.");
+                    continue;
+                }
+                Err(error) => return Err(error),
+            }
         }
         if draft.abilities.is_none() {
             let origin = draft
                 .origin
                 .as_ref()
                 .ok_or_else(|| "origin checkpoint missing".to_owned())?;
-            draft.abilities = Some(collect_abilities(origin)?);
-            draft.save(draft_path)?;
+            print_progress(2, "Abilities");
+            match collect_abilities(origin) {
+                Ok(abilities) => {
+                    draft.abilities = Some(abilities);
+                    draft.save(draft_path)?;
+                }
+                Err(error) if error == BACK_COMMAND => {
+                    draft.origin = None;
+                    draft.save(draft_path)?;
+                    continue;
+                }
+                Err(error) => return Err(error),
+            }
         }
         if draft.build.is_none() {
             let origin = draft
                 .origin
                 .as_ref()
                 .ok_or_else(|| "origin checkpoint missing".to_owned())?;
-            draft.build = Some(collect_build(origin)?);
-            draft.save(draft_path)?;
+            print_progress(3, "Build");
+            match collect_build(origin) {
+                Ok(build) => {
+                    draft.build = Some(build);
+                    draft.save(draft_path)?;
+                }
+                Err(error) if error == BACK_COMMAND => {
+                    draft.abilities = None;
+                    draft.save(draft_path)?;
+                    continue;
+                }
+                Err(error) => return Err(error),
+            }
         }
         if draft.details.is_none() {
-            draft.details = Some(collect_details()?);
-            draft.save(draft_path)?;
+            print_progress(4, "Details");
+            match collect_details() {
+                Ok(details) => {
+                    draft.details = Some(details);
+                    draft.save(draft_path)?;
+                }
+                Err(error) if error == BACK_COMMAND => {
+                    draft.build = None;
+                    draft.save(draft_path)?;
+                    continue;
+                }
+                Err(error) => return Err(error),
+            }
         }
         let character = draft.clone().into_character()?;
-        println!("\nReview\n{}", character.to_json()?);
-        match choose(
+        print_progress(5, "Review");
+        println!(
+            "\nReview — accept the character or choose a section to revise.\n{}",
+            character.to_json()?
+        );
+        let action = match choose(
             "Review action",
             &[
                 "Accept",
@@ -226,9 +271,16 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
                 "Edit details",
                 "Save and exit",
             ],
-        )?
-        .as_str()
-        {
+        ) {
+            Ok(action) => action,
+            Err(error) if error == BACK_COMMAND => {
+                draft.details = None;
+                draft.save(draft_path)?;
+                continue;
+            }
+            Err(error) => return Err(error),
+        };
+        match action.as_str() {
             "Accept" => return Ok(character),
             "Edit origin" => {
                 draft.origin = None;
@@ -246,6 +298,10 @@ pub fn run_interactive(draft_path: impl AsRef<Path>) -> Result<Character> {
         }
         draft.save(draft_path)?;
     }
+}
+
+fn print_progress(stage: usize, label: &str) {
+    println!("\n== Step {stage}/5: {label} == (type `back` to return to the previous step)");
 }
 
 #[allow(clippy::too_many_lines)]
@@ -938,56 +994,26 @@ fn collect_details() -> Result<DetailsDraft> {
 }
 
 fn prompt(label: &str) -> Result<String> {
-    loop {
-        print!("{label}: ");
-        io::stdout().flush().map_err(|error| error.to_string())?;
-        let mut value = String::new();
-        if io::stdin()
-            .read_line(&mut value)
-            .map_err(|error| error.to_string())?
-            == 0
-        {
-            return Err("input cancelled".to_owned());
-        }
-        let value = value.trim();
-        if !value.is_empty() {
-            return Ok(value.to_owned());
-        }
-    }
+    Text::new(label)
+        .with_help_message("Press Esc to return to the previous step.")
+        .prompt()
+        .map_err(|_| BACK_COMMAND.to_owned())
 }
 
 fn optional_prompt(label: &str) -> Result<Option<String>> {
-    print!("{label} (optional): ");
-    io::stdout().flush().map_err(|error| error.to_string())?;
-    let mut value = String::new();
-    if io::stdin()
-        .read_line(&mut value)
-        .map_err(|error| error.to_string())?
-        == 0
-    {
-        return Err("input cancelled".to_owned());
-    }
-    let value = value.trim();
-    Ok((!value.is_empty()).then(|| value.to_owned()))
+    Text::new(&format!("{label} (optional)"))
+        .with_help_message("Leave blank to skip; press Esc to return to the previous step.")
+        .prompt()
+        .map(|value| (!value.is_empty()).then_some(value))
+        .map_err(|_| BACK_COMMAND.to_owned())
 }
 
 fn choose(label: &str, choices: &[&str]) -> Result<String> {
-    loop {
-        println!("\n{label}:");
-        for (index, choice) in choices.iter().enumerate() {
-            println!("{}", choice_line(choice, Some(index + 1), true));
-        }
-        let value = prompt("Choice")?;
-        if let Ok(index) = value.parse::<usize>()
-            && (1..=choices.len()).contains(&index)
-        {
-            return Ok(choices[index - 1].to_owned());
-        }
-        if choices.contains(&value.as_str()) {
-            return Ok(value);
-        }
-        println!("Please choose one listed value.");
-    }
+    Select::new(label, prompt_options(choices, true))
+        .with_help_message("Type to filter; Enter selects; Esc goes back.")
+        .prompt()
+        .map(|choice| choice.value)
+        .map_err(|_| BACK_COMMAND.to_owned())
 }
 
 fn choose_set(label: &str, choices: &[&str], count: usize) -> Result<BTreeSet<String>> {
@@ -1000,40 +1026,50 @@ fn choose_set_with_descriptions(
     count: usize,
     descriptions: bool,
 ) -> Result<BTreeSet<String>> {
-    println!("\n{label} (choose exactly {count}; comma-separated names):");
-    for choice in choices {
-        println!("{}", choice_line(choice, None, descriptions));
-    }
     loop {
-        let values = prompt_set("Selections", count)?;
-        if values.iter().all(|value| choices.contains(&value.as_str())) {
-            return Ok(values);
+        let selected = MultiSelect::new(label, prompt_options(choices, descriptions))
+            .with_help_message(&format!(
+                "Type to filter; Space toggles; Enter confirms exactly {count}; Esc goes back."
+            ))
+            .prompt()
+            .map_err(|_| BACK_COMMAND.to_owned())?;
+        if selected.len() == count {
+            return Ok(selected.into_iter().map(|choice| choice.value).collect());
         }
-        println!("Every selection must be one of the listed values.");
+        println!(
+            "Select exactly {count} option(s); you selected {}.",
+            selected.len()
+        );
     }
 }
 
-fn choice_line(choice: &str, index: Option<usize>, descriptions: bool) -> String {
-    let prefix = index.map_or_else(|| "  ".to_owned(), |value| format!("  {value}. "));
-    if descriptions && let Some(description) = choice_description(choice) {
-        return format!("{prefix}{choice} — {description}");
-    }
-    format!("{prefix}{choice}")
+#[derive(Clone)]
+struct PromptOption {
+    value: String,
+    label: String,
 }
 
-fn prompt_set(label: &str, count: usize) -> Result<BTreeSet<String>> {
-    loop {
-        let values: BTreeSet<String> = prompt(label)?
-            .split(',')
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .map(str::to_owned)
-            .collect();
-        if values.len() == count {
-            return Ok(values);
-        }
-        println!("Please choose exactly {count} distinct values.");
+impl std::fmt::Display for PromptOption {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.label.fmt(formatter)
     }
+}
+
+fn prompt_options(choices: &[&str], descriptions: bool) -> Vec<PromptOption> {
+    choices
+        .iter()
+        .map(|choice| PromptOption {
+            value: (*choice).to_owned(),
+            label: if descriptions {
+                choice_description(choice).map_or_else(
+                    || (*choice).to_owned(),
+                    |description| format!("{choice} — {description}"),
+                )
+            } else {
+                (*choice).to_owned()
+            },
+        })
+        .collect()
 }
 
 fn choose_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
@@ -1052,7 +1088,7 @@ fn choose_plain_pair(label: &str, choices: &[&str]) -> Result<[String; 2]> {
 
 #[cfg(test)]
 mod tests {
-    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, choice_line};
+    use super::{BuildDraft, CharacterDraft, DetailsDraft, OriginDraft, prompt_options};
     use pc_wizard_domain::Character;
 
     #[test]
@@ -1082,10 +1118,13 @@ mod tests {
     }
 
     #[test]
-    fn language_choice_lines_do_not_use_species_descriptions() {
-        assert_eq!(choice_line("Halfling", None, false), "  Halfling");
-        assert_eq!(choice_line("Orc", None, false), "  Orc");
-        assert!(choice_line("Halfling", None, true).contains("Naturally Stealthy"));
+    fn prompt_options_preserve_values_and_optional_descriptions() {
+        let plain = prompt_options(&["Halfling"], false);
+        let described = prompt_options(&["Halfling"], true);
+
+        assert_eq!(plain[0].value, "Halfling");
+        assert_eq!(plain[0].label, "Halfling");
+        assert!(described[0].label.contains("Naturally Stealthy"));
     }
 
     #[test]

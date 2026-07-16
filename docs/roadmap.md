@@ -23,6 +23,8 @@ The production repository now provides:
 - [x] Rust 1.88 native workspace managed with Cargo
 - [x] Native CLI with interactive/non-interactive `create`, `validate`, and `show`
 - [x] Native staged interactive character-creation flow
+- [x] Consistent numbered single- and multiple-choice prompts, list filtering,
+  stage progress, and stage-level Back navigation
 - [x] Contextual details for highlighted rule and equipment choices
 - [x] Serde character and creation-workflow validation with canonical JSON
   serialization

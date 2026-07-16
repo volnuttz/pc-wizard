@@ -8,7 +8,38 @@ use std::{
     process::ExitCode,
 };
 
+use clap::{Args, Parser, Subcommand};
 use pc_wizard_domain::Character;
+
+#[derive(Parser)]
+#[command(about = "Create D&D characters using SRD 5.2.1.")]
+struct Cli {
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    Create(CreateArgs),
+    Validate { character_json: PathBuf },
+    Show { character_json: PathBuf },
+}
+
+#[derive(Args)]
+struct CreateArgs {
+    #[arg(long)]
+    template: PathBuf,
+    #[arg(long)]
+    from_json: Option<PathBuf>,
+    #[arg(long, default_value = "character.json")]
+    json: PathBuf,
+    #[arg(short, long, default_value = "character-sheet-filled.pdf")]
+    output: PathBuf,
+    #[arg(long, default_value = "character-draft.json")]
+    draft: PathBuf,
+    #[arg(long)]
+    force: bool,
+}
 
 const HELP: &str = "Create D&D characters using SRD 5.2.1.
 
@@ -26,7 +57,18 @@ Options:
 ";
 
 fn main() -> ExitCode {
-    let arguments: Vec<String> = env::args().skip(1).collect();
+    let arguments = match Cli::try_parse_from(env::args_os()) {
+        Ok(Cli {
+            command: Command::Create(options),
+        }) => create_arguments(options),
+        Ok(Cli {
+            command: Command::Validate { character_json },
+        }) => vec!["validate".to_owned(), character_json.display().to_string()],
+        Ok(Cli {
+            command: Command::Show { character_json },
+        }) => vec!["show".to_owned(), character_json.display().to_string()],
+        Err(error) => error.exit(),
+    };
     match run(&arguments) {
         Ok(()) => ExitCode::SUCCESS,
         Err((code, message)) => {
@@ -34,6 +76,27 @@ fn main() -> ExitCode {
             ExitCode::from(code)
         }
     }
+}
+
+fn create_arguments(options: CreateArgs) -> Vec<String> {
+    let mut arguments = vec![
+        "create".to_owned(),
+        "--template".to_owned(),
+        options.template.display().to_string(),
+        "--json".to_owned(),
+        options.json.display().to_string(),
+        "--output".to_owned(),
+        options.output.display().to_string(),
+        "--draft".to_owned(),
+        options.draft.display().to_string(),
+    ];
+    if let Some(source) = options.from_json {
+        arguments.extend(["--from-json".to_owned(), source.display().to_string()]);
+    }
+    if options.force {
+        arguments.push("--force".to_owned());
+    }
+    arguments
 }
 
 type CliResult = Result<(), (u8, String)>;

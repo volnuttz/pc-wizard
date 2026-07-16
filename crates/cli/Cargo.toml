@@ -16,6 +16,7 @@ workspace = true
 pc-wizard-creation = { path = "../creation" }
 pc-wizard-domain = { path = "../domain" }
 pc-wizard-pdf-renderer = { path = "../pdf-renderer" }
+clap.workspace = true
 
 [[bin]]
 name = "pc-wizard"
